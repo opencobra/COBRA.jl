@@ -1,10 +1,8 @@
 COBRA.jl - COnstraint-Based Reconstruction and Analysis
 =======================================================
 
-[![build status](https://travis-ci.org/opencobra/COBRA.jl)](https://api.travis-ci.org/opencobra/COBRA.jl.svg?branch=master)
-[![coverage status](http://codecov.io/github/opencobra/COBRA.jl?branch=master)](http://codecov.io/github/opencobra/COBRA.jl/coverage.svg?branch=master)
-
--------
+[![Build Status](https://travis-ci.org/opencobra/COBRA.jl.svg?branch=master)](https://travis-ci.org/opencobra/COBRA.jl)
+[![coverage status](http://codecov.io/github/opencobra/COBRA.jl/coverage.svg?branch=master)](http://codecov.io/github/opencobra/COBRA.jl?branch=master)
 
 `COBRA.jl` is a package written in [Julia](http://julialang.org/downloads/) used to perform COBRA analyses such as Flux Balance Anlysis (FBA), Flux Variability Anlysis (FVA), or any of its associated variants such as `distributedFBA` [[1](#References-1)].
 
