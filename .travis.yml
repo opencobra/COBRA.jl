@@ -1,0 +1,37 @@
+language: julia
+os:
+    - linux
+    - osx
+julia:
+    - 0.5
+    #- nightly
+notifications:
+    email: false
+sudo: required
+addons:
+    apt_packages:
+        - gfortran
+        - liblapack-dev
+        - libgmp-dev
+        - libglpk-dev
+script:
+    - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
+
+    # add package Lint
+    - julia --color=yes -e 'Pkg.add("Lint");'
+    - julia --color=yes -e 'Pkg.update();'
+
+    # add solver packages
+    - julia --color=yes -e 'Pkg.add("GLPK")'
+    - julia --color=yes -e 'Pkg.add("GLPKMathProgInterface")'
+    - julia --color=yes -e 'Pkg.add("Clp")'
+
+    # add the COBRA module
+    - julia --color=yes -e 'Pkg.clone(pwd())'
+    - julia --color=yes -e 'Pkg.build("COBRA")'
+    - julia --color=yes -e 'Pkg.test("COBRA",coverage=true)'
+    - julia --color=yes -e 'using Lint; lintpkg("COBRA");'
+
+after_success:
+    - echo $TRAVIS_JULIA_VERSION
+    - julia -e 'cd(Pkg.dir("COBRA")); Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
