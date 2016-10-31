@@ -14,9 +14,11 @@ addons:
         - liblapack-dev
         - libgmp-dev
         - libglpk-dev
-script:
+
+before_install:
     - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
 
+script:
     # update all packages
     - julia --color=yes -e 'Pkg.update();'
 
@@ -31,4 +33,4 @@ script:
 
 after_success:
     - echo $TRAVIS_JULIA_VERSION
-    - julia -e 'cd(Pkg.dir("COBRA")); using Coverage; Codecov.submit(process_folder())'
+    - julia -e 'cd(Pkg.dir("COBRA")); using Coverage; Codecov.submit(process_folder()); Coveralls.submit(Coveralls.process_folder())'

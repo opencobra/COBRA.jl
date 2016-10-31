@@ -25,8 +25,6 @@ end
 # use the module COBRA on all workers
 using COBRA
 
-#Ntests = 8
-
 includeCOBRA = false
 
 for s in 1:length(packages)
