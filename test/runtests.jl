@@ -42,7 +42,8 @@ for s in 1:length(packages)
 
     # evaluate the test file
     for t in 1:length(testDir)
-        if testDir[t] != "ecoli_core_model.mat" && testDir[t] != "runtests.jl" && testDir[t] != "testFile.mat"
+        # run only parallel and serial test files
+        if testDir[t][1:2] == "p_" || testDir[t][1:2] == "s_"
             print_with_color(:green, "\nRunning $(testDir[t]) ...\n\n")
             include(testDir[t])
         end

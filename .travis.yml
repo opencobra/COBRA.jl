@@ -17,14 +17,11 @@ addons:
 script:
     - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
 
-    # add package Lint
-    - julia --color=yes -e 'Pkg.add("Lint");'
+    # update all packages
     - julia --color=yes -e 'Pkg.update();'
 
-    # add solver packages
-    - julia --color=yes -e 'Pkg.add("GLPK")'
-    - julia --color=yes -e 'Pkg.add("GLPKMathProgInterface")'
-    - julia --color=yes -e 'Pkg.add("Clp")'
+    # add all required packages
+    - julia -e 'for pkg in ["MAT", "GLPK", "GLPKMathProgInterface", "Clp", "Lint", "Coverage"] Pkg.add(pkg); end'
 
     # add the COBRA module
     - julia --color=yes -e 'Pkg.clone(pwd())'
@@ -34,4 +31,4 @@ script:
 
 after_success:
     - echo $TRAVIS_JULIA_VERSION
-    - julia -e 'cd(Pkg.dir("COBRA")); Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
+    - julia -e 'cd(Pkg.dir("COBRA")); using Coverage; Codecov.submit(process_folder())'

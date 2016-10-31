@@ -73,9 +73,8 @@ How to cite `distributedFBA.jl`?
 -----------------------------------------------
 
 You may cite `distributedFBA.jl` as follows:
-```
-Laurent Heirendt, Ronan M.T. Fleming, Ines Thiele, DistributedFBA.jl: High-level, high-performance flux balance analysis in Julia, in review, 2016.
-```
+
+> Laurent Heirendt, Ronan M.T. Fleming, Ines Thiele, DistributedFBA.jl: High-level, high-performance flux balance analysis in Julia, in review, 2016.
 
 Limitations
 -----------
