@@ -48,10 +48,11 @@ Function used to load a COBRA model from an existing .mat file
 
 - `matrixAS`:       String to distinguish the name of stoichiometric matrix ("S" or "A", default: "S")
 - `modelName`:      String with the name of the model structure (default: "model")
+- `modelFields`:    Array with strings of fields of the model structure (default: ["ub", "lb", "osense", "c", "b", "csense", "rxns", "mets"])
 
 # OUTPUTS
 
-- `LPproblem()`       `:LPproblem` object with filled fields from `.mat` file
+- `LPproblem()`     `:LPproblem` object with filled fields from `.mat` file
 
 # Examples
 
@@ -62,7 +63,7 @@ julia> loadModel("myModel.mat")
 
 - Full input/output example
 ```julia
-julia> model = loadModel("myModel.mat", "A", "myModelName");
+julia> model = loadModel("myModel.mat", "A", "myModelName", ["ub","lb","osense","c","b","csense","rxns","mets"]);
 ```
 
 # Notes
@@ -73,12 +74,13 @@ julia> model = loadModel("myModel.mat", "A", "myModelName");
 See also: `MAT.jl`, `matopen()`, `matread()`
 """
 
-function loadModel(fileName::String, matrixAS::String="S", modelName::String="model")
+function loadModel(fileName::String, matrixAS::String="S", modelName::String="model", modelFields::Array{String,1}=["ub","lb","osense","c","b","csense","rxns","mets"])
 
     file = matopen(fileName)
     vars = matread(fileName)
 
     if exists(file, modelName)
+
         model     = vars[modelName]
         modelKeys = keys(model)
 
@@ -88,82 +90,84 @@ function loadModel(fileName::String, matrixAS::String="S", modelName::String="mo
                 A = model[matrixAS]
             else
                 A = model[(matrixAS == "S")? "A" : "S"]
-                warn("Matrix ", (matrixAS == "S")? "`A`": "`S`", " instead of ", (matrixAS == "S")? "`S`": "`A`", " has been used.")
+                error("Matrix `$matrixAS` does not exist in `$modelName`, but matrix `S` exists. Set `matrixAS = S` if you want to use `S`.")
             end
         else
             error("Matrix `$matrixAS` does not exist in `$modelName`.")
         end
 
         # load the upper bound vector ub
-        if "ub" in modelKeys
-            ub = squeeze(model["ub"], 2)
+        if modelFields[1] in modelKeys
+            ub = squeeze(model[modelFields[1]], 2)
         else
-            error("The vector `ub` does not exist in `$modelName`.")
+            error("The vector `$(modelFields[1])` does not exist in `$modelName`.")
         end
 
         # load the upper bound vector lb
-        if "lb" in modelKeys
-            lb = squeeze(model["lb"], 2)
+        if modelFields[2] in modelKeys
+            lb = squeeze(model[modelFields[2]], 2)
         else
-            error("The vector `lb` does not exist in `$modelName`.")
+            error("The vector `$(modelFields[2])` does not exist in `$modelName`.")
         end
 
         # load the objective sense osense
-        if "osense" in modelKeys
-            osense = model["osense"]
+        if modelFields[3] in modelKeys
+            osense = model[modelFields[3]]
         else
             osense = -1
             info("The model objective is set to be maximized.\n")
         end
 
         # load the upper bound vector c
-        if "c" in modelKeys && osense != 0
-            c = squeeze(model["c"], 2)
+        if modelFields[4] in modelKeys && osense != 0
+            c = squeeze(model[modelFields[4]], 2)
         else
-            error("The vector c does not exist in `$modelName`.")
+            error("The vector `$(modelFields[4])` does not exist in `$modelName`.")
         end
 
         # load the upper bound vector c
-        if "b" in modelKeys
-            b = squeeze(model["b"], 2)
+        if modelFields[5] in modelKeys
+            b = squeeze(model[modelFields[5]], 2)
         else
             b = zeros(length(c))
-            warn("The vector b does not exist in `$modelName`.")
+            error("The vector `$(modelFields[5])` does not exist in `$modelName`.")
         end
 
         # load the constraint senses
         csense = fill('E',length(b)) #assume all equality constraints
-        if "csense" in modelKeys
+        if modelFields[6] in modelKeys
             for i = 1:length(csense)
-                csense[i] = model["csense"][i][1] #convert to chars
+                csense[i] = model[modelFields[6]][i][1] #convert to chars
             end
         else
             info("All constraints assumed equality constaints.\n")
         end
 
         # load the reaction names vector
-        if "rxns" in modelKeys
-            rxns = squeeze(model["rxns"], 2)
+        if modelFields[7] in modelKeys
+            rxns = squeeze(model[modelFields[7]], 2)
         else
-            warn("The vector rxns does not exist in `$modelName`.")
+            error("The vector `$(modelFields[7])` does not exist in `$modelName`.")
         end
 
         # load the reaction names vector
-        if "mets" in modelKeys
-            mets = squeeze(model["mets"], 2)
+        if modelFields[8] in modelKeys
+            mets = squeeze(model[modelFields[8]], 2)
         else
-            warn("The vector mets does not exist in `$modelName`.")
+            error("The vector `$(modelFields[8])` does not exist in `$modelName`.")
         end
 
+        #determine the size of A
+        nMets = size(A,1)
+        nRxns = size(A,2)
+
+        return LPproblem(A, b[1:nMets], c[1:nRxns], lb[1:nRxns], ub[1:nRxns], osense, csense[1:nMets], rxns, mets)
+
     else
-        error("The variable named `$model` does not exist.")
+
+        error("The variable named `$modelName` does not exist. Please set `$modelName` to a known variable in the `.mat` file.")
+
     end
-
-    #determine the size of A
-    nMets = size(A,1)
-    nRxns = size(A,2)
-
-    return LPproblem(A, b[1:nMets], c[1:nRxns], lb[1:nRxns], ub[1:nRxns], osense, csense[1:nMets], rxns, mets)
 
 end
 

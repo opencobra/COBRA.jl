@@ -59,9 +59,8 @@ function buildCobraLP(model, solver::SolverConfig)
 
         return MathProgBase.HighLevelInterface.buildlp(model.osense * model.c, model.A, model.csense, model.b, model.lb, model.ub, solver.handle)
     else
-        error("The solver is not supported. Please set solver name to one the supported solvers.")
 
-        return nothing
+        error("The solver is not supported. Please set solver name to one the supported solvers.")
 
     end
 end
@@ -101,25 +100,53 @@ function changeCobraSolver(name::String, params=[])
 
     # define the solver handle
     if name == "CPLEX"
-        eval(Expr(:using, :CPLEX))
-        solver.handle = CplexSolver(params)
+        try
+            eval(Expr(:using, :CPLEX))
+            solver.handle = CplexSolver(params)
+        catch
+            error("The solver `CPLEX` cannot be set using `changeCobraSolver()`.")
+        end
 
-    elseif name == "GLPKMathProgInterface"
-        eval(Expr(:using, :GLPKMathProgInterface))
-        eval(Expr(:using, :GLPK))
-        solver.handle = GLPKSolverLP(method=params[1], presolve=params[2])
+    elseif name == "GLPKMathProgInterface" || name == "GLPK"
+        try
+            eval(Expr(:using, :GLPKMathProgInterface))
+            eval(Expr(:using, :GLPK))
+            if length(params) > 0
+                solver.handle = GLPKSolverLP(method=params[1], presolve=params[2])
+            else
+                solver.handle = GLPKSolverLP()
+            end
+        catch
+            error("The solver `GLPK` or `GLPKMathProgInterface` cannot be set using `changeCobraSolver()`.")
+        end
 
     elseif name == "Gurobi"
-        eval(Expr(:using, :Gurobi))
-        solver.handle = GurobiSolver(Method=params[1],OutputFlag=params[2])
+        try
+            eval(Expr(:using, :Gurobi))
+            if length(params) > 0
+                solver.handle = GurobiSolver(Method=params[1],OutputFlag=params[2])
+            else
+                solver.handle = GurobiSolver()
+            end
+        catch
+            error("The solver `Gurobi` cannot be set using `changeCobraSolver()`.")
+        end
 
     elseif name == "Clp"
-        eval(Expr(:using, :Clp))
-        solver.handle = ClpSolver()
+        try
+            eval(Expr(:using, :Clp))
+            solver.handle = ClpSolver()
+        catch
+            error("The solver `Clp` cannot be set using `changeCobraSolver()`.")
+        end
 
     elseif name == "Mosek"
-        eval(Expr(:using, :Mosek))
-        solver.handle = MosekSolver()
+        try
+            eval(Expr(:using, :Mosek))
+            solver.handle = MosekSolver()
+        catch
+          error("The solver `Mosek` cannot be set using `changeCobraSolver()`.")
+        end
 
     else
         solver.handle = -1
@@ -175,8 +202,9 @@ function solveCobraLP(model, solver)
         return solutionLP
 
     else
-        warn("The solver handle is not set properly using `changeCobraSolver()`.")
-        return nothing
+
+        error("The solver handle is not set properly using `changeCobraSolver()`.")
+
     end
 end
 
