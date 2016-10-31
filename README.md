@@ -25,7 +25,7 @@ Requirements and compatibility
 If you are novice to Julia, you may find the [Complete Beginner's Guide](http://opencobra.github.io/COBRA.jl/cbg.html) interesting. In this manual, a working installation of Julia is assumed.
 >
 
-`COBRA.jl` has been tested on *Ubuntu Linux 14.04+*, *MacOS 10.7+*, and *Windows 7*. Currently, all solvers that are [supported](https://github.com/JuliaOpt/MathProgBase.jl/blob/master/src/defaultsolvers.jl) by `MathProgBase.jl` are supported by `COBRA.jl`, but must be installed **separately**. The `COBRA.jl` package has been tested with `Julia v0.5+`, and requires a working installation of the latest [`MathProgBase.jl`](https://github.com/JuliaOpt/MathProgBase.jl). In order to load the COBRA model from a `.mat` file, the module [`MAT.jl`](https://github.com/simonster/MAT.jl) is required.
+`COBRA.jl` has been tested on *Ubuntu Linux 14.04+*, *MacOS 10.7+*, and *Windows 7 (64-bit)*. Currently, all solvers that are [supported](https://github.com/JuliaOpt/MathProgBase.jl/blob/master/src/defaultsolvers.jl) by `MathProgBase.jl` are supported by `COBRA.jl`, but must be installed **separately**. The `COBRA.jl` package has been tested with `Julia v0.5+`, and requires a working installation of the latest [`MathProgBase.jl`](https://github.com/JuliaOpt/MathProgBase.jl). In order to load the COBRA model from a `.mat` file, the module [`MAT.jl`](https://github.com/simonster/MAT.jl) is required.
 
 Installation of COBRA
 ---------------------
