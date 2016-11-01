@@ -36,8 +36,8 @@ makedocs(format = :html,
         )
 
 deploydocs(
+         deps = Deps.pip("pygments", "mkdocs", "python-markdown-math"),
          repo = "github.com/opencobra/COBRA.jl.git",
          julia  = "0.5",
-         deps = nothing,
          make = nothing
 )
