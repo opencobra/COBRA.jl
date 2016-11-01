@@ -29,7 +29,6 @@ script:
     - julia --color=yes -e 'Pkg.clone(pwd())'
     - julia --color=yes -e 'Pkg.build("COBRA")'
     - julia --color=yes -e 'Pkg.test("COBRA",coverage=true)'
-    - julia --color=yes -e 'using Lint; lintpkg("COBRA");'
 
 after_success:
     - echo $TRAVIS_JULIA_VERSION
