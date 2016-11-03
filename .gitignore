@@ -10,4 +10,3 @@ test/*.txt
 *.jl.mem
 deps/deps.jl
 docs/build/
-docs/site/
