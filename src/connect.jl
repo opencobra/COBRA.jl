@@ -59,14 +59,13 @@ function createPool(localWorkers::Int, connectSSH::Bool=false)
     else #no remote SSH nodes
         remoteWorkers = 0 #specify that no remote workers are used
         if localWorkers == 0
-            warn("Only 1 local worker is used.")
-            localWorkers = 1
+            error("At least one worker is required in the pool. Please set `localWorkers` > 0.")
         end
     end
 
     nWorkers = localWorkers + remoteWorkers
 
-    # launch fastFVA externally
+    # connect all required workers
     if nWorkers <= 1
         info("Sequential version - Depending on the model size, expect long execution times.")
 
@@ -91,10 +90,14 @@ function createPool(localWorkers::Int, connectSSH::Bool=false)
             for i in 1:length(sshWorkers)
                 println(" >> Connecting ", sshWorkers[i]["procs"], " workers on ", sshWorkers[i]["usernode"])
 
-                addprocs([(sshWorkers[i]["usernode"],sshWorkers[i]["procs"])],topology=:master_slave, tunnel=true,dir=sshWorkers[i]["dir"],sshflags=sshWorkers[i]["flags"],exeflags=`--depwarn=no`,exename=sshWorkers[i]["exename"])
+                try
+                    addprocs([(sshWorkers[i]["usernode"],sshWorkers[i]["procs"])],topology=:master_slave, tunnel=true,dir=sshWorkers[i]["dir"],sshflags=sshWorkers[i]["flags"],exeflags=`--depwarn=no`,exename=sshWorkers[i]["exename"])
 
-                info("Connected ", sshWorkers[i]["procs"], " workers on ",  sshWorkers[i]["usernode"])
-                remoteWorkers += sshWorkers[i]["procs"]
+                    info("Connected ", sshWorkers[i]["procs"], " workers on ",  sshWorkers[i]["usernode"])
+                    remoteWorkers += sshWorkers[i]["procs"]
+                catch
+                    error("Cannot connect $nWorkers via SSH. Check your `sshCfg.jl` file.")
+                end
             end
 
             nWorkers = nworkers() + 1

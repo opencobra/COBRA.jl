@@ -21,7 +21,7 @@ if includeCOBRA
 
     solverName = :GLPKMathProgInterface
     connectSSHWorkers = false
-    include("$(dirname(pwd()))/src/connect.jl")
+    include("$(Pkg.dir("COBRA"))/src/connect.jl")
 
     # create a parallel pool and determine its size
     if isdefined(:nWorkers) && isdefined(:connectSSHWorkers)
@@ -32,7 +32,7 @@ if includeCOBRA
 end
 
 # include a common deck for running tests
-include("$(dirname(pwd()))/config/solverCfg.jl")
+include("$(Pkg.dir("COBRA"))/config/solverCfg.jl")
 
 # change the COBRA solver
 solver = changeCobraSolver(solverName, solParams)
@@ -44,15 +44,12 @@ modelOrig = model
 
 nWorkers = 1
 rxnsList = 13
-
-@show rxnsList
-rxnsOptMode = 1 #maximiztation
+rxnsOptMode = 1  # maximization
 
 # -------------------------------------------------------------------------------------
 
 for s = 0:2
 
-@show rxnsList
     # launch the distributedFBA process
     startTime   = time()
     minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers, 10.0, "min", rxnsList, s, rxnsOptMode, false)
@@ -81,7 +78,7 @@ startTime   = time()
 minFlux, maxFlux, optSol  = distributedFBA(model, solver, nWorkers, 100.0, "", rxnsList, 0, rxnsOptMode, false);
 solTime = time() - startTime
 
-fbaSolution = solveCobraLP(model, solver) # in the model, objective is assumed to be maximized
+fbaSolution = solveCobraLP(model, solver)  # in the model, objective is assumed to be maximized
 fbaObj = fbaSolution.objval
 fbaSol = fbaSolution.sol
 
@@ -95,8 +92,8 @@ printSolSummary(testFile, optSol, maxFlux, minFlux, solTime, nWorkers, solverNam
 # reload an external mat file
 model = modelOrig
 
-model.osense = 1 #minimization - in the model, objective is assumed to be maximized
-rxnsOptMode = -1 #minimization
+model.osense = 1  # minimization - in the model, objective is assumed to be maximized
+rxnsOptMode = -1  # minimization
 startTime   = time()
 minFlux, maxFlux, optSol  = distributedFBA(model, solver, nWorkers, 100.0, "", rxnsList, 0, rxnsOptMode, false);
 solTime = time() - startTime

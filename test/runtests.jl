@@ -8,24 +8,27 @@
 #-------------------------------------------------------------------------------------------
 
 # retrieve all packages that are installed on the system
-include("$(dirname(pwd()))/src/checkSetup.jl")
+include("$(Pkg.dir("COBRA"))/src/checkSetup.jl")
 packages = checkSysConfig()
 
-using Base.Test
+# clear all modules that have been loaded for testing purposes
+workspace() # generates LastMain module
+packages = LastMain.packages
 
 # configure for runnint the tests in batch
 solverName = :GLPKMathProgInterface #:CPLEX
 nWorkers = 4
 connectSSHWorkers = false
-include("$(dirname(pwd()))/src/connect.jl")
+include("$(Pkg.dir("COBRA"))/src/connect.jl")
 
 # create a parallel pool and determine its size
 if isdefined(:nWorkers) && isdefined(:connectSSHWorkers)
     workersPool, nWorkers = createPool(nWorkers, connectSSHWorkers)
 end
 
-# use the module COBRA on all workers
+# use the module COBRA and Base.Test modules on all workers
 using COBRA
+using Base.Test
 
 # list all currently supported solvers
 supportedSolvers = [:Clp, :GLPKMathProgInterface, :CPLEX, :Gurobi, :Mosek]
@@ -36,9 +39,6 @@ for i = 1:length(supportedSolvers)
         @test_throws ErrorException changeCobraSolver(string(supportedSolvers[i]))
     end
 end
-
-# test a non-supported solver
-@test_throws ErrorException changeCobraSolver("mySolver")
 
 includeCOBRA = false
 
@@ -64,6 +64,6 @@ for s in 1:length(packages)
 end
 
 # print a status line
-print_with_color(:green, "\n -- All tests passed. -- \n\n")
+print_with_color(:green, "\n -- All tests passed. -- \n\n") 
 
 #-------------------------------------------------------------------------------------------

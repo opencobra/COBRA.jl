@@ -21,7 +21,7 @@ if includeCOBRA
 
     solverName = :GLPKMathProgInterface
     connectSSHWorkers = false
-    include("$(dirname(pwd()))/src/connect.jl")
+    include("$(Pkg.dir("COBRA"))/src/connect.jl")
 
     # create a parallel pool and determine its size
     if isdefined(:nWorkers) && isdefined(:connectSSHWorkers)
@@ -32,7 +32,7 @@ if includeCOBRA
 end
 
 # include a common deck for running tests
-include("$(dirname(pwd()))/config/solverCfg.jl")
+include("$(Pkg.dir("COBRA"))/config/solverCfg.jl")
 
 # change the COBRA solver
 solver = changeCobraSolver(solverName, solParams)
@@ -49,7 +49,7 @@ solutionLP2 = MathProgBase.HighLevelInterface.solvelp(m)
 solutionLP2.objval = model.osense * solutionLP2.objval
 
 # using the new linprog function
-solutionLP1 = MathProgBase.linprog(model.osense * model.c, model.A, model.csense, model.b, model.lb, model.ub, solver.handle)
+solutionLP1 = MathProgBase.linprog(model.osense * model.c, model.S, model.csense, model.b, model.lb, model.ub, solver.handle)
 solutionLP1.objval = model.osense * solutionLP1.objval
 
 @test abs(solutionLP2.objval - solutionLP1.objval) < 1e-9

@@ -53,7 +53,7 @@ function preFBA!(model, solver, optPercentage::Float64=100.0, osenseStr::String=
     tol = 1e-6
 
     # determine the size of the stoichiometric matrix
-    (nMets,nRxns) = size(model.A)
+    (nMets,nRxns) = size(model.S)
     println("\n >> Size of stoichiometric matrix: ($nMets, $nRxns)\n")
 
     # determine the number of reactions that shall be considered
@@ -64,7 +64,7 @@ function preFBA!(model, solver, optPercentage::Float64=100.0, osenseStr::String=
     end
 
     # determine constraints for the correct space (0-100% of the full space)
-    if (sum(model.c != 0) > 0)
+    if (countnz(model.c) > 0)
         hasObjective = true
 
         # solve the original LP problem
@@ -84,20 +84,21 @@ function preFBA!(model, solver, optPercentage::Float64=100.0, osenseStr::String=
                 objValue = ceil(FBAobj/tol)*tol*optPercentage/100.0
             end
         else
-            error("Infeasible original problem - no optimal solution!\n")
+            error("No optimal solution found to the orginal FBA problem!\n")
         end
 
     else
         hasObjective = false
+        fbaSol = 0.0
     end
-
-    print_with_color(:blue, "Original FBA ($osenseStr): objval = $objValue, optPercentage = $optPercentage.\n")
 
     # add a condition if the LP has an extra condition based on the FBA solution
     if hasObjective
 
+        print_with_color(:blue, "preFBA! [osenseStr = $osenseStr]: objValue = $objValue, norm(fbaSol) = $(norm(fbaSol)), optPercentage = $optPercentage.\n\n")
+
         # add a row in the stoichiometric matrix
-        model.A = [model.A; model.c']
+        model.S = [model.S; model.c']
 
         # add an element in the b vector
         model.b = [model.b; objValue]
@@ -108,10 +109,13 @@ function preFBA!(model, solver, optPercentage::Float64=100.0, osenseStr::String=
         else
           push!(model.csense, '<')
         end
+
+        return objValue, fbaSol
+
+    else
+        print_with_color(:blue, "No objective set (`c` is zero). objValue and fbaSol not defined. optPercentage = $optPercentage.\n\n")
+        return nothing
     end
-
-return objValue, fbaSol
-
 end
 
 #-------------------------------------------------------------------------------------------
@@ -184,14 +188,14 @@ function splitRange(model, rxnsList, nWorkers::Int = 1, strategy::Int = 0)
         endMarker2    = zeros(Int, nWorkers)
 
         # retrieve the number of metabolites and reactions
-        Nmets, Nrxns  = size(model.A)
+        Nmets, Nrxns  = size(model.S)
 
         # intialize column and row density vectors
         cdVect        = zeros(NrxnsList)
 
         # loop through the number of reactions and determine the column density
         for i in 1:NrxnsList
-              cdVect[i] = nnz(model.A[:,rxnsList[i]]) / Nmets * 100.0
+              cdVect[i] = nnz(model.S[:,rxnsList[i]]) / Nmets * 100.0
         end
 
         # initialize counter vectors
@@ -495,7 +499,7 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
     # perform sanity checks
     if nRxnsList > nRxns
         rxnsList = 1:nRxns
-        warn("The `rxnsList` has more reactions than in the model. Adjustment to fit the total number of reactions made.")
+        warn("The `rxnsList` has more reactions than in the model. `rxnsList` shorted to the maximum number of reactions.")
     end
 
     if nRxns != nRxnsList
@@ -509,9 +513,7 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
         info(" >> Try running this analysis on a cluster, or use a larger parallel pool.\n")
     end
 
-    # perform a maximization and minimization
-
-    # run the parallel version
+    # perform maximizations and minimizations in parallel
     if nWorkers > 1
 
         # partition and split the reactions among workers
@@ -545,7 +547,7 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
             statussolmax[rxnsList[rxnsKey[p]]] = fetch(R[p,2])[3][rxnsList[rxnsKey[p]]]
         end
 
-    # run the serial version
+    # perform maximizations and minimizations sequentially
     else
         m = buildCobraLP(model,solver)
         minFlux, fvamin, statussolmin = loopFBA(m, rxnsList, nRxns, rxnsOptMode, 0)

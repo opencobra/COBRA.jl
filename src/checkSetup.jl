@@ -63,10 +63,10 @@ function checkSysConfig()
 
     print_with_color(:yellow, "\n >> Checking the system's configuration ...\n\n")
 
-    if checkPackage(:MathProgBase)
+    #initialize a vector for storing the packages
+    packages = []
 
-        #initialize a vector for storing the packages
-        packages = []
+    if checkPackage(:MathProgBase)
 
         # loop through all implemented interfaces
         for s in 1:length(MathProgBase.LPsolvers)
@@ -86,19 +86,14 @@ function checkSysConfig()
     end
 
     # print an error if no solvers are installed on the system
-    if length(packages) == 0
+    try length(packages) == 0
         error("No supported solvers are installed on the current system. Aborting.")
-        return nothing
 
     # print a success message if the solver is installed
-    else
+    catch
         print_with_color(:green, "\n >> Done. $(length(packages)) solvers are installed and ready to use.\n")
-
-        # clear all modules that have been loaded for testing purposes
-        workspace()
-
         return packages
-        
+
     end
 
 end

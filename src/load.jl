@@ -7,11 +7,11 @@
 
 #-------------------------------------------------------------------------------------------
 """
-    LPproblem(A, b, c, lb, ub, osense, csense, rxns, mets)
+    LPproblem(S, b, c, lb, ub, osense, csense, rxns, mets)
 
 General type for storing an LP problem which contains the following fields:
 
-- `A` or `S`:       LHS matrix (m x n)
+- `S`:              LHS matrix (m x n)
 - `b`:              RHS vector (m x 1)
 - `c`:              Objective coefficient vector (n x 1)
 - `lb`:             Lower bound vector (n x 1)
@@ -23,7 +23,7 @@ General type for storing an LP problem which contains the following fields:
 """
 
 type LPproblem
-    A       ::SparseMatrixCSC{Float64,Int64}
+    S       ::Union{SparseMatrixCSC{Float64,Int64}, AbstractMatrix}
     b       ::Array{Float64,1}
     c       ::Array{Float64,1}
     lb      ::Array{Float64,1}
@@ -32,6 +32,8 @@ type LPproblem
     csense  ::Array{Char,1}
     rxns    ::Array{String,1}
     mets    ::Array{String,1}
+
+    #LPproblem() = new()#new(zeros(0,0), zeros(0), zeros(0), zeros(0), zeros(0), 0, [Char('E')], [""], [""])
 end
 
 #-------------------------------------------------------------------------------------------
@@ -68,7 +70,7 @@ julia> model = loadModel("myModel.mat", "A", "myModelName", ["ub","lb","osense",
 
 # Notes
 
-- `osense` is set to "max" by default
+- `osense` is set to "max" (osense = -1) by default
 - All entries of `A`, `b`, `c`, `lb`, `ub` are of type float
 
 See also: `MAT.jl`, `matopen()`, `matread()`
@@ -87,9 +89,9 @@ function loadModel(fileName::String, matrixAS::String="S", modelName::String="mo
         # load the stoichiometric matrix A or S
         if matrixAS == "A" || matrixAS == "S"
             if matrixAS in modelKeys
-                A = model[matrixAS]
+                S = model[matrixAS]
             else
-                A = model[(matrixAS == "S")? "A" : "S"]
+                S = model[(matrixAS == "S")? "A" : "S"]
                 error("Matrix `$matrixAS` does not exist in `$modelName`, but matrix `S` exists. Set `matrixAS = S` if you want to use `S`.")
             end
         else
@@ -157,11 +159,11 @@ function loadModel(fileName::String, matrixAS::String="S", modelName::String="mo
             error("The vector `$(modelFields[8])` does not exist in `$modelName`.")
         end
 
-        #determine the size of A
-        nMets = size(A,1)
-        nRxns = size(A,2)
+        #determine the size of S
+        nMets = size(S,1)
+        nRxns = size(S,2)
 
-        return LPproblem(A, b[1:nMets], c[1:nRxns], lb[1:nRxns], ub[1:nRxns], osense, csense[1:nMets], rxns, mets)
+        return LPproblem(S, b[1:nMets], c[1:nRxns], lb[1:nRxns], ub[1:nRxns], osense, csense[1:nMets], rxns, mets)
 
     else
 

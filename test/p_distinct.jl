@@ -21,7 +21,7 @@ if includeCOBRA
 
     solverName = :GLPKMathProgInterface
     connectSSHWorkers = false
-    include("$(dirname(pwd()))/src/connect.jl")
+    include("$(Pkg.dir("COBRA"))/src/connect.jl")
 
     # create a parallel pool and determine its size
     if isdefined(:nWorkers) && isdefined(:connectSSHWorkers)
@@ -32,7 +32,7 @@ if includeCOBRA
 end
 
 # include the solver configuration file
-include("$(dirname(pwd()))/config/solverCfg.jl")
+include("$(Pkg.dir("COBRA"))/config/solverCfg.jl")
 
 # change the COBRA solver
 solver = changeCobraSolver(solverName, solParams)

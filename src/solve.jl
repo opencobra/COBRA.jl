@@ -57,7 +57,7 @@ function buildCobraLP(model, solver::SolverConfig)
             if model.csense[i] == 'L'  model.csense[i] = '>'  end
         end
 
-        return MathProgBase.HighLevelInterface.buildlp(model.osense * model.c, model.A, model.csense, model.b, model.lb, model.ub, solver.handle)
+        return MathProgBase.HighLevelInterface.buildlp(model.osense * model.c, model.S, model.csense, model.b, model.lb, model.ub, solver.handle)
     else
 
         error("The solver is not supported. Please set solver name to one the supported solvers.")
@@ -93,7 +93,12 @@ julia> changeCobraSolver("CPLEX", cpxControl)
 See also: `MathProgBase.jl`
 """
 
-function changeCobraSolver(name::String, params=[])
+function changeCobraSolver(name, params=[])
+
+    # convert type of name
+    if typeof(name) != :String
+        name = string(name)
+    end
 
     # define empty solver object
     solver = SolverConfig(name,0)
@@ -111,7 +116,7 @@ function changeCobraSolver(name::String, params=[])
         try
             eval(Expr(:using, :GLPKMathProgInterface))
             eval(Expr(:using, :GLPK))
-            if length(params) > 0
+            if length(params) > 1
                 solver.handle = GLPKSolverLP(method=params[1], presolve=params[2])
             else
                 solver.handle = GLPKSolverLP()
@@ -123,7 +128,7 @@ function changeCobraSolver(name::String, params=[])
     elseif name == "Gurobi"
         try
             eval(Expr(:using, :Gurobi))
-            if length(params) > 0
+            if length(params) > 1
                 solver.handle = GurobiSolver(Method=params[1],OutputFlag=params[2])
             else
                 solver.handle = GurobiSolver()
