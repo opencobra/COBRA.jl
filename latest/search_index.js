@@ -221,7 +221,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tutorial",
     "title": "Installation check and package testing",
     "category": "section",
-    "text": "Please make sure that you have a working installation of MathProgBase.jl and at least one of the supported solvers. You may find further information here. You may run the following in order to be sure and check your system's configuration. You can find further information on how to install other supported solvers, such as CPLEX, CLP, Gurobi, or Mosek here.# loads the functions to check your setup\ninclude(\"$(Pkg.dir(\"COBRA\"))/src/checkSetup.jl\") \n\n# list your installed packages\npackages = checkSysConfig()You may, at any time, check the integrity of the COBRA.jl package by running:Pkg.test(\"COBRA\")The code has been benchmarked against the fastFVA implementation. A test model ecoli_core_model.mat is freely available and can be used to pre-compile the code. The model is also available in the /test folder. The modules and solvers are correctly installed when all tests pass without errors (warnings may appear)."
+    "text": "Please make sure that you have a working installation of MathProgBase.jl and at least one of the supported solvers. You may find further information here. You may run the following in order to be sure and check your system's configuration.You can find further information on how to install other supported solvers, such as CPLEX, CLP, Gurobi, or Mosek here.# loads the functions to check your setup\ninclude(\"$(Pkg.dir(\"COBRA\"))/src/checkSetup.jl\")\n\n# list your installed packages\npackages = checkSysConfig()\n\n# clear the workspace of loaded packages\nworkspace()You may, at any time, check the integrity of the COBRA.jl package by running:Pkg.test(\"COBRA\")The code has been benchmarked against the fastFVA implementation [3]. A test model ecoli_core_model.mat [4] can be used to pre-compile the code and is available in the /test folder. The modules and solvers are correctly installed when all tests pass without errors (warnings may appear)."
 },
 
 {
@@ -229,7 +229,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tutorial",
     "title": "Adding local workers",
     "category": "section",
-    "text": "The connection functions are given in connect.jl, which, if a parallel version is desired, must be included separately:include(\"$(Pkg.dir(\"COBRA\"))/src/connect.jl\")You may add local workers as follows:# specify the total number of parallel workers\nnWorkers = 4 \n\n# create a parallel pool\nworkersPool, nWorkers = createPool(nWorkers) The IDs of the respective workers are given in workersPool, and the number of local workers is stored in nWorkers.In order to be able to use the COBRA module on all connected workers, you must invoke (the Compat package may throw errors):using COBRA"
+    "text": "The connection functions are given in connect.jl, which, if a parallel version is desired, must be included separately:include(\"$(Pkg.dir(\"COBRA\"))/src/connect.jl\")You may add local workers as follows:# specify the total number of parallel workers\nnWorkers = 4\n\n# create a parallel pool\nworkersPool, nWorkers = createPool(nWorkers)The IDs of the respective workers are given in workersPool, and the number of local workers is stored in nWorkers.In order to be able to use the COBRA module on all connected workers, you must invoke (the Compat package may throw errors):using COBRA"
 },
 
 {
@@ -278,6 +278,14 @@ var documenterSearchIndex = {"docs": [
     "title": "Save the variables",
     "category": "section",
     "text": "You can save the output of distributedFBA by using:saveDistributedFBA(\"results.mat\")"
+},
+
+{
+    "location": "cobratutorial.html#References-1",
+    "page": "Tutorial",
+    "title": "References",
+    "category": "section",
+    "text": "B. O. Palsson. Systems Biology: Constraint-based Reconstruction and Analysis. Cambridge University Press, NY, 2015.\nSchellenberger, J. et al. COBRA Toolbox 2.0. 05 2011.\nSteinn, G. et al. Computationally efficient flux variability analysis. BMC Bioinformatics, 11(1):1–3, 2010.\nOrth, J. et al. Reconstruction and use of microbial metabolic networks: the core escherichia coli metabolic model as an educational guide. EcoSal Plus, 2010."
 },
 
 {
@@ -429,7 +437,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Modules and Functions",
     "title": "LPproblem",
     "category": "Type",
-    "text": "LPproblem(A, b, c, lb, ub, osense, csense, rxns, mets)\n\nGeneral type for storing an LP problem which contains the following fields:\n\nA or S:       LHS matrix (m x n)\nb:              RHS vector (m x 1)\nc:              Objective coefficient vector (n x 1)\nlb:             Lower bound vector (n x 1)\nub:             Upper bound vector (n x 1)\nosense:         Objective sense (scalar; -1 ~ \"max\", +1 ~ \"min\")\ncsense:         Constraint senses (m x 1, 'E' or '=', 'G' or '>', 'L' ~ '<')\nsolver:         A ::SolverConfig object that contains a valid handle to the solver\n\n\n\n"
+    "text": "LPproblem(S, b, c, lb, ub, osense, csense, rxns, mets)\n\nGeneral type for storing an LP problem which contains the following fields:\n\nS:              LHS matrix (m x n)\nb:              RHS vector (m x 1)\nc:              Objective coefficient vector (n x 1)\nlb:             Lower bound vector (n x 1)\nub:             Upper bound vector (n x 1)\nosense:         Objective sense (scalar; -1 ~ \"max\", +1 ~ \"min\")\ncsense:         Constraint senses (m x 1, 'E' or '=', 'G' or '>', 'L' ~ '<')\nsolver:         A ::SolverConfig object that contains a valid handle to the solver\n\n\n\n"
 },
 
 {
@@ -437,7 +445,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Modules and Functions",
     "title": "loadModel",
     "category": "Function",
-    "text": "loadModel(fileName, matrixAS, modelName)\n\nFunction used to load a COBRA model from an existing .mat file\n\nINPUTS\n\nfilename:       Name of the .mat file that contains the model structure\n\nOPTIONAL INPUTS\n\nmatrixAS:       String to distinguish the name of stoichiometric matrix (\"S\" or \"A\", default: \"S\")\nmodelName:      String with the name of the model structure (default: \"model\")\nmodelFields:    Array with strings of fields of the model structure (default: [\"ub\", \"lb\", \"osense\", \"c\", \"b\", \"csense\", \"rxns\", \"mets\"])\n\nOUTPUTS\n\nLPproblem()     :LPproblem object with filled fields from .mat file\n\nExamples\n\nMinimum working example\n\njulia> loadModel(\"myModel.mat\")\n\nFull input/output example\n\njulia> model = loadModel(\"myModel.mat\", \"A\", \"myModelName\", [\"ub\",\"lb\",\"osense\",\"c\",\"b\",\"csense\",\"rxns\",\"mets\"]);\n\nNotes\n\nosense is set to \"max\" by default\nAll entries of A, b, c, lb, ub are of type float\n\nSee also: MAT.jl, matopen(), matread()\n\n\n\n"
+    "text": "loadModel(fileName, matrixAS, modelName)\n\nFunction used to load a COBRA model from an existing .mat file\n\nINPUTS\n\nfilename:       Name of the .mat file that contains the model structure\n\nOPTIONAL INPUTS\n\nmatrixAS:       String to distinguish the name of stoichiometric matrix (\"S\" or \"A\", default: \"S\")\nmodelName:      String with the name of the model structure (default: \"model\")\nmodelFields:    Array with strings of fields of the model structure (default: [\"ub\", \"lb\", \"osense\", \"c\", \"b\", \"csense\", \"rxns\", \"mets\"])\n\nOUTPUTS\n\nLPproblem()     :LPproblem object with filled fields from .mat file\n\nExamples\n\nMinimum working example\n\njulia> loadModel(\"myModel.mat\")\n\nFull input/output example\n\njulia> model = loadModel(\"myModel.mat\", \"A\", \"myModelName\", [\"ub\",\"lb\",\"osense\",\"c\",\"b\",\"csense\",\"rxns\",\"mets\"]);\n\nNotes\n\nosense is set to \"max\" (osense = -1) by default\nAll entries of A, b, c, lb, ub are of type float\n\nSee also: MAT.jl, matopen(), matread()\n\n\n\n"
 },
 
 {
