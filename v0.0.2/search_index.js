@@ -45,7 +45,7 @@ var documenterSearchIndex = {"docs": [
     "page": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
     "title": "Installation of COBRA",
     "category": "section",
-    "text": "At the Julia prompt, clone the COBRA.jl package and update all packages:Pkg.update()\nPkg.clone(\"https://github.com/opencobra/COBRA.jl.git\")Use the COBRA.jl module by running:using COBRA"
+    "text": "At the Julia prompt, add the COBRA package:Pkg.add(\"COBRA\")You may then update all your packages:Pkg.update()Use the COBRA.jl module by running:using COBRA"
 },
 
 {
