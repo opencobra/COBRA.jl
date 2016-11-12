@@ -34,10 +34,13 @@ If you are novice to Julia, you may find the [Complete Beginner's Guide](http://
 Installation of COBRA
 ---------------------
 
-At the Julia prompt, clone the `COBRA.jl` package and update all packages:
+At the Julia prompt, add the `COBRA` package:
+```Julia
+Pkg.add("COBRA")
+```
+You may then update all your packages:
 ```Julia
 Pkg.update()
-Pkg.clone("https://github.com/opencobra/COBRA.jl.git")
 ```
 
 Use the `COBRA.jl` module by running:
