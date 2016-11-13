@@ -5,7 +5,7 @@ var documenterSearchIndex = {"docs": [
     "page": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
     "title": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
     "category": "page",
-    "text": ""
+    "text": "<div align=\"center\"> <img src=\"https://raw.githubusercontent.com/opencobra/COBRA.jl/master/docs/src/assets/logo.png\" alt=\"COBRA.jl Logo\" width=\"100\"></img> </div>"
 },
 
 {
@@ -13,7 +13,7 @@ var documenterSearchIndex = {"docs": [
     "page": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
     "title": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
     "category": "section",
-    "text": "(Image: Build Status) (Image: Build status) (Image: coverage status) (Image: Coverage Status) (Image: ) (Image: )COBRA.jl is a package written in Julia used to perform COBRA analyses such as Flux Balance Anlysis (FBA), Flux Variability Anlysis (FVA), or any of its associated variants such as distributedFBA [1].FBA and FVA rely on the solution of LP problems. The package can be used with ease when the LP problem is defined in a .mat file according to the format outlined in the COBRAToolbox [2]."
+    "text": "Documentation Coverage PackageEvaluator Build Status\n(Image: )(Image: ) (Image: coverage status)(Image: Coverage Status) (Image: COBRA)(Image: COBRA) (Image: Build Status)(Image: Build status)COBRA.jl is a package written in Julia used to perform COBRA analyses such as Flux Balance Anlysis (FBA), Flux Variability Anlysis (FVA), or any of its associated variants such as distributedFBA [1].FBA and FVA rely on the solution of LP problems. The package can be used with ease when the LP problem is defined in a .mat file according to the format outlined in the COBRAToolbox [2]."
 },
 
 {
