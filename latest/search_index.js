@@ -5,7 +5,7 @@ var documenterSearchIndex = {"docs": [
     "page": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
     "title": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
     "category": "page",
-    "text": "<div align=\"center\"> <img src=\"https://raw.githubusercontent.com/opencobra/COBRA.jl/master/docs/src/assets/logo.png\" alt=\"COBRA.jl Logo\" width=\"100\"></img> </div>"
+    "text": ""
 },
 
 {
