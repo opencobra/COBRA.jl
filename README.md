@@ -1,12 +1,11 @@
+<div align="center"> <img src="https://raw.githubusercontent.com/opencobra/COBRA.jl/master/docs/src/assets/logo.png" alt="COBRA.jl Logo" width="100"></img> </div>
+
 COBRA.jl - COnstraint-Based Reconstruction and Analysis
 =======================================================
 
-[![Build Status](https://travis-ci.org/opencobra/COBRA.jl.svg?branch=master)](https://travis-ci.org/opencobra/COBRA.jl)
-[![Build status](https://ci.appveyor.com/api/projects/status/10gweiiiby18ucy5/branch/master?svg=true)](https://ci.appveyor.com/project/laurentheirendt/cobra-jl/branch/master)
-[![coverage status](http://codecov.io/github/opencobra/COBRA.jl/coverage.svg?branch=master)](http://codecov.io/github/opencobra/COBRA.jl?branch=master)
-[![Coverage Status](https://coveralls.io/repos/github/opencobra/COBRA.jl/badge.svg?branch=master)](https://coveralls.io/github/opencobra/COBRA.jl?branch=master)
-[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://opencobra.github.io/COBRA.jl/stable)
-[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://opencobra.github.io/COBRA.jl/latest)
+| **Documentation**    | **Coverage**         | **PackageEvaluator** | **Build Status**     |
+|:--------------------:|:--------------------:|:--------------------:|:--------------------:|
+| [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://opencobra.github.io/COBRA.jl/stable)[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://opencobra.github.io/COBRA.jl/latest) | [![coverage status](http://codecov.io/github/opencobra/COBRA.jl/coverage.svg?branch=master)](http://codecov.io/github/opencobra/COBRA.jl?branch=master)[![Coverage Status](https://coveralls.io/repos/github/opencobra/COBRA.jl/badge.svg?branch=master)](https://coveralls.io/github/opencobra/COBRA.jl?branch=master) | [![COBRA](http://pkg.julialang.org/badges/COBRA_0.5.svg)](http://pkg.julialang.org/?pkg=COBRA)[![COBRA](http://pkg.julialang.org/badges/COBRA_0.6.svg)](http://pkg.julialang.org/?pkg=COBRA) | [![Build Status](https://travis-ci.org/opencobra/COBRA.jl.svg?branch=master)](https://travis-ci.org/opencobra/COBRA.jl)[![Build status](https://ci.appveyor.com/api/projects/status/10gweiiiby18ucy5/branch/master?svg=true)](https://ci.appveyor.com/project/laurentheirendt/cobra-jl/branch/master) ||
 
 `COBRA.jl` is a package written in [Julia](http://julialang.org/downloads/) used to perform COBRA analyses such as Flux Balance Anlysis (FBA), Flux Variability Anlysis (FVA), or any of its associated variants such as `distributedFBA` [[1](#References-1)].
 
