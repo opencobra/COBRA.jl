@@ -37,7 +37,7 @@ var documenterSearchIndex = {"docs": [
     "page": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
     "title": "Requirements and compatibility",
     "category": "section",
-    "text": "If you are novice to Julia, you may find the Complete Beginner's Guide interesting. In this manual, a working installation of Julia is assumed.COBRA.jl has been tested on Ubuntu Linux 14.04+, MacOS 10.7+, and Windows 7 (64-bit). Currently, all solvers that are supported by MathProgBase.jl are supported by COBRA.jl, but must be installed separately. The COBRA.jl package has been tested with Julia v0.5+, and requires a working installation of the latest MathProgBase.jl. In order to load the COBRA model from a .mat file, the module MAT.jl is required."
+    "text": "If you are new to Julia, you may find the Complete Beginner's Guide interesting. In this manual, a working installation of Julia is assumed.COBRA.jl has been tested on Ubuntu Linux 14.04+, MacOS 10.7+, and Windows 7 (64-bit). Currently, all solvers that are supported by MathProgBase.jl are supported by COBRA.jl, but must be installed separately. The COBRA.jl package has been tested with Julia v0.5+, and requires a working installation of the latest MathProgBase.jl. In order to load the COBRA model from a .mat file, the module MAT.jl is required."
 },
 
 {
@@ -45,7 +45,7 @@ var documenterSearchIndex = {"docs": [
     "page": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
     "title": "Installation of COBRA",
     "category": "section",
-    "text": "At the Julia prompt, add the COBRA package:Pkg.add(\"COBRA\")You may then update all your packages:Pkg.update()Use the COBRA.jl module by running:using COBRA"
+    "text": "At the Julia prompt, add the COBRA package:Pkg.add(\"COBRA\")Use the COBRA.jl module by running:using COBRAPlease make sure that all your packages are updated:Pkg.update()"
 },
 
 {
@@ -77,7 +77,7 @@ var documenterSearchIndex = {"docs": [
     "page": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
     "title": "How to cite distributedFBA.jl?",
     "category": "section",
-    "text": "You may cite distributedFBA.jl as follows:Laurent Heirendt, Ronan M.T. Fleming, Ines Thiele, DistributedFBA.jl: High-level, high-performance flux balance analysis in Julia, in review, 2016."
+    "text": "The corresponding paper can be downloaded from here. You may cite distributedFBA.jl as follows:Laurent Heirendt, Ronan M.T. Fleming, Ines Thiele, DistributedFBA.jl: High-level, high-performance flux balance analysis in Julia, 2016, arXiv:1611.04743."
 },
 
 {
