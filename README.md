@@ -23,7 +23,7 @@ Requirements and compatibility
 ------------------------------
 
 >
-If you are novice to Julia, you may find the [Complete Beginner's Guide](http://opencobra.github.io/COBRA.jl/stable/cbg.html) interesting. In this manual, a working installation of Julia is assumed.
+If you are new to Julia, you may find the [Complete Beginner's Guide](http://opencobra.github.io/COBRA.jl/stable/cbg.html) interesting. In this manual, a working installation of Julia is assumed.
 >
 
 `COBRA.jl` has been tested on *Ubuntu Linux 14.04+*, *MacOS 10.7+*, and *Windows 7 (64-bit)*. Currently, all solvers that are [supported](https://github.com/JuliaOpt/MathProgBase.jl/blob/master/src/defaultsolvers.jl) by `MathProgBase.jl` are supported by `COBRA.jl`, but must be installed **separately**. The `COBRA.jl` package has been tested with `Julia v0.5+`, and requires a working installation of the latest [`MathProgBase.jl`](https://github.com/JuliaOpt/MathProgBase.jl). In order to load the COBRA model from a `.mat` file, the module [`MAT.jl`](https://github.com/simonster/MAT.jl) is required.
@@ -35,14 +35,14 @@ At the Julia prompt, add the `COBRA` package:
 ```Julia
 Pkg.add("COBRA")
 ```
-You may then update all your packages:
-```Julia
-Pkg.update()
-```
 
 Use the `COBRA.jl` module by running:
 ```Julia
 using COBRA
+```
+Please make sure that all your packages are updated:
+```Julia
+Pkg.update()
 ```
 
 Testing and benchmarking
@@ -76,9 +76,9 @@ Should you encounter any errors or unusual behavior, please refer to the [FAQ se
 How to cite `distributedFBA.jl`?
 -----------------------------------------------
 
-You may cite `distributedFBA.jl` as follows:
+The corresponding paper can be downloaded from [here](https://arxiv.org/abs/1611.04743). You may cite `distributedFBA.jl` as follows:
 
-> Laurent Heirendt, Ronan M.T. Fleming, Ines Thiele, DistributedFBA.jl: High-level, high-performance flux balance analysis in Julia, in review, 2016.
+> Laurent Heirendt, Ronan M.T. Fleming, Ines Thiele, DistributedFBA.jl: High-level, high-performance flux balance analysis in Julia, 2016, arXiv:1611.04743.
 
 Limitations
 -----------
