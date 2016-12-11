@@ -39,24 +39,21 @@ if solverName == "CPLEX"
 
 elseif solverName == "GLPKMathProgInterface" || solverName == "GLPK"
     solParams = [:Simplex,    #Method
-                  true        #presolve
+                 true        #presolve
     ] #end of solParams
 
 elseif solverName == "Gurobi"
     solParams = [2,           #Method
-                0             #OutputFlag
+                 0             #OutputFlag
     ] #end of solParams
 
 elseif solverName == "Clp"
-    solParams = [
-    ] #end of solParams
+    solParams = [] #end of solParams
 
 elseif solverName == "Mosek"
-  solParams = [
-  ] #end of solParams
+    solParams = [] #end of solParams
 
 else
-  solParams = [
-  ] #end of solParams
+    solParams = [] #end of solParams
     warn("The solver is not supported. No solver parameters have been set.")
 end
