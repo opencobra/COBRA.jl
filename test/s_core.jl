@@ -14,11 +14,11 @@ if !isdefined(:includeCOBRA) includeCOBRA = true end
 # output information
 testFile = @__FILE__
 
+# number of workers
 nWorkers = 1
 
 # create a pool and use the COBRA module if the testfile is run in a loop
 if includeCOBRA
-
     solverName = :GLPKMathProgInterface
     connectSSHWorkers = false
     include("$(dirname(@__FILE__))/../src/connect.jl")
@@ -60,7 +60,7 @@ solutionLP = solveCobraLP(model, solver)
 @test abs(solutionLP2.objval - solutionLP.objval) < 1e-9
 
 # launch the distributedFBA process
-startTime   = time()
+startTime = time()
 minFlux, maxFlux, optSol = distributedFBA(model, solver, nWorkers, 90.0, "max", rxnsList)
 solTime = time() - startTime
 
@@ -71,7 +71,7 @@ solTime = time() - startTime
 @test floor(minimum(minFlux)) == -36.0
 @test floor(norm(maxFlux))    == 1427.0
 @test floor(norm(minFlux))    == 93.0
-@test abs((- model.c'*minFlux)[1] - optSol) < 1e-9
+@test abs((- model.c' * minFlux)[1] - optSol) < 1e-9
 
 # save the variables to the current directory
 saveDistributedFBA("testFile.mat")

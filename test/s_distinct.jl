@@ -14,11 +14,11 @@ if !isdefined(:includeCOBRA) includeCOBRA = true end
 # output information
 testFile = @__FILE__
 
+# number of workers
 nWorkers = 1
 
 # create a pool and use the COBRA module if the testfile is run in a loop
 if includeCOBRA
-
     solverName = :GLPKMathProgInterface
     connectSSHWorkers = false
     include("$(dirname(@__FILE__))/../src/connect.jl")

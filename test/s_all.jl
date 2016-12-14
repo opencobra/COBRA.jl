@@ -14,11 +14,11 @@ if !isdefined(:includeCOBRA) includeCOBRA = true end
 # output information
 testFile = @__FILE__
 
+# number of workers
 nWorkers = 1
 
 # create a pool and use the COBRA module if the testfile is run in a loop
 if includeCOBRA
-
     solverName = :GLPKMathProgInterface
     connectSSHWorkers = false
     include("$(dirname(@__FILE__))/../src/connect.jl")
@@ -44,7 +44,7 @@ model = loadModel("ecoli_core_model.mat", "S", "model")
 rxnsList = 1:length(model.rxns)
 
 # launch the distributedFBA process
-startTime   = time()
+startTime = time()
 minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers, 90.0, "max", rxnsList)
 solTime = time() - startTime
 

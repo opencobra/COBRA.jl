@@ -14,11 +14,11 @@ if !isdefined(:includeCOBRA) includeCOBRA = true end
 # output information
 testFile = @__FILE__
 
+# number of workers
 nWorkers = 4
 
 # create a pool and use the COBRA module if the testfile is run in a loop
 if includeCOBRA
-
     solverName = :GLPKMathProgInterface
     connectSSHWorkers = false
     include("$(dirname(@__FILE__))/../src/connect.jl")
@@ -45,7 +45,7 @@ rxnsList = 1:length(model.rxns)
 
 for s = 0:2
     # launch the distributedFBA process
-    startTime   = time()
+    startTime = time()
     minFlux, maxFlux, optSol = distributedFBA(model, solver, nWorkers, 90.0, "max", rxnsList, s)
     solTime = time() - startTime
 
@@ -56,14 +56,14 @@ for s = 0:2
     @test floor(minimum(minFlux)) == -36.0
     @test floor(norm(maxFlux))    == 1427.0
     @test floor(norm(minFlux))    == 93.0
-    @test abs((- model.c'*minFlux)[1] - optSol) < 1e-9
+    @test abs((- model.c' * minFlux)[1] - optSol) < 1e-9
 
     # print a solution summary
     printSolSummary(testFile, optSol, maxFlux, minFlux, solTime, nWorkers, solverName)
 end
 
 # launch the distributedFBA process
-startTime   = time()
+startTime = time()
 minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax = distributedFBA(model, solver, nWorkers)
 solTime = time() - startTime
 
@@ -74,7 +74,7 @@ solTime = time() - startTime
 @test floor(minimum(minFlux)) == -46.0
 @test floor(norm(maxFlux))    == 1414.0
 @test floor(norm(minFlux))    == 106.0
-@test abs((- model.c'*minFlux)[1] - optSol) < 1e-9
+@test abs((- model.c' * minFlux)[1] - optSol) < 1e-9
 
 # save the variables to the current directory
 saveDistributedFBA("testFile.mat")
@@ -86,14 +86,14 @@ run(`rm testFile.mat`)
 printSolSummary(testFile, optSol, maxFlux, minFlux, solTime, nWorkers, solverName)
 
 # define model and solution parameters
-optPercentage     = 90.0
-objective         = "max"
-maxtrixAS         = "S"
-modelName         = "model"
+optPercentage = 90.0
+objective = "max"
+maxtrixAS = "S"
+modelName = "model"
 
 # test to save individual result files (chunks)
-saveChunks  = true
-strategy    = 0
+saveChunks = true
+strategy = 0
 
 # select the number of reactions
 rxnsList = 1:length(model.rxns)
