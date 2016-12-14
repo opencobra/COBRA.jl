@@ -14,11 +14,11 @@ if !isdefined(:includeCOBRA) includeCOBRA = true end
 # output information
 testFile = @__FILE__
 
+# number of workers
 nWorkers = 1
 
 # create a pool and use the COBRA module if the testfile is run in a loop
 if includeCOBRA
-
     solverName = :GLPKMathProgInterface
     connectSSHWorkers = false
     include("$(dirname(@__FILE__))/../src/connect.jl")
@@ -60,10 +60,10 @@ minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = d
 #other solvers (e.g., CPLEX) might report alternate optimal solutions
 if solverName == "GLPKMathProgInterface"
     # test minimum flux vectors
-    @test norm(fvamin[:,20:30] - fvamin1[:,20:30]) < 1e-9
+    @test norm(fvamin[:,4:14] - fvamin1[:,20:30]) < 1e-9
 
     # text maximum flux vectors
-    @test norm(fvamax[:,20:30] - fvamax1[:,20:30]) < 1e-9
+    @test norm(fvamax[:,4:14] - fvamax1[:,20:30]) < 1e-9
 end
 
 # test rxnsOptMode and rxnsList criteria
@@ -83,10 +83,10 @@ solTime = time() - startTime
 #other solvers (e.g., CPLEX) might report alternate optimal solutions
 if solverName == "GLPKMathProgInterface"
     # test minimum flux vectors
-    @test norm(fvamin[:,20:30] - fvamin1[:,20:30]) < 1e-9
+    @test norm(fvamin[:,4:14] - fvamin1[:,20:30]) < 1e-9
 
     # text maximum flux vectors
-    @test norm(fvamax[:,20:30] - fvamax1[:,20:30]) < 1e-9
+    @test norm(fvamax[:,4:14] - fvamax1[:,20:30]) < 1e-9
 end
 
 # save the variables to the current directory

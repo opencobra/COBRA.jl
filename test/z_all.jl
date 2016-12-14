@@ -14,11 +14,11 @@ if !isdefined(:includeCOBRA) includeCOBRA = true end
 # output information
 testFile = @__FILE__
 
+# number of workers
 nWorkers = 1
 
 # create a pool and use the COBRA module if the testfile is run in a loop
 if includeCOBRA
-
     solverName = :GLPKMathProgInterface
     connectSSHWorkers = false
     include("$(dirname(@__FILE__))/../src/connect.jl")
@@ -56,21 +56,21 @@ print_with_color(:yellow, "\n>> The following tests might throw warning messages
 @test_throws ErrorException loadModel("ecoli_core_model.mat", "S", "myModel")
 
 # call other fields of the model
-@test_throws ErrorException loadModel("ecoli_core_model.mat","S","model",["ubTest","lb","osense","c","b","csense","rxns","mets"])
-@test_throws ErrorException loadModel("ecoli_core_model.mat","S","model",["ub","lbTest","osense","c","b","csense","rxns","mets"])
-@test_throws ErrorException loadModel("ecoli_core_model.mat","S","model",["ub","lb","osense","cTest","b","csense","rxns","mets"])
-@test_throws ErrorException loadModel("ecoli_core_model.mat","S","model",["ub","lb","osense","c","bTest","csense","rxns","mets"])
-@test_throws ErrorException loadModel("ecoli_core_model.mat","S","model",["ub","lb","osense","c","b","csense","rxnsTest","mets"])
-@test_throws ErrorException loadModel("ecoli_core_model.mat","S","model",["ub","lb","osense","c","b","csense","rxns","metsTest"])
+@test_throws ErrorException loadModel("ecoli_core_model.mat", "S", "model", ["ubTest", "lb", "osense", "c", "b", "csense", "rxns", "mets"])
+@test_throws ErrorException loadModel("ecoli_core_model.mat", "S", "model", ["ub", "lbTest", "osense", "c", "b", "csense", "rxns", "mets"])
+@test_throws ErrorException loadModel("ecoli_core_model.mat", "S", "model", ["ub", "lb", "osense", "cTest", "b", "csense", "rxns", "mets"])
+@test_throws ErrorException loadModel("ecoli_core_model.mat", "S", "model", ["ub", "lb", "osense", "c", "bTest", "csense", "rxns", "mets"])
+@test_throws ErrorException loadModel("ecoli_core_model.mat", "S", "model", ["ub", "lb", "osense", "c", "b", "csense", "rxnsTest", "mets"])
+@test_throws ErrorException loadModel("ecoli_core_model.mat", "S", "model", ["ub", "lb", "osense", "c", "b", "csense", "rxns", "metsTest"])
 
 # connect SSH workers that are not reachable
-@test createPool(1, false) == (workers(),1)
+@test createPool(1, false) == (workers(), 1)
 @test_throws ErrorException workersPool, nWorkers = createPool(0, false)
 @test_throws ErrorException workersPool, nWorkers = createPool(nWorkers+1, true)
 
 # connect twice the same number of workers
-@test createPool(4) == (workers(),4)
-@test createPool(2) == (workers(),2)
+@test createPool(4) == (workers(), 4)
+@test createPool(2) == (workers(), 2)
 
 # load a new version of the model
 model=loadModel("ecoli_core_model.mat")
@@ -96,7 +96,7 @@ solver.handle = -1
 
 # test if an infeasible solution status is returned
 solver = changeCobraSolver(solverName, solParams)
-m = MathProgBase.HighLevelInterface.buildlp([1.0,0.0],[2.0 1.0],'<',-1.0,solver.handle)
+m = MathProgBase.HighLevelInterface.buildlp([1.0, 0.0],[2.0 1.0], '<', -1.0, solver.handle)
 retObj, retFlux, retStat = loopFBA(m, 1, 2)
 if solverName == "Clp" || solverName == "Gurobi" || solverName == "CPLEX" || solverName == "Mosek"
     @test retStat[1] == 0 # infeasible
@@ -110,7 +110,7 @@ modelTest = loadModel("ecoli_core_model.mat", "S", "modelTest")
 @test modelTest.csense == fill('E',length(modelTest.b))
 
 # test buildlp and solvelp for an unbounded problem
-m = MathProgBase.HighLevelInterface.buildlp([-1.0,-1.0],[-1.0 2.0],'<',[0.0],solver.handle)
+m = MathProgBase.HighLevelInterface.buildlp([-1.0, -1.0],[-1.0 2.0],'<',[0.0], solver.handle)
 sol = MathProgBase.HighLevelInterface.solvelp(m)
 if solver.name == "Clp" || solver.name == "Gurobi" || solver.name == "GLPK" || solver.name == "Mosek"
     @test sol.status == :Unbounded
@@ -119,7 +119,7 @@ elseif solverName == "CPLEX"
 end
 
 # solve an unbounded problem using loopFBA
-m = MathProgBase.HighLevelInterface.buildlp([0.0,-1.0],[-1.0 2.0],'<',[0.0],solver.handle)
+m = MathProgBase.HighLevelInterface.buildlp([0.0, -1.0],[-1.0 2.0],'<',[0.0], solver.handle)
 retObj, retFlux, retStat = loopFBA(m, 1, 2, 2, 1)
 if solver.name == "Clp" || solver.name == "Gurobi" || solver.name == "GLPK" || solver.name == "Mosek"
     @test retStat == [2, -1] # unbounded and not solved
