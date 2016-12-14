@@ -37,7 +37,7 @@ See also: `workers()`, `nprocs()`, `addprocs()`, `gethostname()`
 
 """
 
-function createPool(localWorkers::Int, connectSSH::Bool=false)
+function createPool(localWorkers::Int, connectSSH::Bool = false)
 
     # load cores on remote nodes
     if connectSSH
