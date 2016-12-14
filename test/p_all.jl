@@ -106,7 +106,7 @@ minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = d
 # print a solution summary with full output
 printSolSummary(testFile, optSol, maxFlux, minFlux, solTime, nWorkers, solverName, strategy, saveChunks)
 
-# remove the file to clean up
+# remove the results folder to clean up
 run(`rm -rf $(dirname(@__FILE__))/../results`)
 
 # create folders if they are not present
@@ -131,3 +131,6 @@ minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = d
 
 # print a solution summary with full output
 printSolSummary(testFile, optSol, maxFlux, minFlux, solTime, nWorkers, solverName, strategy, saveChunks)
+
+# remove the results folder to clean up
+run(`rm -rf $(dirname(@__FILE__))/../results`)

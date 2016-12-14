@@ -336,7 +336,7 @@ function loopFBA(m, rxnsList, nRxns::Int, rxnsOptMode = 2 + zeros(Int,length(rxn
     j       = 1
 
     # loop over all the reactions
-    for k in 1:length(rxnsList)
+    for k = 1:length(rxnsList)
 
         # determine the optimization mode
         if (rxnsOptMode[k] == 0 && iRound == 0) || (rxnsOptMode[k] == 1 && iRound == 1) || (rxnsOptMode[k] == 2)
@@ -474,7 +474,7 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
 
     # calculate a default FBA solution
     if preFBA
-        startTime   = time()
+        startTime = time()
         optSol, fbaSol = preFBA!(model, solver, optPercentage, objective)
         solTime = time() - startTime
         print_with_color(:green, "Original FBA solved. Solution time: $solTime s.\n\n")
@@ -496,8 +496,8 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
 
     # initialilze the flux matrices
     if !saveChunks
-        fvamax  = zeros(nRxns, nRxns)
-        fvamin  = zeros(nRxns, nRxns)
+        fvamax = zeros(nRxns, nRxns)
+        fvamin = zeros(nRxns, nRxns)
     else
         # create a folder for storing the results
         if !isdir("$(dirname(@__FILE__))/../results")
@@ -516,8 +516,8 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
         else
             print_with_color(:cyan, "Directory `results` already exists.\n\n")
         end
-        fvamin = zeros(1)
-        fvamax = zeros(1)
+        fvamin = zeros(2, 2)
+        fvamax = zeros(2, 2)
     end
 
     # initialize the vectors to report the solution status
@@ -531,7 +531,7 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
     end
 
     if nRxns != nRxnsList
-       println(" >> Only $nRxnsList ", (nRxnsList == 1) ? "reaction" : "reactions", " of $nRxns will be solved (~ $(nRxnsList*100/nRxns) \%).\n")
+       println(" >> Only $nRxnsList ", (nRxnsList == 1) ? "reaction" : "reactions", " of $nRxns will be solved (~ $(nRxnsList * 100 / nRxns) \%).\n")
     else
        println(" >> All $nRxns reactions of the model will be solved (100 \%).\n")
     end
@@ -552,8 +552,8 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
 
         # distribution across workers
         @sync for (p, pid) in enumerate(workers())
-            for iRound=0:1
-                @async R[p, iRound+1] = @spawnat (p+1) begin
+            for iRound = 0:1
+                @async R[p, iRound + 1] = @spawnat (p + 1) begin
                     m = buildCobraLP(model, solver) # on each worker, the model must be built individually
                     loopFBA(m, rxnsList[rxnsKey[p]], nRxns, rxnsOptMode[rxnsKey[p]], iRound, pid)
                 end
@@ -564,8 +564,8 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
         @sync for (p, pid) in enumerate(workers())
 
             # save the minimum and maximum
-            minFlux[rxnsList[rxnsKey[p]]] = fetch(R[p,1])[1][rxnsList[rxnsKey[p]]]
-            maxFlux[rxnsList[rxnsKey[p]]] = fetch(R[p,2])[1][rxnsList[rxnsKey[p]]]
+            minFlux[rxnsList[rxnsKey[p]]] = fetch(R[p, 1])[1][rxnsList[rxnsKey[p]]]
+            maxFlux[rxnsList[rxnsKey[p]]] = fetch(R[p, 2])[1][rxnsList[rxnsKey[p]]]
 
             # save the fluxes of each reaction
             if saveChunks
@@ -577,26 +577,26 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
                 filemax = matopen("$(dirname(@__FILE__))/../results/fvamax/fvamax_$p.mat", "w")
 
                 # save the reaction key for each worker into each file
-                write(filemin, "fvamin", fetch(R[p,1])[2][:, :])
-                write(filemax, "fvamax", fetch(R[p,2])[2][:, :])
+                write(filemin, "fvamin", fetch(R[p, 1])[2][:, :])
+                write(filemax, "fvamax", fetch(R[p, 2])[2][:, :])
 
                 # close the 2 file streams
                 close(filemin)
                 close(filemax)
                 print_with_color(:green, "Done.\n")
             else
-                fvamin[:, rxnsList[rxnsKey[p]]] = fetch(R[p,1])[2][:, :]
-                fvamax[:, rxnsList[rxnsKey[p]]] = fetch(R[p,2])[2][:, :]
+                fvamin[:, rxnsList[rxnsKey[p]]] = fetch(R[p, 1])[2][:, :]
+                fvamax[:, rxnsList[rxnsKey[p]]] = fetch(R[p, 2])[2][:, :]
             end
 
             # save the solver status for each reaction
-            statussolmin[rxnsList[rxnsKey[p]]] = fetch(R[p,1])[3][rxnsList[rxnsKey[p]]]
-            statussolmax[rxnsList[rxnsKey[p]]] = fetch(R[p,2])[3][rxnsList[rxnsKey[p]]]
+            statussolmin[rxnsList[rxnsKey[p]]] = fetch(R[p, 1])[3][rxnsList[rxnsKey[p]]]
+            statussolmax[rxnsList[rxnsKey[p]]] = fetch(R[p, 2])[3][rxnsList[rxnsKey[p]]]
         end
 
     # perform maximizations and minimizations sequentially
     else
-        m = buildCobraLP(model,solver)
+        m = buildCobraLP(model, solver)
         minFlux, fvamin, statussolmin = loopFBA(m, rxnsList, nRxns, rxnsOptMode, 0)
         maxFlux, fvamax, statussolmax = loopFBA(m, rxnsList, nRxns, rxnsOptMode, 1)
     end
