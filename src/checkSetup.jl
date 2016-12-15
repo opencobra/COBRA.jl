@@ -26,11 +26,11 @@ See also: `using`, `isdir()`
 function checkPackage(pkgname)
 
     try
-        eval(Expr(:using,pkgname))
+        eval(Expr(:using, pkgname))
         return true
     catch
         if isdir(Pkg.dir((string(pkgname))))
-           print_with_color(:yellow, "Package ",string(pkgname),
+           print_with_color(:yellow, "Package ", string(pkgname),
                " is installed but couldn't be loaded. ",
                "You may need to run `Pkg.build(\"$pkgname\")`\n")
         else

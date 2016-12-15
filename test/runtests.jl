@@ -42,8 +42,7 @@ end
 
 includeCOBRA = false
 
-for s in 1:length(packages)
-
+for s = 1:length(packages)
     # define a solvername
     solverName = string(packages[s])
 
@@ -54,7 +53,7 @@ for s in 1:length(packages)
     print_with_color(:green, "\n\n -- Running $(length(testDir) - 2) tests using the $solverName solver. -- \n\n")
 
     # evaluate the test file
-    for t in 1:length(testDir)
+    for t = 1:length(testDir)
         # run only parallel and serial test files
         if testDir[t][1:2] == "p_" || testDir[t][1:2] == "s_" || testDir[t][1:2] == "z_"
             print_with_color(:green, "\nRunning $(testDir[t]) ...\n\n")
@@ -64,6 +63,6 @@ for s in 1:length(packages)
 end
 
 # print a status line
-print_with_color(:green, "\n -- All tests passed. -- \n\n") 
+print_with_color(:green, "\n -- All tests passed. -- \n\n")
 
 #-------------------------------------------------------------------------------------------

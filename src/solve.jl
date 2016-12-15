@@ -93,7 +93,7 @@ julia> changeCobraSolver("CPLEX", cpxControl)
 See also: `MathProgBase.jl`
 """
 
-function changeCobraSolver(name, params=[])
+function changeCobraSolver(name, params = [])
 
     # convert type of name
     if typeof(name) != :String
