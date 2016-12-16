@@ -17,6 +17,7 @@ The documentation is here: http://opencobra.github.io/COBRA.jl
 """
 
 module COBRA
+
     # include the load file to load a model of .mat format
     using MAT
     using MathProgBase
@@ -24,6 +25,7 @@ module COBRA
     include("load.jl")
     include("solve.jl")
     include("distributedFBA.jl")
+    
 end
 
 #-------------------------------------------------------------------------------------------

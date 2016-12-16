@@ -38,7 +38,7 @@ include("$(dirname(@__FILE__))/../config/solverCfg.jl")
 solver = changeCobraSolver(solverName, solParams)
 
 # load an external mat file
-model = loadModel("ecoli_core_model.mat", "S", "model")
+model = loadModel("$(dirname(@__FILE__))/ecoli_core_model.mat", "S", "model")
 
 modelOrig = model
 

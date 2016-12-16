@@ -105,6 +105,7 @@ function createPool(localWorkers::Int, connectSSH::Bool = false)
     end
 
     return workers(), nWorkers
+    
 end
 
 export createPool

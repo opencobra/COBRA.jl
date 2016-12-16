@@ -38,7 +38,7 @@ include("$(dirname(@__FILE__))/../config/solverCfg.jl")
 solver = changeCobraSolver(solverName, solParams)
 
 # load an external mat file
-model = loadModel("ecoli_core_model.mat", "S", "model")
+model = loadModel("$(dirname(@__FILE__))/ecoli_core_model.mat", "S", "model")
 
 # run all the reactions as a reference
 minFlux1, maxFlux1, optSol1, fbaSol1, fvamin1, fvamax1, statussolmin1, statussolmax1 = distributedFBA(model, solver, nWorkers, 90.0, "max")
