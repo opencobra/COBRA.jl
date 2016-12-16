@@ -38,20 +38,20 @@ include("$(dirname(@__FILE__))/../config/solverCfg.jl")
 solver = changeCobraSolver(solverName, solParams)
 
 # load an external mat file
-model = loadModel("ecoli_core_model.mat", "S", "model")
+model = loadModel("$(dirname(@__FILE__))/ecoli_core_model.mat", "S", "model")
 
 # run all the reactions as a reference
 minFlux1, maxFlux1, optSol1, fbaSol1, fvamin1, fvamax1, statussolmin1, statussolmax1 = distributedFBA(model, solver, nWorkers, 90.0, "max")
 
-rxnsList = [1;18;10;20:30;90;93;95]
-rxnsOptMode = [0;1;2;2+zeros(Int,length(20:30));2;1;0]
+rxnsList = [1; 18; 10; 20:30; 90; 93; 95]
+rxnsOptMode = [0; 1; 2; 2 + zeros(Int, length(20:30)); 2; 1; 0]
 
 # run only a few reactions with rxnsOptMode and rxnsList
 minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers, 90.0, "max", rxnsList, 0, rxnsOptMode)
 
 # test the solution status
-@test norm(statussolmin[rxnsList] - [1;-1;1;ones(Int,length(20:30));1;-1;1]) < 1e-9
-@test norm(statussolmax[rxnsList] - [-1;1;1;ones(Int,length(20:30));1;1;-1]) < 1e-9
+@test norm(statussolmin[rxnsList] - [1; -1; 1; ones(Int, length(20:30)); 1; -1; 1]) < 1e-9
+@test norm(statussolmax[rxnsList] - [-1; 1; 1; ones(Int, length(20:30)); 1; 1; -1]) < 1e-9
 
 # test fbaSol vectors
 @test norm(fbaSol - fbaSol1) < 1e-9
@@ -60,15 +60,15 @@ minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = d
 #other solvers (e.g., CPLEX) might report alternate optimal solutions
 if solverName == "GLPKMathProgInterface"
     # test minimum flux vectors
-    @test norm(fvamin[:,4:14] - fvamin1[:,20:30]) < 1e-9
+    @test norm(fvamin[:, 4:14] - fvamin1[:, 20:30]) < 1e-9
 
     # text maximum flux vectors
-    @test norm(fvamax[:,4:14] - fvamax1[:,20:30]) < 1e-9
+    @test norm(fvamax[:, 4:14] - fvamax1[:, 20:30]) < 1e-9
 end
 
 # test rxnsOptMode and rxnsList criteria
-@test norm(minFlux[[1;10;20:30;90;95]] - minFlux1[[1;10;20:30;90;95]]) < 1e-9
-@test norm(maxFlux[[18;10;20:30;90;93]] - maxFlux1[[18;10;20:30;90;93]]) < 1e-9
+@test norm(minFlux[[1; 10; 20:30; 90; 95]] - minFlux1[[1; 10; 20:30; 90; 95]]) < 1e-9
+@test norm(maxFlux[[18; 10; 20:30; 90; 93]] - maxFlux1[[18; 10; 20:30; 90; 93]]) < 1e-9
 
 # run only the reactions of the rxnsList (both maximizations and minimizations)
 startTime   = time()
@@ -83,10 +83,10 @@ solTime = time() - startTime
 #other solvers (e.g., CPLEX) might report alternate optimal solutions
 if solverName == "GLPKMathProgInterface"
     # test minimum flux vectors
-    @test norm(fvamin[:,4:14] - fvamin1[:,20:30]) < 1e-9
+    @test norm(fvamin[:, 4:14] - fvamin1[:, 20:30]) < 1e-9
 
     # text maximum flux vectors
-    @test norm(fvamax[:,4:14] - fvamax1[:,20:30]) < 1e-9
+    @test norm(fvamax[:, 4:14] - fvamax1[:, 20:30]) < 1e-9
 end
 
 # save the variables to the current directory

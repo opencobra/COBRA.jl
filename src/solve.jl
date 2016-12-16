@@ -17,8 +17,8 @@ Definition of a common solver type, which inclues the name of the solver and oth
 """
 
 type SolverConfig
-  name      ::String
-  handle    ::Union{Int64, MathProgBase.SolverInterface.AbstractMathProgSolver}
+    name      ::String
+    handle    ::Union{Int64, MathProgBase.SolverInterface.AbstractMathProgSolver}
 end
 
 #-------------------------------------------------------------------------------------------
@@ -49,20 +49,18 @@ See also: `MathProgBase.LinearQuadraticModel()`, `MathProgBase.HighLevelInterfac
 function buildCobraLP(model, solver::SolverConfig)
 
     if solver.handle != -1
-
         # prepare the csense vector when letters instead of symbols are used
         for i = 1:length(model.csense)
-            if model.csense[i] == 'E'  model.csense[i] = '='  end
-            if model.csense[i] == 'G'  model.csense[i] = '<'  end
-            if model.csense[i] == 'L'  model.csense[i] = '>'  end
+            if model.csense[i] == 'E'  model.csense[i] = '=' end
+            if model.csense[i] == 'G'  model.csense[i] = '<' end
+            if model.csense[i] == 'L'  model.csense[i] = '>' end
         end
 
         return MathProgBase.HighLevelInterface.buildlp(model.osense * model.c, model.S, model.csense, model.b, model.lb, model.ub, solver.handle)
     else
-
         error("The solver is not supported. Please set solver name to one the supported solvers.")
-
     end
+
 end
 
 #-------------------------------------------------------------------------------------------
@@ -207,10 +205,9 @@ function solveCobraLP(model, solver)
         return solutionLP
 
     else
-
         error("The solver handle is not set properly using `changeCobraSolver()`.")
-
     end
+
 end
 
 export buildCobraLP, changeCobraSolver, solveCobraLP

@@ -116,6 +116,7 @@ function preFBA!(model, solver, optPercentage::Float64 = 100.0, osenseStr::Strin
         print_with_color(:blue, "No objective set (`c` is zero). objValue and fbaSol not defined. optPercentage = $optPercentage.\n\n")
         return nothing
     end
+    
 end
 
 #-------------------------------------------------------------------------------------------
@@ -272,7 +273,7 @@ function splitRange(model, rxnsList, nWorkers::Int = 1, strategy::Int = 0)
         end #end for loop
     end
 
-return rxnsKey
+    return rxnsKey
 
 end
 
@@ -370,10 +371,6 @@ function loopFBA(m, rxnsList, nRxns::Int, rxnsOptMode = 2 + zeros(Int,length(rxn
             # retrieve the solution status
             statLP = solutionLP.status
 
-            if statLP == :Optimal && iRound == 0
-                solutionLP.objval = - solutionLP.objval
-            end
-
             # output the solution, save the minimum and maximum fluxes
             if statLP == :Optimal
                 # retrieve the objective value
@@ -405,7 +402,7 @@ function loopFBA(m, rxnsList, nRxns::Int, rxnsOptMode = 2 + zeros(Int,length(rxn
         end # end condition performOptim
     end #end k loop
 
-return retObj, retFlux, retStat
+    return retObj, retFlux, retStat
 
 end
 
@@ -437,7 +434,7 @@ initialized using the `createPool` function (or similar).
     - 1: only maximization
     - 2: minimization & maximization
       [default: all reactions are minimized and maximized, i.e. 2+zeros(Int,length(model.rxns))]
-- `preFBA`:         Boolean to solve the original FBA and add a percentage condition (default: true)
+- `preFBA`:         Solve the original FBA and add a percentage condition (Boolean variable, default: true for flux variability analysis FVA)
 - `saveChunks`:     Save the fluxes of the minimizations and maximizations in individual files on each worker (applicable for large models)
 
 # OUTPUTS
@@ -536,9 +533,16 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
        println(" >> All $nRxns reactions of the model will be solved (100 \%).\n")
     end
 
+    # sanity checks for large models
     if (nRxnsList > 20000 && nWorkers <= 4) || (nRxns > 100000 && !saveChunks)
-        warn("\nTrying to solve more than 20000 optimization problems on fewer than 4 workers. Memory might be limited.")
-        info(" >> Try running this analysis on a cluster, or use a larger parallel pool.\n")
+        error("\nTrying to solve more than 20000 optimization problems on fewer than 4 workers. Memory might be limited.")
+        info(" >> Try running this analysis on a cluster, or use a larger parallel pool. Consider setting `saveChunks = true`.\n")
+    end
+
+    # sanity check for few reactions on a large pool
+    if nRxnsList < nWorkers
+        warn("\nThe parallel pool of workers is larger than the number of reactions being solved.")
+        info(" >> Consider reducing the size of the parallel pool to free system resources.\n")
     end
 
     # perform maximizations and minimizations in parallel

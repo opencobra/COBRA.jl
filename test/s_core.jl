@@ -38,7 +38,7 @@ include("$(dirname(@__FILE__))/../config/solverCfg.jl")
 solver = changeCobraSolver(solverName, solParams)
 
 # load an external mat file
-model = loadModel("ecoli_core_model.mat", "S", "model")
+model = loadModel("$(dirname(@__FILE__))/ecoli_core_model.mat", "S", "model")
 
 # select the number of reactions
 rxnsList = 1:length(model.rxns)
@@ -67,11 +67,11 @@ solTime = time() - startTime
 # Test numerical values - test on floor as different numerical precision with different solvers
 @test floor(maximum(maxFlux)) == 1000.0
 @test floor(minimum(maxFlux)) == -21.0
-@test floor(maximum(minFlux)) == 32.0
-@test floor(minimum(minFlux)) == -36.0
+@test floor(maximum(minFlux)) == 35.0
+@test floor(minimum(minFlux)) == -33.0
 @test floor(norm(maxFlux))    == 1427.0
 @test floor(norm(minFlux))    == 93.0
-@test abs((- model.c' * minFlux)[1] - optSol) < 1e-9
+@test abs((model.c' * minFlux)[1] - optSol) < 1e-9
 
 # save the variables to the current directory
 saveDistributedFBA("testFile.mat")
