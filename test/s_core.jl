@@ -59,9 +59,12 @@ solutionLP = solveCobraLP(model, solver)
 
 @test abs(solutionLP2.objval - solutionLP.objval) < 1e-9
 
+# define an optPercentage value
+optPercentage = 90.0
+
 # launch the distributedFBA process
 startTime = time()
-minFlux, maxFlux, optSol = distributedFBA(model, solver, nWorkers, 90.0, "max", rxnsList)
+minFlux, maxFlux, optSol = distributedFBA(model, solver, nWorkers, optPercentage, "max", rxnsList)
 solTime = time() - startTime
 
 # Test numerical values - test on floor as different numerical precision with different solvers
@@ -71,7 +74,7 @@ solTime = time() - startTime
 @test floor(minimum(minFlux)) == -33.0
 @test floor(norm(maxFlux))    == 1427.0
 @test floor(norm(minFlux))    == 93.0
-@test abs((model.c' * minFlux)[1] - optSol) < 1e-9
+@test abs((model.c' * minFlux)[1] - optPercentage/100.0 * optSol) < 1e-6
 
 # save the variables to the current directory
 saveDistributedFBA("testFile.mat")

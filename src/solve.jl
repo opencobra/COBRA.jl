@@ -52,8 +52,8 @@ function buildCobraLP(model, solver::SolverConfig)
         # prepare the csense vector when letters instead of symbols are used
         for i = 1:length(model.csense)
             if model.csense[i] == 'E'  model.csense[i] = '=' end
-            if model.csense[i] == 'G'  model.csense[i] = '<' end
-            if model.csense[i] == 'L'  model.csense[i] = '>' end
+            if model.csense[i] == 'G'  model.csense[i] = '>' end
+            if model.csense[i] == 'L'  model.csense[i] = '<' end
         end
 
         return MathProgBase.HighLevelInterface.buildlp(model.osense * model.c, model.S, model.csense, model.b, model.lb, model.ub, solver.handle)

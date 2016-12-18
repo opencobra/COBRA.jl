@@ -46,10 +46,13 @@ nWorkers = 1
 rxnsList = 13
 rxnsOptMode = 1  # maximization
 
+# define an optPercentage value
+optPercentage = 10.0
+
 for s = 0:2
     # launch the distributedFBA process
     startTime   = time()
-    minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers, 10.0, "min", rxnsList, s, rxnsOptMode, false)
+    minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers, optPercentage, "min", rxnsList, s, rxnsOptMode, false)
     solTime = time() - startTime
 
     # Test numerical values - test on ceil as different numerical precision with different solvers
@@ -59,7 +62,7 @@ for s = 0:2
     @test ceil(minimum(minFlux)) == 0.0
     @test ceil(norm(maxFlux))    == 1.0
     @test ceil(norm(minFlux))    == 0.0
-    @test abs((model.c'*fbaSol)[1] - optSol) < 1e-9
+    @test abs((model.c'*fbaSol)[1] - optPercentage/100.0 * optSol) < 1e-9
 
     # print a solution summary
     printSolSummary(testFile, optSol, maxFlux, minFlux, solTime, nWorkers, solverName)

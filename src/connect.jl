@@ -7,7 +7,7 @@
 
 #-------------------------------------------------------------------------------------------
 """
-    createPool(localWorkers, connectSSHWorkers)
+    createPool(localWorkers, connectSSHWorkers, connectionFile)
 
 Function used to create a pool of parallel workers that are either local or connected via SSH.
 
@@ -20,6 +20,7 @@ Function used to create a pool of parallel workers that are either local or conn
 
 - `connectSSH`:     Boolean that indicates whether additional nodes should be connected via SSH.
                     (default: `false`)
+- `connectionFile`  Name of the file with the SSH connection details (default: config/sshCfg.jl in the `COBRA` package installation folder)
 
 # OUTPUTS
 
@@ -33,29 +34,34 @@ Minimum working example:
 julia> createPool(localWorkers)
 ```
 
+Local workers and workers on SSH nodes can be connected as follows:
+```julia
+workersPool, nWorkers = createPool(12, true, "mySSHCfg.jl")
+```
+which will connect 12 local workers, and all workers defined in `mySSHCfg.jl`. An example connection file is provided in the `config/` folder of the `COBRA` package installation folder.
+
 See also: `workers()`, `nprocs()`, `addprocs()`, `gethostname()`
 
 """
 
-function createPool(localWorkers::Int, connectSSH::Bool = false)
+function createPool(localWorkers::Int, connectSSH::Bool = false, connectionFile::String = "$(dirname(@__FILE__))/../config/sshCfg.jl")
 
     # load cores on remote nodes
     if connectSSH
-        localWorkers = 0
-
         # load the SSH configuration
-        if is_windows()
-            include("$(dirname(pwd()))\config\\sshCfg.jl")
+        if isfile(connectionFile)
+            print("Loading SSH connection details from $connectionFile ...")
+            include(connectionFile)
+            print_with_color(:green, "Done.\n")
         else
-            include("$(dirname(pwd()))/config/sshCfg.jl")
+            error("Connection file (filename: `$connectionFile`) is unreadable or not accessible.")
         end
 
         #count the total number of workers
         remoteWorkers = 0
-        for i = 1:length(sshWorkers[1,:])
+        for i = 1:length(sshWorkers)
             remoteWorkers = remoteWorkers + sshWorkers[i]["procs"]
         end
-
     else #no remote SSH nodes
         remoteWorkers = 0 #specify that no remote workers are used
         if localWorkers == 0
@@ -75,28 +81,40 @@ function createPool(localWorkers::Int, connectSSH::Bool = false)
         # print a warning for already connected threads
         if nprocs() > nWorkers
             print_with_color(:blue, "$nWorkers workers already connected. No further workers to connect.\n")
+        end
 
         # add local threads
-        elseif localWorkers > 0
-            addprocs(localWorkers)
+        if localWorkers > 0 && nworkers() < nWorkers
+            addprocs(localWorkers,topology=:master_slave)
             print_with_color(:blue, "$(nworkers()) local workers are connected. (+1) on host: $(gethostname())\n")
+        end
 
         # add remote threads
-        elseif connectSSH && nworkers() < nWorkers
-
+        if connectSSH && nworkers() < nWorkers && isfile(connectionFile)
             info("Connecting SSH nodes ...")
 
             # loop through the workers to be connected
-            for i in 1:length(sshWorkers)
+            @sync for i = 1:length(sshWorkers)
                 println(" >> Connecting ", sshWorkers[i]["procs"], " workers on ", sshWorkers[i]["usernode"])
 
                 try
-                    addprocs([(sshWorkers[i]["usernode"],sshWorkers[i]["procs"])],topology=:master_slave, tunnel=true,dir=sshWorkers[i]["dir"],sshflags=sshWorkers[i]["flags"],exeflags=`--depwarn=no`,exename=sshWorkers[i]["exename"])
+                    # try first if the ssh login works
+                    if !is_windows()
+                        run(`ssh -q $(sshWorkers[i]["flags"]) $(sshWorkers[i]["usernode"]) exit`)
+                    else
+                        error("Connecting computing nodes via SSH nodes is only supported on UNIX systems.\n")
+                    end
+                catch resPing
+                    if isa(resPing, ErrorException)
+                        error("Cannot connect $nWorkers workers via SSH. Check details in $connectionFile.")
+                    else
+                        addprocs([(sshWorkers[i]["usernode"], sshWorkers[i]["procs"])], topology = :master_slave,
+                                 tunnel = true, dir=sshWorkers[i]["dir"], sshflags = sshWorkers[i]["flags"],
+                                exeflags=`--depwarn=no`, exename = sshWorkers[i]["exename"])
 
-                    info("Connected ", sshWorkers[i]["procs"], " workers on ",  sshWorkers[i]["usernode"])
-                    remoteWorkers += sshWorkers[i]["procs"]
-                catch
-                    error("Cannot connect $nWorkers via SSH. Check your `sshCfg.jl` file.")
+                        info("Connected ", sshWorkers[i]["procs"], " workers on ",  sshWorkers[i]["usernode"])
+                        remoteWorkers += sshWorkers[i]["procs"]
+                    end
                 end
             end
 
@@ -105,7 +123,7 @@ function createPool(localWorkers::Int, connectSSH::Bool = false)
     end
 
     return workers(), nWorkers
-    
+
 end
 
 export createPool

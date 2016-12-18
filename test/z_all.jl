@@ -66,7 +66,8 @@ print_with_color(:yellow, "\n>> The following tests throw warning messages for t
 # connect SSH workers that are not reachable
 @test createPool(1, false) == (workers(), 1)
 @test_throws ErrorException workersPool, nWorkers = createPool(0, false)
-@test_throws ErrorException workersPool, nWorkers = createPool(nWorkers+1, true)
+@test_throws ErrorException workersPool, nWorkers = createPool(0, true, "")
+@test_throws ErrorException workersPool, nWorkers = createPool(0, true)
 
 # connect twice the same number of workers
 @test createPool(4) == (workers(), 4)
@@ -96,7 +97,7 @@ solver.handle = -1
 
 # test if an infeasible solution status is returned
 solver = changeCobraSolver(solverName, solParams)
-m = MathProgBase.HighLevelInterface.buildlp([1.0, 0.0],[2.0 1.0], '<', -1.0, solver.handle)
+m = MathProgBase.HighLevelInterface.buildlp([1.0, 0.0], [2.0, 1.0]', '<', -1.0, solver.handle)
 retObj, retFlux, retStat = loopFBA(m, 1, 2)
 if solverName == "Clp" || solverName == "Gurobi" || solverName == "CPLEX" || solverName == "Mosek"
     @test retStat[1] == 0 # infeasible
@@ -107,10 +108,10 @@ end
 # load the test model
 modelTest = loadModel("$(dirname(@__FILE__))/ecoli_core_model.mat", "S", "modelTest")
 @test modelTest.osense == -1
-@test modelTest.csense == fill('E',length(modelTest.b))
+@test modelTest.csense == fill('E', length(modelTest.b))
 
 # test buildlp and solvelp for an unbounded problem
-m = MathProgBase.HighLevelInterface.buildlp([-1.0, -1.0],[-1.0 2.0],'<',[0.0], solver.handle)
+m = MathProgBase.HighLevelInterface.buildlp([-1.0, -1.0], [-1.0, 2.0]', '<', [0.0], solver.handle)
 sol = MathProgBase.HighLevelInterface.solvelp(m)
 if solver.name == "Clp" || solver.name == "Gurobi" || solver.name == "GLPK" || solver.name == "Mosek"
     @test sol.status == :Unbounded
@@ -119,10 +120,12 @@ elseif solverName == "CPLEX"
 end
 
 # solve an unbounded problem using loopFBA
-m = MathProgBase.HighLevelInterface.buildlp([0.0, -1.0],[-1.0 2.0],'<',[0.0], solver.handle)
+m = MathProgBase.HighLevelInterface.buildlp([0.0, -1.0], [-1.0, 2.0]', '<', [0.0], solver.handle)
 retObj, retFlux, retStat = loopFBA(m, 1, 2, 2, 1)
 if solver.name == "Clp" || solver.name == "Gurobi" || solver.name == "GLPK" || solver.name == "Mosek"
     @test retStat == [2, -1] # unbounded and not solved
 elseif solver.name == "CPLEX"
     @test retStat == [4, -1] # unbounded and not solved
 end
+
+print_with_color(:yellow, "\n >> Note: Warnings above are thrown for testing purposes and can be safely ignored.\n")
