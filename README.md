@@ -35,14 +35,26 @@ At the Julia prompt, add the `COBRA` package:
 ```Julia
 Pkg.add("COBRA")
 ```
+Please make sure that all your packages are updated:
+```Julia
+Pkg.update()
+```
 
 Use the `COBRA.jl` module by running:
 ```Julia
 using COBRA
 ```
-Please make sure that all your packages are updated:
+
+If you want to enjoy the latest untagged (but eventually unstable) features of `COBRA.jl`, do the following from `Julia`:
 ```Julia
-Pkg.update()
+if isdir(Pkg.dir("COBRA"))
+    run(`rm -rf $(Pkg.dir("COBRA"))`)
+end
+Pkg.clone("https://github.com/opencobra/COBRA.jl.git")
+```
+Please make sure to not run `Pkg.update()` after having fetched the latest version. You may confirm that you have the latest version by typing:
+```Julia
+Pkg.status("COBRA")
 ```
 
 Testing and benchmarking
