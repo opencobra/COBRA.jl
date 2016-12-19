@@ -45,7 +45,7 @@ var documenterSearchIndex = {"docs": [
     "page": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
     "title": "Installation of COBRA",
     "category": "section",
-    "text": "At the Julia prompt, add the COBRA package:Pkg.add(\"COBRA\")Use the COBRA.jl module by running:using COBRAPlease make sure that all your packages are updated:Pkg.update()"
+    "text": "At the Julia prompt, add the COBRA package:Pkg.add(\"COBRA\")Please make sure that all your packages are updated:Pkg.update()Use the COBRA.jl module by running:using COBRAIf you want to enjoy the latest untagged (but eventually unstable) features of COBRA.jl, do the following from Julia:if isdir(Pkg.dir(\"COBRA\"))\n    run(`rm -rf $(Pkg.dir(\"COBRA\"))`)\nend\nPkg.clone(\"https://github.com/opencobra/COBRA.jl.git\")Please make sure to not run Pkg.update() after having fetched the latest version. You may confirm that you have the latest version by typing:Pkg.status(\"COBRA\")"
 },
 
 {
@@ -269,7 +269,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tutorial",
     "title": "Distributed FBA of distinct reactions",
     "category": "section",
-    "text": "You may now input several reactions with various rxnsOptMode values to run specific optimization problems.rxnsList = [1;18;10;20:30;90;93;95]\nrxnsOptMode = [0;1;2;2+zeros(Int,length(20:30));2;1;0]\n\n# run only a few reactions with rxnsOptMode and rxnsList\n# distributedFBA(model, solver, nWorkers, optPercentage, objective, rxnsList, strategy, preFBA, rxnsOptMode)\nminFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers, 90.0, \"max\", rxnsList, 0, rxnsOptMode);Note that the reactions can be input as an unordered list."
+    "text": "You may now input several reactions with various rxnsOptMode values to run specific optimization problems.rxnsList = [1; 18; 10; 20:30; 90; 93; 95]\nrxnsOptMode = [0; 1; 2; 2+zeros(Int, length(20:30)); 2; 1; 0]\n\n# run only a few reactions with rxnsOptMode and rxnsList\n# distributedFBA(model, solver, nWorkers, optPercentage, objective, rxnsList, strategy, preFBA, rxnsOptMode)\nminFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers, 90.0, \"max\", rxnsList, 0, rxnsOptMode);Note that the reactions can be input as an unordered list."
 },
 
 {
@@ -305,19 +305,19 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "configuration.html#solverCfg.jl-1",
+    "location": "configuration.html#Solver-configuration-parameters:-solverCfg.jl-1",
     "page": "Configuration",
-    "title": "solverCfg.jl",
+    "title": "Solver configuration parameters: solverCfg.jl",
     "category": "section",
-    "text": "An array with all solver parameters is defined as follows:solParams = [(:parameter, value)]For the CPLEX solver, a list of all CPLEX parameters can be found here"
+    "text": "In order to load currently defined solver parameters, the following file may be included in the script, which defines the solParams array:include(\"$(Pkg.dir(\"COBRA\"))/config/solverCfg.jl\")Then, the COBRA solver can be set with:solver = changeCobraSolver(solverName, solParams);If specific solver parameters should be set, the file solverCfg.jl may also be edited, or a new file mySolverCfg.jl can be created in the folder config loaded as:include(\"config/mySolverCfg.jl\")The solver can then be set in a similar way with the additional argument solParams in changeCobraSolver.In general, an array with all solver parameters is defined as follows:solParams = [(:parameter, value)]For the CPLEX solver, a list of all CPLEX parameters can be found here. The array of solver parameters can be defined as follows:solParams = [\n    # decides whether or not results are displayed on screen in an application of the C API.\n    (:CPX_PARAM_SCRIND,         0);\n\n    # sets the parallel optimization mode. Possible modes are automatic, deterministic, and opportunistic.\n    (:CPX_PARAM_PARALLELMODE,   1);\n\n    # sets the default maximal number of parallel threads that will be invoked by any CPLEX parallel optimizer.\n    (:CPX_PARAM_THREADS,        1);\n\n    # partitions the number of threads for CPLEX to use for auxiliary tasks while it solves the root node of a problem.\n    (:CPX_PARAM_AUXROOTTHREADS, 2);\n\n    # decides how to scale the problem matrix.\n    (:CPX_PARAM_SCAIND,         1);\n\n    # controls which algorithm CPLEX uses to solve continuous models (LPs).\n    (:CPX_PARAM_LPMETHOD,       0)\n] #end of solParams"
 },
 
 {
-    "location": "configuration.html#sshCfg.jl-1",
+    "location": "configuration.html#SSH-connection-details:-sshCfg.jl-1",
     "page": "Configuration",
-    "title": "sshCfg.jl",
+    "title": "SSH connection details: sshCfg.jl",
     "category": "section",
-    "text": "An array with all connection details to SHH nodes is defined as follows:sshWorkers = Array{Dict{Any, Any}}(1)\n\nsshWorkers[1,:] = Dict( \"usernode\"   => \"first.last@server.com\",\n                        \"procs\"  => 32,\n                        \"dir\"    => `~/COBRA.jl/`,\n                        \"flags\"  => `-4 -p22`,\n                        \"exename\"=> \"/usr/bin/julia/bin/./julia\")Make sure that the size of sshWorkers is properly set."
+    "text": "A parallel pool with workers on SSH nodes can be created using:include(\"$(Pkg.dir(\"COBRA\"))/src/connect.jl\")\nworkersPool, nWorkers = createPool(12, true, \"mySSHCfg.jl\")which will connect 12 local workers, and all workers defined in mySSHCfg.jl. An example connection file is provided in the config/ folder of the COBRA package installation folder.An array with all connection details to SSH nodes is defined as follows:sshWorkers = Array{Dict{Any, Any}}(1)\n\nsshWorkers[1,:] = Dict( \"usernode\"   => \"first.last@server.com\",\n                        \"procs\"  => 32,\n                        \"dir\"    => `~/COBRA.jl/`,\n                        \"flags\"  => `-4 -p22`,\n                        \"exename\"=> \"/usr/bin/julia/bin/./julia\")Make sure that the size of sshWorkers is properly set."
 },
 
 {
@@ -341,7 +341,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Modules and Functions",
     "title": "createPool",
     "category": "Function",
-    "text": "createPool(localWorkers, connectSSHWorkers)\n\nFunction used to create a pool of parallel workers that are either local or connected via SSH.\n\nINPUTS\n\nlocalWorkers:   Number of local workers to connect.                   If connectSSH is true, the number of localWorkers is 1 (host).\n\nOPTIONAL INPUTS\n\nconnectSSH:     Boolean that indicates whether additional nodes should be connected via SSH.                   (default: false)\n\nOUTPUTS\n\nworkers():      Array of IDs of the connected workers (local and SSH workers)\nnWorkers:       Total number of connect workers (local and SSH workers)\n\nEXAMPLES\n\nMinimum working example:\n\njulia> createPool(localWorkers)\n\nSee also: workers(), nprocs(), addprocs(), gethostname()\n\n\n\n"
+    "text": "createPool(localWorkers, connectSSHWorkers, connectionFile)\n\nFunction used to create a pool of parallel workers that are either local or connected via SSH.\n\nINPUTS\n\nlocalWorkers:   Number of local workers to connect.                   If connectSSH is true, the number of localWorkers is 1 (host).\n\nOPTIONAL INPUTS\n\nconnectSSH:     Boolean that indicates whether additional nodes should be connected via SSH.                   (default: false)\nconnectionFile  Name of the file with the SSH connection details (default: config/sshCfg.jl in the COBRA package installation folder)\n\nOUTPUTS\n\nworkers():      Array of IDs of the connected workers (local and SSH workers)\nnWorkers:       Total number of connect workers (local and SSH workers)\n\nEXAMPLES\n\nMinimum working example:\n\njulia> createPool(localWorkers)\n\nLocal workers and workers on SSH nodes can be connected as follows:\n\nworkersPool, nWorkers = createPool(12, true, \"mySSHCfg.jl\")\n\nwhich will connect 12 local workers, and all workers defined in mySSHCfg.jl. An example connection file is provided in the config/ folder of the COBRA package installation folder.\n\nSee also: workers(), nprocs(), addprocs(), gethostname()\n\n\n\n"
 },
 
 {
@@ -421,7 +421,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Modules and Functions",
     "title": "saveDistributedFBA",
     "category": "Function",
-    "text": "saveDistributedFBA(fileName::String)\n\nOutput a file with all the output variables of distributedFBA()\n\nINPUTS\n\nfileName:         Filename of the output\n\nOUTPUTS\n\n.mat file with all output variables of distributedFBA()\n\n\n\n"
+    "text": "saveDistributedFBA(fileName::String)\n\nOutput a file with all the output variables of distributedFBA()\n\nINPUTS\n\nfileName:         Filename of the output\n\nOUTPUTS\n\n.mat file with all output variables of distributedFBA()\n\nEXAMPLES\n\nMinimum working example\n\njulia> saveDistributedFBA(\"myResults.mat\")\n\nFile location\n\njulia> saveDistributedFBA(\"myDirectory/myResults.mat\")\n\nHome location\n\njulia> saveDistributedFBA(ENV[\"HOME\"]*\"/myResults.mat\")\n\n\n\n"
 },
 
 {
@@ -445,7 +445,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Modules and Functions",
     "title": "loadModel",
     "category": "Function",
-    "text": "loadModel(fileName, matrixAS, modelName)\n\nFunction used to load a COBRA model from an existing .mat file\n\nINPUTS\n\nfilename:       Name of the .mat file that contains the model structure\n\nOPTIONAL INPUTS\n\nmatrixAS:       String to distinguish the name of stoichiometric matrix (\"S\" or \"A\", default: \"S\")\nmodelName:      String with the name of the model structure (default: \"model\")\nmodelFields:    Array with strings of fields of the model structure (default: [\"ub\", \"lb\", \"osense\", \"c\", \"b\", \"csense\", \"rxns\", \"mets\"])\n\nOUTPUTS\n\nLPproblem()     :LPproblem object with filled fields from .mat file\n\nExamples\n\nMinimum working example\n\njulia> loadModel(\"myModel.mat\")\n\nFull input/output example\n\njulia> model = loadModel(\"myModel.mat\", \"A\", \"myModelName\", [\"ub\",\"lb\",\"osense\",\"c\",\"b\",\"csense\",\"rxns\",\"mets\"]);\n\nNotes\n\nosense is set to \"max\" (osense = -1) by default\nAll entries of A, b, c, lb, ub are of type float\n\nSee also: MAT.jl, matopen(), matread()\n\n\n\n"
+    "text": "loadModel(fileName, matrixAS, modelName, modelFields)\n\nFunction used to load a COBRA model from an existing .mat file\n\nINPUTS\n\nfilename:       Name of the .mat file that contains the model structure\n\nOPTIONAL INPUTS\n\nmatrixAS:       String to distinguish the name of stoichiometric matrix (\"S\" or \"A\", default: \"S\")\nmodelName:      String with the name of the model structure (default: \"model\")\nmodelFields:    Array with strings of fields of the model structure (default: [\"ub\", \"lb\", \"osense\", \"c\", \"b\", \"csense\", \"rxns\", \"mets\"])\n\nOUTPUTS\n\nLPproblem()     :LPproblem object with filled fields from .mat file\n\nExamples\n\nMinimum working example\n\njulia> loadModel(\"myModel.mat\")\n\nFull input/output example\n\njulia> model = loadModel(\"myModel.mat\", \"A\", \"myModelName\", [\"ub\",\"lb\",\"osense\",\"c\",\"b\",\"csense\",\"rxns\",\"mets\"]);\n\nNotes\n\nosense is set to \"max\" (osense = -1) by default\nAll entries of A, b, c, lb, ub are of type float\n\nSee also: MAT.jl, matopen(), matread()\n\n\n\n"
 },
 
 {
