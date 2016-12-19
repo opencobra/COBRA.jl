@@ -62,7 +62,7 @@ for s = 0:2
     @test ceil(minimum(minFlux)) == 0.0
     @test ceil(norm(maxFlux))    == 1.0
     @test ceil(norm(minFlux))    == 0.0
-    @test abs((model.c'*fbaSol)[1] - optPercentage/100.0 * optSol) < 1e-9
+    @test abs((model.c'*fbaSol)[1] - optPercentage / 100.0 * optSol) < 1e-9
 
     # print a solution summary
     printSolSummary(testFile, optSol, maxFlux, minFlux, solTime, nWorkers, solverName)

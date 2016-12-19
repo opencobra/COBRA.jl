@@ -109,7 +109,7 @@ function createPool(localWorkers::Int, connectSSH::Bool = false, connectionFile:
                         error("Cannot connect $nWorkers workers via SSH. Check details in $connectionFile.")
                     else
                         addprocs([(sshWorkers[i]["usernode"], sshWorkers[i]["procs"])], topology = :master_slave,
-                                 tunnel = true, dir=sshWorkers[i]["dir"], sshflags = sshWorkers[i]["flags"],
+                                 tunnel = true, dir = sshWorkers[i]["dir"], sshflags = sshWorkers[i]["flags"],
                                 exeflags=`--depwarn=no`, exename = sshWorkers[i]["exename"])
 
                         info("Connected ", sshWorkers[i]["procs"], " workers on ",  sshWorkers[i]["usernode"])

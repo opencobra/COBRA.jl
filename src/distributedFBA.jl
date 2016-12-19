@@ -78,9 +78,9 @@ function preFBA!(model, solver, optPercentage::Float64 = 100.0, osenseStr::Strin
             fbaSol = fbaSolution.sol
 
             if osenseStr == "max"
-                objValue = floor(FBAobj/tol)*tol*optPercentage/100.0
+                objValue = floor(FBAobj/tol) * tol * optPercentage / 100.0
             else
-                objValue = ceil(FBAobj/tol)*tol*optPercentage/100.0
+                objValue = ceil(FBAobj/tol) * tol * optPercentage / 100.0
             end
         else
             error("No optimal solution found to the orginal FBA problem!\n")
