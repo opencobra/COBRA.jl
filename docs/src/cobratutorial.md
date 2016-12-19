@@ -1,4 +1,3 @@
-
 # COBRA.jl - Tutorial
 
 This tutorial serves as a quick start guide as well as an interactive reference for more advanced users.
@@ -51,8 +50,7 @@ workspace()
 
 You may, at any time, check the integrity of the `COBRA.jl` package by running:
 
-
-```julia
+```Julia
 Pkg.test("COBRA")
 ```
 
@@ -203,8 +201,8 @@ You may now input several reactions with various `rxnsOptMode` values to run spe
 
 
 ```julia
-rxnsList = [1;18;10;20:30;90;93;95]
-rxnsOptMode = [0;1;2;2+zeros(Int,length(20:30));2;1;0]
+rxnsList = [1; 18; 10; 20:30; 90; 93; 95]
+rxnsOptMode = [0; 1; 2; 2+zeros(Int, length(20:30)); 2; 1; 0]
 
 # run only a few reactions with rxnsOptMode and rxnsList
 # distributedFBA(model, solver, nWorkers, optPercentage, objective, rxnsList, strategy, preFBA, rxnsOptMode)

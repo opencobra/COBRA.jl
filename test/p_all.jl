@@ -238,9 +238,12 @@ maxFluxT = [0
             ]
 
 for s = 0:2
+    # define an optPercentage value
+    optPercentage = 90.0
+
     # launch the distributedFBA process
     startTime = time()
-    minFlux, maxFlux, optSol = distributedFBA(model, solver, nWorkers, 90.0, "max", rxnsList, s)
+    minFlux, maxFlux, optSol = distributedFBA(model, solver, nWorkers, optPercentage, "max", rxnsList, s)
     solTime = time() - startTime
 
     # Test numerical values - test on floor as different numerical precision with different solvers
@@ -250,7 +253,7 @@ for s = 0:2
     @test floor(minimum(minFlux)) == -33.0
     @test floor(norm(maxFlux))    == 1427.0
     @test floor(norm(minFlux))    == 93.0
-    @test abs((model.c' * minFlux)[1] - optSol) < 1e-9
+    @test abs((model.c' * minFlux)[1] - optPercentage / 100.0 * optSol) < 1e-6
 
     # test each element of the minimum and maximum flux vectors
     for i = 1:length(minFlux)
@@ -274,7 +277,7 @@ solTime = time() - startTime
 @test floor(minimum(minFlux)) == -30.0
 @test floor(norm(maxFlux))    == 1414.0
 @test floor(norm(minFlux))    == 106.0
-@test abs((model.c' * minFlux)[1] - optSol) < 1e-9
+@test abs((model.c' * minFlux)[1] - optSol) < 1e-6
 
 # save the variables to the current directory
 saveDistributedFBA("testFile.mat")

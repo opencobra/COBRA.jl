@@ -38,7 +38,7 @@ end
 
 #-------------------------------------------------------------------------------------------
 """
-    loadModel(fileName, matrixAS, modelName)
+    loadModel(fileName, matrixAS, modelName, modelFields)
 
 Function used to load a COBRA model from an existing .mat file
 
@@ -91,7 +91,7 @@ function loadModel(fileName::String, matrixAS::String = "S", modelName::String =
             if matrixAS in modelKeys
                 S = model[matrixAS]
             else
-                S = model[(matrixAS == "S")? "A" : "S"]
+                S = model[(matrixAS == "S") ? "A" : "S"]
                 error("Matrix `$matrixAS` does not exist in `$modelName`, but matrix `S` exists. Set `matrixAS = S` if you want to use `S`.")
             end
         else

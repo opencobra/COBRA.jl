@@ -60,18 +60,17 @@ function preFBA!(model, solver, optPercentage::Float64 = 100.0, osenseStr::Strin
     nRxnsList = length(rxnsList)
 
     if optPercentage > OPT_PERCENTAGE
-      print_with_color(:cyan, "The optPercentage is higher than 90. The solution process might take longer than expected.\n\n")
+        print_with_color(:cyan, "The optPercentage is higher than 90. The solution process might take longer than expected.\n\n")
     end
 
     # determine constraints for the correct space (0-100% of the full space)
-    if (countnz(model.c) > 0)
+    if countnz(model.c) > 0
         hasObjective = true
 
         # solve the original LP problem
         fbaSolution = solveCobraLP(model, solver)
 
         if fbaSolution.status == :Optimal
-
             # retrieve the solution to the initial LP
             FBAobj = fbaSolution.objval
 
@@ -79,14 +78,13 @@ function preFBA!(model, solver, optPercentage::Float64 = 100.0, osenseStr::Strin
             fbaSol = fbaSolution.sol
 
             if osenseStr == "max"
-                objValue = floor(FBAobj/tol)*tol*optPercentage/100.0
+                objValue = floor(FBAobj/tol) * tol * optPercentage / 100.0
             else
-                objValue = ceil(FBAobj/tol)*tol*optPercentage/100.0
+                objValue = ceil(FBAobj/tol) * tol * optPercentage / 100.0
             end
         else
             error("No optimal solution found to the orginal FBA problem!\n")
         end
-
     else
         hasObjective = false
         fbaSol = 0.0
@@ -94,8 +92,7 @@ function preFBA!(model, solver, optPercentage::Float64 = 100.0, osenseStr::Strin
 
     # add a condition if the LP has an extra condition based on the FBA solution
     if hasObjective
-
-        print_with_color(:blue, "preFBA! [osenseStr = $osenseStr]: objValue = $objValue, norm(fbaSol) = $(norm(fbaSol)), optPercentage = $optPercentage.\n\n")
+        print_with_color(:blue, "preFBA! [osenseStr = $osenseStr]: FBAobj = $FBAobj, optPercentage = $optPercentage, objValue = optPercentage * FBAobj = $objValue, norm(fbaSol) = $(norm(fbaSol)).\n\n")
 
         # add a row in the stoichiometric matrix
         model.S = [model.S; model.c']
@@ -110,13 +107,12 @@ function preFBA!(model, solver, optPercentage::Float64 = 100.0, osenseStr::Strin
             push!(model.csense, '<')
         end
 
-        return objValue, fbaSol
-
+        return FBAobj, fbaSol
     else
         print_with_color(:blue, "No objective set (`c` is zero). objValue and fbaSol not defined. optPercentage = $optPercentage.\n\n")
         return nothing
     end
-    
+
 end
 
 #-------------------------------------------------------------------------------------------
@@ -163,7 +159,7 @@ See also: `distributeFBA()`
 function splitRange(model, rxnsList, nWorkers::Int = 1, strategy::Int = 0)
 
     # determine number of reactions for each worker
-    pRxnsWorker = convert(Int, ceil(length(rxnsList)/nWorkers))
+    pRxnsWorker = convert(Int, ceil(length(rxnsList) / nWorkers))
 
     # determine the length of the rxnsList
     NrxnsList = length(rxnsList)
@@ -196,7 +192,7 @@ function splitRange(model, rxnsList, nWorkers::Int = 1, strategy::Int = 0)
 
         # loop through the number of reactions and determine the column density
         for i in 1:NrxnsList
-              cdVect[i] = nnz(model.S[:,rxnsList[i]]) / Nmets * 100.0
+              cdVect[i] = nnz(model.S[:, rxnsList[i]]) / Nmets * 100.0
         end
 
         # initialize counter vectors
@@ -209,23 +205,23 @@ function splitRange(model, rxnsList, nWorkers::Int = 1, strategy::Int = 0)
         sortedrxnsVect = rxnsVect[indexcdVect]
 
         # determine the number of reactions per worker
-        pRxnsHalfWorker = convert(Int, ceil(NrxnsList/(2*nWorkers)))
+        pRxnsHalfWorker = convert(Int, ceil(NrxnsList / (2 * nWorkers)))
 
         for p in 1:nWorkers
             # strategy 1
             if strategy == 1
-                startMarker1[p] = (p-1) * pRxnsHalfWorker + 1
+                startMarker1[p] = (p - 1) * pRxnsHalfWorker + 1
                 endMarker1[p]   = p * pRxnsHalfWorker
 
-                startMarker2[p] = startMarker1[p] + convert(Int, ceil(NrxnsList/2.0))
-                endMarker2[p]   = endMarker1[p] + convert(Int, ceil(NrxnsList/2.0))
+                startMarker2[p] = startMarker1[p] + convert(Int, ceil(NrxnsList / 2.0))
+                endMarker2[p]   = endMarker1[p] + convert(Int, ceil(NrxnsList / 2.0))
 
             # strategy 2
             elseif strategy == 2
                 startMarker1[p] = (p-1) * pRxnsHalfWorker + 1
                 endMarker1[p]   = p * pRxnsHalfWorker
 
-                startMarker2[p] = convert(Int, ceil(NrxnsList/2.0)) + startMarker1[p]
+                startMarker2[p] = convert(Int, ceil(NrxnsList / 2.0)) + startMarker1[p]
                 endMarker2[p]   = startMarker2[p] + pRxnsHalfWorker + 1
             end
 
@@ -491,6 +487,12 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
     minFlux = zeros(nRxns)
     maxFlux = zeros(nRxns)
 
+    # sanity check for very large models
+    if nRxns > 100000 && !saveChunks
+        saveChunks = true
+        info("Trying to solve a model of $nRxns reactions. `saveChunks` has been set to `true`.")
+    end
+
     # initialilze the flux matrices
     if !saveChunks
         fvamax = zeros(nRxns, nRxns)
@@ -534,9 +536,9 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
     end
 
     # sanity checks for large models
-    if (nRxnsList > 20000 && nWorkers <= 4) || (nRxns > 100000 && !saveChunks)
-        error("\nTrying to solve more than 20000 optimization problems on fewer than 4 workers. Memory might be limited.")
-        info(" >> Try running this analysis on a cluster, or use a larger parallel pool. Consider setting `saveChunks = true`.\n")
+    if nRxnsList > 20000 && nWorkers <= 4
+        warn("\nTrying to solve more than 20000 optimization problems on fewer than 4 workers. Memory might be limited.")
+        info(" >> Try running this analysis on a cluster, or use a larger parallel pool.\n")
     end
 
     # sanity check for few reactions on a large pool
@@ -673,6 +675,23 @@ Output a file with all the output variables of `distributedFBA()`
 
 - `.mat` file with all output variables of `distributedFBA()`
 
+# EXAMPLES
+
+- Minimum working example
+```julia
+julia> saveDistributedFBA("myResults.mat")
+```
+
+- File location
+```julia
+julia> saveDistributedFBA("myDirectory/myResults.mat")
+```
+
+- Home location
+```julia
+julia> saveDistributedFBA(ENV["HOME"]*"/myResults.mat")
+```
+
 """
 
 function saveDistributedFBA(fileName::String)
@@ -703,7 +722,7 @@ function saveDistributedFBA(fileName::String)
 
     # print a status message
     if countSavedVars > 0
-        print_with_color(:green, "All available variables saved to $(pwd())/$fileName.\n")
+        print_with_color(:green, "All available variables saved to $fileName.\n")
     else
         warn("No variables saved.")
     end

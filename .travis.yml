@@ -32,7 +32,7 @@ script:
 
     # add the COBRA module
     - julia --color=yes -e 'Pkg.clone(pwd())'
-    - julia --color=yes -e 'Pkg.build("COBRA")'
+    - julia --color=yes -e 'Pkg.build()'
     - julia --color=yes -e 'Pkg.test("COBRA",coverage=true)'
 
 after_success:
