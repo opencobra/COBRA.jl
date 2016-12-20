@@ -60,7 +60,7 @@ function createPool(localWorkers::Int, connectSSH::Bool = false, connectionFile:
         #count the total number of workers
         remoteWorkers = 0
         for i = 1:length(sshWorkers)
-            remoteWorkers = remoteWorkers + sshWorkers[i]["procs"]
+            remoteWorkers += sshWorkers[i]["procs"]
         end
     else #no remote SSH nodes
         remoteWorkers = 0 #specify that no remote workers are used
@@ -85,7 +85,7 @@ function createPool(localWorkers::Int, connectSSH::Bool = false, connectionFile:
 
         # add local threads
         if localWorkers > 0 && nworkers() < nWorkers
-            addprocs(localWorkers,topology=:master_slave)
+            addprocs(localWorkers, topology = :master_slave)
             print_with_color(:blue, "$(nworkers()) local workers are connected. (+1) on host: $(gethostname())\n")
         end
 
@@ -94,27 +94,29 @@ function createPool(localWorkers::Int, connectSSH::Bool = false, connectionFile:
             info("Connecting SSH nodes ...")
 
             # loop through the workers to be connected
-            @sync for i = 1:length(sshWorkers)
+            for i = 1:length(sshWorkers)
                 println(" >> Connecting ", sshWorkers[i]["procs"], " workers on ", sshWorkers[i]["usernode"])
 
                 try
-                    # try first if the ssh login works
                     if !is_windows()
+                        # try logging in quietly to defined node using SSH
                         run(`ssh -q $(sshWorkers[i]["flags"]) $(sshWorkers[i]["usernode"]) exit`)
+
+                        # add threads when the SSH login is successful
+                        addprocs([(sshWorkers[i]["usernode"], sshWorkers[i]["procs"])], topology = :master_slave,
+                                 tunnel = true, dir = sshWorkers[i]["dir"], sshflags = sshWorkers[i]["flags"],
+                                 exeflags=`--depwarn=no`, exename = sshWorkers[i]["exename"])
+
+                        # return a status update
+                        info("Connected ", sshWorkers[i]["procs"], " workers on ",  sshWorkers[i]["usernode"])
+
+                        # increase the counter of remote workers
+                        remoteWorkers += sshWorkers[i]["procs"]
                     else
                         error("Connecting computing nodes via SSH nodes is only supported on UNIX systems.\n")
                     end
-                catch resPing
-                    if isa(resPing, ErrorException)
-                        error("Cannot connect $nWorkers workers via SSH. Check details in $connectionFile.")
-                    else
-                        addprocs([(sshWorkers[i]["usernode"], sshWorkers[i]["procs"])], topology = :master_slave,
-                                 tunnel = true, dir = sshWorkers[i]["dir"], sshflags = sshWorkers[i]["flags"],
-                                exeflags=`--depwarn=no`, exename = sshWorkers[i]["exename"])
-
-                        info("Connected ", sshWorkers[i]["procs"], " workers on ",  sshWorkers[i]["usernode"])
-                        remoteWorkers += sshWorkers[i]["procs"]
-                    end
+                catch
+                    error("Cannot connect $nWorkers workers via SSH. Check details in $connectionFile.")
                 end
             end
 
