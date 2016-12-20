@@ -62,6 +62,9 @@ for s = 1:length(packages)
     end
 end
 
+# remove the results folder to clean up
+run(`rm -rf $(dirname(@__FILE__))/../results`)
+
 # print a status line
 print_with_color(:green, "\n -- All tests passed. -- \n\n")
 
