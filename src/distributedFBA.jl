@@ -530,9 +530,9 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
     end
 
     if nRxns != nRxnsList
-       println(" >> Only $nRxnsList ", (nRxnsList == 1) ? "reaction" : "reactions", " of $nRxns will be solved (~ $(nRxnsList * 100 / nRxns) \%).\n")
+        println(" >> Only $nRxnsList ", (nRxnsList == 1) ? "reaction" : "reactions", " of $nRxns will be solved (~ $(nRxnsList * 100 / nRxns) \%).\n")
     else
-       println(" >> All $nRxns reactions of the model will be solved (100 \%).\n")
+        println(" >> All $nRxns reactions of the model will be solved (100 \%).\n")
     end
 
     # sanity checks for large models
@@ -582,9 +582,19 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
                 filemin = matopen("$(dirname(@__FILE__))/../results/fvamin/fvamin_$p.mat", "w")
                 filemax = matopen("$(dirname(@__FILE__))/../results/fvamax/fvamax_$p.mat", "w")
 
-                # save the reaction key for each worker into each file
+                # saving the rxnsList and rxnsOptMode temporarily
+                tmpRxnsList = convertUnitRange(rxnsList[rxnsKey[p]])
+                tmpRxnsOptMode = convertUnitRange(rxnsOptMode[rxnsKey[p]])
+
+                # save the reaction key for each worker into each file (filemin)
                 write(filemin, "fvamin", fetch(R[p, 1])[2][:, :])
+                write(filemin, "rxnsList", tmpRxnsList)
+                write(filemin, "rxnsOptMode", tmpRxnsOptMode)
+
+                # save the reaction key for each worker into each file (filemax)
                 write(filemax, "fvamax", fetch(R[p, 2])[2][:, :])
+                write(filemax, "rxnsList", tmpRxnsList)
+                write(filemax, "rxnsOptMode", tmpRxnsOptMode)
 
                 # close the 2 file streams
                 close(filemin)
@@ -613,7 +623,7 @@ end
 
 #-------------------------------------------------------------------------------------------
 """
-    printSolSummary(testFile, optSol, maxFlux, minFlux, solTime, nWorkers, solverName, strategy = 0)
+    printSolSummary(testFile, optSol, maxFlux, minFlux, solTime, nWorkers, solverName, strategy, saveChunks)
 
 Output a solution summary
 
@@ -665,7 +675,7 @@ end
 """
     saveDistributedFBA(fileName::String)
 
-Output a file with all the output variables of `distributedFBA()`
+Output a file with all the output variables of `distributedFBA()` and `rxnsList`
 
 # INPUTS
 
@@ -700,15 +710,16 @@ function saveDistributedFBA(fileName::String)
     file = matopen(fileName, "w")
 
     # set the list of variables
-    vars = ["minFlux", "maxFlux", "optSol", "fbaSol", "fvamin", "fvamax", "statussolmin", "statussolmax"]
+    vars = ["minFlux", "maxFlux", "optSol", "fbaSol", "fvamin", "fvamax", "statussolmin", "statussolmax", "rxnsList"]
 
     countSavedVars = 0
 
     # loop through the list of variables
     for i = 1:length(vars)
         if isdefined(Main, Symbol(vars[i]))
-            print("Saving $(vars[i])...")
-            write(file, "$(vars[i])", eval(Main, Symbol(vars[i])))
+            print("Saving $(vars[i]) (T:> $(typeof(eval(Main, Symbol(vars[i]))))) ...")
+
+            write(file, "$(vars[i])", convertUnitRange( eval(Main, Symbol(vars[i])) ))
 
             # increment the counter
             countSavedVars = countSavedVars + 1
@@ -726,6 +737,54 @@ function saveDistributedFBA(fileName::String)
     else
         warn("No variables saved.")
     end
+
+end
+
+#------------------------------------------------------------------------------------------
+"""
+    convertUnitRange(vect)
+
+Converts a unit range vector to an array type vector.
+If the vector is not of UnitRange{Int64} type, the same vector is returned.
+
+# INPUTS
+
+- `vect`:         Any vector (UnitRange{Int64} will be converted to Array{Int64})
+
+# OUTPUTS
+
+- `retVect`       Converted vector (if type of input vector is UnitRange{Int64})
+
+# EXAMPLES
+
+- Minimum working example
+```julia
+julia> a = 1:4
+1:4
+
+julia> convertUnitRange(a)
+4-element Array{Int64,1}:
+  1
+  2
+  3
+  4
+```
+
+"""
+
+function convertUnitRange(vect)
+
+    retVect = zeros(Int64, length(vect))
+
+    if typeof(vect) == UnitRange{Int64}
+        for k = 1:length(vect)
+            retVect[k] = vect[k]
+        end
+    else
+        retVect = vect
+    end
+
+    return retVect
 
 end
 
