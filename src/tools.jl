@@ -1,4 +1,11 @@
 #-------------------------------------------------------------------------------------------
+#=
+    Purpose:    Tools for working with COBRA models
+    Author:     Laurent Heirendt - LCSB - Luxembourg
+    Date:       January 2017
+=#
+
+#-------------------------------------------------------------------------------------------
 """
     findRxnIDS(model, rxnsList)
 
@@ -84,3 +91,6 @@ function findRxnIDS(model, rxnsList = model.rxns)
 		return rxnIDs, rxnIDsNE
 
 end
+
+export findRxnIDS
+#-------------------------------------------------------------------------------------------

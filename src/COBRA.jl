@@ -28,6 +28,7 @@ module COBRA
     include("load.jl")
     include("solve.jl")
     include("distributedFBA.jl")
+    include("tools.jl")
 
 end
 
