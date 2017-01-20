@@ -99,7 +99,7 @@ function changeCobraSolver(name, params = [])
     end
 
     # define empty solver object
-    solver = SolverConfig(name,0)
+    solver = SolverConfig(name, 0)
 
     # define the solver handle
     if name == "CPLEX"
@@ -123,7 +123,7 @@ function changeCobraSolver(name, params = [])
     elseif name == "Gurobi"
         try
             if length(params) > 1
-                solver.handle = GurobiSolver(Method=params[1],OutputFlag=params[2])
+                solver.handle = GurobiSolver(Method=params[1], OutputFlag=params[2])
             else
                 solver.handle = GurobiSolver()
             end
@@ -205,4 +205,5 @@ function solveCobraLP(model, solver)
 end
 
 export buildCobraLP, changeCobraSolver, solveCobraLP
+
 #-------------------------------------------------------------------------------------------

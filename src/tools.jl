@@ -36,6 +36,7 @@ julia> findRxnIDS(model)
 ```julia
 julia> rxnIDs, rxnIDsNE = findRxnIDS(model, rxnsList)
 ```
+
 - Full input/output example
 ```julia
 julia> rxnIDs, rxnIDsNE = findRxnIDS(model, ["reactionName1", "reactionName2"])
@@ -55,7 +56,6 @@ function findRxnIDS(model, rxnsList = model.rxns)
 				rxnIDs = model.rxns
 		else
 				for j = 1:length(rxnsList)
-
 						# initialize a flag of not having found the reaction
 						flag = false
 
@@ -92,5 +92,54 @@ function findRxnIDS(model, rxnsList = model.rxns)
 
 end
 
-export findRxnIDS
+#------------------------------------------------------------------------------------------
+"""
+    convertUnitRange(vect)
+
+Converts a unit range vector to an array type vector.
+If the vector is not of UnitRange{Int64} type, the same vector is returned.
+
+# INPUTS
+
+- `vect`:         Any vector (UnitRange{Int64} will be converted to Array{Int64})
+
+# OUTPUTS
+
+- `retVect`       Converted vector (if type of input vector is UnitRange{Int64})
+
+# EXAMPLES
+
+- Minimum working example
+```julia
+julia> a = 1:4
+1:4
+
+julia> convertUnitRange(a)
+4-element Array{Int64,1}:
+  1
+  2
+  3
+  4
+```
+
+"""
+
+function convertUnitRange(vect)
+
+    retVect = zeros(Int64, length(vect))
+
+    if typeof(vect) == UnitRange{Int64}
+        for k = 1:length(vect)
+            retVect[k] = vect[k]
+        end
+    else
+        retVect = vect
+    end
+
+    return retVect
+
+end
+
+export findRxnIDS, convertUnitRange
+
 #-------------------------------------------------------------------------------------------

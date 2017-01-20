@@ -324,13 +324,13 @@ See also: `distributeFBA()`, `MathProgBase.HighLevelInterface`
 
 """
 
-function loopFBA(m, rxnsList, nRxns::Int, rxnsOptMode = 2 + zeros(Int,length(rxnsList)), iRound::Int = 0, pid::Int = 1)
+function loopFBA(m, rxnsList, nRxns::Int, rxnsOptMode = 2 + zeros(Int, length(rxnsList)), iRound::Int = 0, pid::Int = 1)
 
     # initialize vectors and counters
-    retObj  = zeros(nRxns)
+    retObj = zeros(nRxns)
     retStat = -1 + zeros(Int, nRxns)
     retFlux = zeros(nRxns, length(rxnsList))
-    j       = 1
+    j = 1
 
     # loop over all the reactions
     for k = 1:length(rxnsList)
@@ -575,6 +575,7 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
 
             # save the fluxes of each reaction
             if saveChunks
+
                 if p == 1 println() end
                 print(" Saving the minimum and maximum fluxes for reactions $(rxnsList[rxnsKey[p]]) from worker $p ... ")
 
@@ -739,56 +740,6 @@ function saveDistributedFBA(fileName::String)
     end
 
 end
-
-#------------------------------------------------------------------------------------------
-"""
-    convertUnitRange(vect)
-
-Converts a unit range vector to an array type vector.
-If the vector is not of UnitRange{Int64} type, the same vector is returned.
-
-# INPUTS
-
-- `vect`:         Any vector (UnitRange{Int64} will be converted to Array{Int64})
-
-# OUTPUTS
-
-- `retVect`       Converted vector (if type of input vector is UnitRange{Int64})
-
-# EXAMPLES
-
-- Minimum working example
-```julia
-julia> a = 1:4
-1:4
-
-julia> convertUnitRange(a)
-4-element Array{Int64,1}:
-  1
-  2
-  3
-  4
-```
-
-"""
-
-function convertUnitRange(vect)
-
-    retVect = zeros(Int64, length(vect))
-
-    if typeof(vect) == UnitRange{Int64}
-        for k = 1:length(vect)
-            retVect[k] = vect[k]
-        end
-    else
-        retVect = vect
-    end
-
-    return retVect
-
-end
-
-#------------------------------------------------------------------------------------------
 
 export preFBA!, splitRange, loopFBA, distributedFBA, printSolSummary, saveDistributedFBA
 
