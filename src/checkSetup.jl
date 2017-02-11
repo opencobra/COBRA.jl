@@ -58,11 +58,14 @@ function checkSysConfig()
     #initialize a vector for storing the packages
     packages = []
 
+    # initialize a vector with supported LP solvers
+    LPsolvers = [:Clp, :GLPKMathProgInterface, :Gurobi, :CPLEX, :Mosek]
+
     if checkPackage(:MathProgBase)
 
         # loop through all implemented interfaces
-        for s in 1:length(MathProgBase.LPsolvers)
-            pkgname = MathProgBase.LPsolvers[s][1]
+        for s in 1:length(LPsolvers)
+            pkgname = LPsolvers[s]
 
             if checkPackage(pkgname)
                 print_with_color(:green, string(pkgname), " is installed.\n")
