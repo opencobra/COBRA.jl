@@ -4,6 +4,7 @@
 Thumbs.db
 config/sshCfgPrivate.jl
 test/*.txt
+test/*.mat
 *.ipynb_checkpoints
 *.jl.cov
 *.jl.*.cov
