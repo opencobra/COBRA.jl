@@ -18,7 +18,7 @@ Definition of a common solver type, which inclues the name of the solver and oth
 
 type SolverConfig
     name      ::String
-    handle    ::Union{Int64, MathProgBase.SolverInterface.AbstractMathProgSolver}
+    handle
 end
 
 #-------------------------------------------------------------------------------------------
@@ -104,7 +104,6 @@ function changeCobraSolver(name, params = [])
     # define the solver handle
     if name == "CPLEX"
         try
-            eval(Expr(:using, :CPLEX))
             solver.handle = CplexSolver(params)
         catch
             error("The solver `CPLEX` cannot be set using `changeCobraSolver()`.")
@@ -112,8 +111,6 @@ function changeCobraSolver(name, params = [])
 
     elseif name == "GLPKMathProgInterface" || name == "GLPK"
         try
-            eval(Expr(:using, :GLPKMathProgInterface))
-            eval(Expr(:using, :GLPK))
             if length(params) > 1
                 solver.handle = GLPKSolverLP(method=params[1], presolve=params[2])
             else
@@ -125,7 +122,6 @@ function changeCobraSolver(name, params = [])
 
     elseif name == "Gurobi"
         try
-            eval(Expr(:using, :Gurobi))
             if length(params) > 1
                 solver.handle = GurobiSolver(Method=params[1],OutputFlag=params[2])
             else
@@ -137,7 +133,6 @@ function changeCobraSolver(name, params = [])
 
     elseif name == "Clp"
         try
-            eval(Expr(:using, :Clp))
             solver.handle = ClpSolver()
         catch
             error("The solver `Clp` cannot be set using `changeCobraSolver()`.")
@@ -145,7 +140,6 @@ function changeCobraSolver(name, params = [])
 
     elseif name == "Mosek"
         try
-            eval(Expr(:using, :Mosek))
             solver.handle = MosekSolver()
         catch
           error("The solver `Mosek` cannot be set using `changeCobraSolver()`.")

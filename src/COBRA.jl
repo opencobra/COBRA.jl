@@ -22,10 +22,13 @@ module COBRA
     using MAT
     using MathProgBase
 
+    include("checkSetup.jl")
+    checkSysConfig(0)
+
     include("load.jl")
     include("solve.jl")
     include("distributedFBA.jl")
-    
+
 end
 
 #-------------------------------------------------------------------------------------------
