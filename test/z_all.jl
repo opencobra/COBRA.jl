@@ -29,7 +29,13 @@ if includeCOBRA
     end
 
     using COBRA
+    using Requests
+
+    include("getTestModel.jl")
 end
+
+# download the ecoli_core_model
+getTestModel()
 
 # include a common deck for running tests
 include("$(dirname(@__FILE__))/../config/solverCfg.jl")
@@ -74,22 +80,22 @@ print_with_color(:yellow, "\n>> The following tests throw warning messages for t
 @test createPool(2) == (workers(), 2)
 
 # load a new version of the model
-model=loadModel("$(dirname(@__FILE__))/ecoli_core_model.mat")
+model = loadModel("$(dirname(@__FILE__))/ecoli_core_model.mat")
 
 # run a model with more reactions on the reaction list than in the model
 nWorkers = 1
-rxnsList = 1:length(model.rxns)+1
+rxnsList = 1:length(model.rxns) + 1
 minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers, 90.0, "min", rxnsList)
 
 # test preFBA! with min
 optSol, fbaSol = preFBA!(model, solver, 90.0, "min")
 
 # test if model does not have an objective (no return values)
-model.c = 0.0*model.c
+model.c = 0.0 * model.c
 @test_throws MethodError optSol, fbaSol = preFBA!(model, solver, 90.0, "min")
 
 # set a wrong solver handle
-model=loadModel("$(dirname(@__FILE__))/ecoli_core_model.mat")
+model = loadModel("$(dirname(@__FILE__))/ecoli_core_model.mat")
 solver = changeCobraSolver(solverName, solParams)
 solver.handle = -1
 @test_throws ErrorException solveCobraLP(model, solver)
@@ -106,7 +112,7 @@ else
 end
 
 # load the test model
-modelTest = loadModel("$(dirname(@__FILE__))/ecoli_core_model.mat", "S", "modelTest")
+modelTest = loadModel("$(dirname(@__FILE__))/testData.mat", "S", "modelTest")
 @test modelTest.osense == -1
 @test modelTest.csense == fill('E', length(modelTest.b))
 
