@@ -36,18 +36,18 @@ end
 
 # Definition of workers and load distribution
 wrks = workers()
-Nworkers = length(wrks)
-realLoadRatio = round(Nmodels/Nworkers)
+nWorkers = length(wrks)
+realLoadRatio = round(Nmodels/nWorkers)
 
 println("\n -- Load distribution --\n")
-println(" - Number of workers:                $Nworkers")
+println(" - Number of workers:                $nWorkers")
 println(" - Number of models:                 $Nmodels")
-println(" - True load ratio (Models/worker):  $(Nmodels/Nworkers)")
+println(" - True load ratio (Models/worker):  $(Nmodels/nWorkers)")
 println(" - Realistic load ratio :            $realLoadRatio\n")
 
-if Nmodels%Nworkers > 0
+if Nmodels%nWorkers > 0
     println(" >> Every worker (#", wrks[1], " - #", wrks[end - 1], ") will solve ", realLoadRatio, " model(s).")
-    restModels = Nmodels - (Nworkers-1)*realLoadRatio
+    restModels = Nmodels - (nWorkers-1)*realLoadRatio
     if restModels > 0
         println(" >> Worker #", wrks[end], " will solve ", restModels, " model(s).")
     end
@@ -63,18 +63,36 @@ else
 end
 
 # Preload the COBRA module everywhere
-using COBRA
+using COBRA, MATLAB
 
 # broadcast local variables to every worker
 @eval @everywhere dirContent = $dirContent
-@eval @everywhere MATLAB_EXEC = $MATLAB_EXEC
-@eval @everywhere SCRIPT_NAME = $SCRIPT_NAME
+#@eval @everywhere MATLAB_EXEC = $MATLAB_EXEC
+#@eval @everywhere SCRIPT_NAME = $SCRIPT_NAME
 @eval @everywhere LOCAL_DIR_PATH = $LOCAL_DIR_PATH
 
-@sync for p in wrks
+# prepare array for storing remote references
+R = Array{Future}(nWorkers, 1)
+
+@sync for (p, pid) in enumerate(workers())
 
   info("Launching MATLAB session on worker $p.")
 
-  # call the local Function on each of the workers
-  @spawnat p run(`$MATLAB_EXEC -nodesktop -nosplash -r "PALM_modelFile = '$(dirContent[p-1])'; PALM_iModel = $(p-1); $SCRIPT_NAME;" -logfile $LOCAL_DIR_PATH/logs/logFile_$(dirContent[p-1][1:end-4])_$(p-1).log`)
+  PALM_iModel = p
+  PALM_modelFile = dirContent[PALM_iModel]
+
+  @spawnat p @mput PALM_iModel
+  @spawnat p @mput PALM_modelFile
+  @spawnat p @matlab tutorial_modelCharact_script
+
+  R[p, 1] = @spawnat p @mget columnDensity
+
+  # directly call the local Function on each of the workers using the system command
+  #@spawnat p run(`$MATLAB_EXEC -nodesktop -nosplash -r "PALM_modelFile = '$(dirContent[p-1])'; PALM_iModel = $(p-1); $SCRIPT_NAME;" -logfile $LOCAL_DIR_PATH/logs/logFile_$(dirContent[p-1][1:end-4])_$(p-1).log`)
+end
+
+# retrieve the numerical characteristics from each worker
+columnDensity = []
+for (p, pid) in enumerate(workers())
+    push!(columnDensity, fetch(R[p, 1]))
 end
