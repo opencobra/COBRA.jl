@@ -72,27 +72,43 @@ using COBRA, MATLAB
 @eval @everywhere LOCAL_DIR_PATH = $LOCAL_DIR_PATH
 
 # prepare array for storing remote references
-R = Array{Future}(nWorkers, 1)
+R = Array{Future}(nWorkers, 10)
+
+#=
+modelFile, modelName, matrixName, Nmets, ...
+Nrxns, Nelem, Nnz, sparsityRatio, ...
+bwidth, maxVal, minVal, columnDensity, rankA, rankDeficiencyA, ...
+maxSingVal, minSingVal, condNumber
+=#
 
 @sync for (p, pid) in enumerate(workers())
 
-  info("Launching MATLAB session on worker $p.")
+    info("Launching MATLAB session on worker $p.")
 
-  PALM_iModel = p
-  PALM_modelFile = dirContent[PALM_iModel]
+    PALM_iModel = p
+    PALM_modelFile = dirContent[PALM_iModel]
 
-  @spawnat p @mput PALM_iModel
-  @spawnat p @mput PALM_modelFile
-  @spawnat p @matlab tutorial_modelCharact_script
+    @spawnat p @mput PALM_iModel
+    @spawnat p @mput PALM_modelFile
+    @spawnat p @matlab tutorial_modelCharact_script
 
-  R[p, 1] = @spawnat p @mget columnDensity
+    R[p, 1] = @spawnat p @mget Nmets
+    R[p, 2] = @spawnat p @mget Nrxns
+    R[p, 3] = @spawnat p @mget Nelem
+    R[p, 4] = @spawnat p @mget Nnz
+    R[p, 5] = @spawnat p @mget sparsityRatio
+    R[p, 6] = @spawnat p @mget bwidth
+    R[p, 7] = @spawnat p @mget maxVal
+    R[p, 8] = @spawnat p @mget minVal
+    R[p, 9] = @spawnat p @mget columnDensity
+    R[p, 10] = @spawnat p @mget rankA
 
-  # directly call the local Function on each of the workers using the system command
-  #@spawnat p run(`$MATLAB_EXEC -nodesktop -nosplash -r "PALM_modelFile = '$(dirContent[p-1])'; PALM_iModel = $(p-1); $SCRIPT_NAME;" -logfile $LOCAL_DIR_PATH/logs/logFile_$(dirContent[p-1][1:end-4])_$(p-1).log`)
+    # directly call the local Function on each of the workers using the system command
+    #@spawnat p run(`$MATLAB_EXEC -nodesktop -nosplash -r "PALM_modelFile = '$(dirContent[p-1])'; PALM_iModel = $(p-1); $SCRIPT_NAME;" -logfile $LOCAL_DIR_PATH/logs/logFile_$(dirContent[p-1][1:end-4])_$(p-1).log`)
 end
 
 # retrieve the numerical characteristics from each worker
-columnDensity = []
+data = []
 for (p, pid) in enumerate(workers())
-    push!(columnDensity, fetch(R[p, 1]))
+    push!(data, fetch(R[p, :]))
 end
