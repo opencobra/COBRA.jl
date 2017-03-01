@@ -1,11 +1,11 @@
 # Configuration
 # Local directory with model files
-LOCAL_DIR_PATH = "./AGORA_RenamedBiomassForVMH"
+LOCAL_DIR_PATH = "./AGORA_fixedRxns_17_01_10_sorted_fixGPR"#./testModels"
 MATLAB_EXEC = "/Applications/MATLAB_R2016b.app/bin/matlab"
 SCRIPT_NAME = "tutorial_modelCharact_script"
 
 # Number of MATLAB sessions
-Nmatlab = 2
+Nmatlab = 8
 
 # Part below is FROZEN - do not change unless you know what you are doing.
 if Nmatlab == 1
@@ -13,14 +13,14 @@ if Nmatlab == 1
 end
 
 dirContent = readdir(LOCAL_DIR_PATH);
-Nmodels = length(dirContent);
+nModels = length(dirContent);
 
-info("Directory read successfully ($Nmodels models).")
+info("Directory read successfully ($nModels models).")
 
 # Make sure that not more processes are launched than there are models (load ratio >= 1)
-if Nmatlab > Nmodels
-    warn("Number of workers ($Nmatlab) exceeds the number of models ($Nmodels).")
-    Nmatlab = Nmodels
+if Nmatlab > nModels
+    warn("Number of workers ($Nmatlab) exceeds the number of models ($nModels).")
+    Nmatlab = nModels
     warn("Number of workers reduced to number of models for ideal load distribution.\n")
 end
 
@@ -37,17 +37,17 @@ end
 # Definition of workers and load distribution
 wrks = workers()
 nWorkers = length(wrks)
-realLoadRatio = round(Nmodels/nWorkers)
+realLoadRatio = round(nModels/nWorkers)
 
 println("\n -- Load distribution --\n")
 println(" - Number of workers:                $nWorkers")
-println(" - Number of models:                 $Nmodels")
-println(" - True load ratio (Models/worker):  $(Nmodels/nWorkers)")
+println(" - Number of models:                 $nModels")
+println(" - True load ratio (Models/worker):  $(nModels/nWorkers)")
 println(" - Realistic load ratio :            $realLoadRatio\n")
 
-if Nmodels%nWorkers > 0
+if nModels%nWorkers > 0
     println(" >> Every worker (#", wrks[1], " - #", wrks[end - 1], ") will solve ", realLoadRatio, " model(s).")
-    restModels = Nmodels - (nWorkers-1)*realLoadRatio
+    restModels = nModels - (nWorkers-1)*realLoadRatio
     if restModels > 0
         println(" >> Worker #", wrks[end], " will solve ", restModels, " model(s).")
     end
@@ -58,7 +58,7 @@ if Nmodels%nWorkers > 0
         print_with_color(:yellow, "\n >> Load sharing is almost ideal.\n")
     end
 else
-    println(" >> Every worker will solve ", realLoadRatio, " model(s).")
+    println(" >> Every worker will run ", realLoadRatio, " model(s).")
     print_with_color(:green, " >> Load sharing is ideal.\n")
 end
 
@@ -71,44 +71,75 @@ using COBRA, MATLAB
 #@eval @everywhere SCRIPT_NAME = $SCRIPT_NAME
 @eval @everywhere LOCAL_DIR_PATH = $LOCAL_DIR_PATH
 
-# prepare array for storing remote references
-R = Array{Future}(nWorkers, 10)
+varsCharact = ["Nmets", "Nrxns", "Nelem", "Nnz", "sparsityRatio", "bwidth", "maxVal", "minVal", "columnDensity", "rankA", "rankDeficiencyA", "maxSingVal", "minSingVal", "condNumber"]
 
-#=
-modelFile, modelName, matrixName, Nmets, ...
-Nrxns, Nelem, Nnz, sparsityRatio, ...
-bwidth, maxVal, minVal, columnDensity, rankA, rankDeficiencyA, ...
-maxSingVal, minSingVal, condNumber
-=#
+# determine the number of characteristics to be retrieved
+nCharacteristics = length(varsCharact)
+
+# prepare array for storing remote references
+R = Array{Future}(nWorkers, nCharacteristics)
+
+# retrieve the numerical characteristics from each worker
+data = Array{Union{Int,Float64,AbstractString}}(nModels+1, nCharacteristics+1)
+
+# set the header of all the columns
+data[1, :] = [""; varsCharact]
 
 @sync for (p, pid) in enumerate(workers())
 
-    info("Launching MATLAB session on worker $p.")
+    info("Launching MATLAB session on worker $(p+1).")
+
+    if p+1 < wrks[end]
+        info("Worker $(p+1) runs $realLoadRatio models: from $((p-1)*realLoadRatio + 1) to $(p*realLoadRatio)")
+    else
+        info("Worker $(p+1) runs $restModels models: from $((p-1)*realLoadRatio + 1) to $((p-1)*realLoadRatio + restModels)")
+    end
+    #=
 
     PALM_iModel = p
     PALM_modelFile = dirContent[PALM_iModel]
+
+    # save the modelName
+    data[p+1, 1] = PALM_modelFile
 
     @spawnat p @mput PALM_iModel
     @spawnat p @mput PALM_modelFile
     @spawnat p @matlab tutorial_modelCharact_script
 
-    R[p, 1] = @spawnat p @mget Nmets
-    R[p, 2] = @spawnat p @mget Nrxns
-    R[p, 3] = @spawnat p @mget Nelem
-    R[p, 4] = @spawnat p @mget Nnz
-    R[p, 5] = @spawnat p @mget sparsityRatio
-    R[p, 6] = @spawnat p @mget bwidth
-    R[p, 7] = @spawnat p @mget maxVal
-    R[p, 8] = @spawnat p @mget minVal
-    R[p, 9] = @spawnat p @mget columnDensity
-    R[p, 10] = @spawnat p @mget rankA
-
+    for i = 1:length(varsCharact)
+        R[p, i] = @spawnat p MATLAB.get_variable(Symbol(varsCharact[i]))
+    end
+    =#
     # directly call the local Function on each of the workers using the system command
     #@spawnat p run(`$MATLAB_EXEC -nodesktop -nosplash -r "PALM_modelFile = '$(dirContent[p-1])'; PALM_iModel = $(p-1); $SCRIPT_NAME;" -logfile $LOCAL_DIR_PATH/logs/logFile_$(dirContent[p-1][1:end-4])_$(p-1).log`)
 end
-
-# retrieve the numerical characteristics from each worker
-data = []
+#=
+# insert the data and the model name
 for (p, pid) in enumerate(workers())
-    push!(data, fetch(R[p, :]))
+    for i = 1:nCharacteristics
+        data[p+1, i+1] =  fetch(R[p, i])
+    end
 end
+
+
+using COBRA, MAT
+# save the summaries to individual files
+# open a file with a give filename
+fileName = "modelCharacteristics.mat"
+file = matopen(fileName, "w")
+# set the list of variables
+vars = ["data"]
+countSavedVars = 0
+# loop through the list of variables
+for i = 1:length(vars)
+    if isdefined(Main, Symbol(vars[i]))
+        print("Saving $(vars[i]) (T:> $(typeof(eval(Main, Symbol(vars[i]))))) ...")
+        write(file, "$(vars[i])", convertUnitRange( eval(Main, Symbol(vars[i])) ))
+        # increment the counter
+        countSavedVars = countSavedVars + 1
+        print_with_color(:green, "Done.\n")
+    end
+end
+# close the file and return a status message
+close(file)
+=#
