@@ -77,7 +77,7 @@ varsCharact = ["Nmets", "Nrxns", "Nelem", "Nnz", "sparsityRatio", "bwidth", "max
 nCharacteristics = length(varsCharact)
 
 # prepare array for storing remote references
-R = Array{Future}(nWorkers, nCharacteristics)
+R = Array{Future}(nModels, nCharacteristics)
 
 # retrieve the numerical characteristics from each worker
 data = Array{Union{Int,Float64,AbstractString}}(nModels+1, nCharacteristics+1)
@@ -89,36 +89,37 @@ data[1, :] = [""; varsCharact]
 
     info("Launching MATLAB session on worker $(p+1).")
 
-    startIndex = (p-1)*realLoadRatio + 1
+    startIndex = Int((p-1)*realLoadRatio + 1)
 
     if p+1 < wrks[end]
-        endIndex = p*realLoadRatio
+        endIndex = Int(p*realLoadRatio)
         info("Worker $(p+1) runs $realLoadRatio models: from $startIndex to $endIndex")
     else
-        endIndex = (p-1)*realLoadRatio + restModels
+        endIndex = Int((p-1)*realLoadRatio + restModels)
         info("Worker $(p+1) runs $restModels models: from $startIndex to $endIndex")
     end
-    
-    #=
 
-    PALM_iModel = p
-    PALM_modelFile = dirContent[PALM_iModel]
+    @parallel for k = startIndex:endIndex
 
-    # save the modelName
-    data[p+1, 1] = PALM_modelFile
+        PALM_iModel = k
+        PALM_modelFile = dirContent[PALM_iModel]
 
-    @spawnat p @mput PALM_iModel
-    @spawnat p @mput PALM_modelFile
-    @spawnat p @matlab tutorial_modelCharact_script
+        # save the modelName
+        data[k+1, 1] = PALM_modelFile
 
-    for i = 1:length(varsCharact)
-        R[p, i] = @spawnat p MATLAB.get_variable(Symbol(varsCharact[i]))
+        @spawnat p @mput PALM_iModel
+        @spawnat p @mput PALM_modelFile
+        @spawnat p @matlab tutorial_modelCharact_script
+
+        for i = 1:length(varsCharact)
+            R[k, i] = @spawnat p MATLAB.get_variable(Symbol(varsCharact[i]))
+        end
+
     end
-    =#
     # directly call the local Function on each of the workers using the system command
     #@spawnat p run(`$MATLAB_EXEC -nodesktop -nosplash -r "PALM_modelFile = '$(dirContent[p-1])'; PALM_iModel = $(p-1); $SCRIPT_NAME;" -logfile $LOCAL_DIR_PATH/logs/logFile_$(dirContent[p-1][1:end-4])_$(p-1).log`)
 end
-#=
+
 # insert the data and the model name
 for (p, pid) in enumerate(workers())
     for i = 1:nCharacteristics
@@ -126,7 +127,7 @@ for (p, pid) in enumerate(workers())
     end
 end
 
-
+#=
 using COBRA, MAT
 # save the summaries to individual files
 # open a file with a give filename
