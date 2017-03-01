@@ -89,11 +89,16 @@ data[1, :] = [""; varsCharact]
 
     info("Launching MATLAB session on worker $(p+1).")
 
+    startIndex = (p-1)*realLoadRatio + 1
+
     if p+1 < wrks[end]
-        info("Worker $(p+1) runs $realLoadRatio models: from $((p-1)*realLoadRatio + 1) to $(p*realLoadRatio)")
+        endIndex = p*realLoadRatio
+        info("Worker $(p+1) runs $realLoadRatio models: from $startIndex to $endIndex")
     else
-        info("Worker $(p+1) runs $restModels models: from $((p-1)*realLoadRatio + 1) to $((p-1)*realLoadRatio + restModels)")
+        endIndex = (p-1)*realLoadRatio + restModels
+        info("Worker $(p+1) runs $restModels models: from $startIndex to $endIndex")
     end
+    
     #=
 
     PALM_iModel = p
