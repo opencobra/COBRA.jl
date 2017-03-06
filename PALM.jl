@@ -83,14 +83,16 @@ nCharacteristics = length(varsCharact)
 R = Array{Future}(nWorkers)
 
 # retrieve the numerical characteristics from each worker
+summaryData = Array{Union{Int,Float64,AbstractString}}(nModels + 1, nCharacteristics + 1)
 
 # set the header of all the columns
-data[1, :] = [""; varsCharact]
 
 @everywhere using MATLAB
 
 @everywhere function loopModels(p, dirContent, startIndex, endIndex, nCharacteristics, varsCharact)
 
+    # directly call the local Function on each of the workers using the system command
+    #@spawnat p run(`$MATLAB_EXEC -nodesktop -nosplash -r "PALM_modelFile = '$(dirContent[p-1])'; PALM_iModel = $(p-1); $SCRIPT_NAME;" -logfile $LOCAL_DIR_PATH/logs/logFile_$(dirContent[p-1][1:end-4])_$(p-1).log`)
 
     #local nModels
     if endIndex > startIndex
@@ -149,32 +151,6 @@ end
         loopModels(p, dirContent, startIndex, endIndex, nCharacteristics, varsCharact)
     end
 
-    #=
-    @spawnat p begin
-
-    end
-    =#
-    #=
-    @sync for k = startIndex:endIndex
-        #@show print_with_color(:yellow, "$p - $k")
-        PALM_iModel = k
-        PALM_modelFile = dirContent[PALM_iModel]
-
-        # save the modelName
-        data[k + 1, 1] = PALM_modelFile
-
-        @spawnat p @mput PALM_iModel
-        @spawnat p @mput PALM_modelFile
-        @spawnat p @matlab tutorial_modelCharact_script
-
-        for i = 1:nCharacteristics
-            R[k, i] = @spawnat p MATLAB.get_variable(Symbol(varsCharact[i]))
-        end
-
-    end
-    =#
-    # directly call the local Function on each of the workers using the system command
-    #@spawnat p run(`$MATLAB_EXEC -nodesktop -nosplash -r "PALM_modelFile = '$(dirContent[p-1])'; PALM_iModel = $(p-1); $SCRIPT_NAME;" -logfile $LOCAL_DIR_PATH/logs/logFile_$(dirContent[p-1][1:end-4])_$(p-1).log`)
 end
 
 ## 3 models/worker
@@ -182,28 +158,25 @@ end
 # 12 models, 4 workers -> 7.68s
 # 12 models, 2 workers -> 5.64s
 
+summaryData[1, :] = [""; varsCharact]
+
 # insert the data and the model name
 @sync for (p, pid) in enumerate(workers())
 
     startIndex = Int((p-1) * realLoadRatio + 1)
 
-    if p  < wrks[end]
+    if p < wrks[end]
         endIndex = Int(p * realLoadRatio)
-        #info("Worker $(p + 1) runs $realLoadRatio models: from $startIndex to $endIndex")
+        info("Worker $(p+1) runs $realLoadRatio models: from $startIndex to $endIndex")
+        nModelsPerWorker = Int(realLoadRatio)
     else
         endIndex = Int((p-1) * realLoadRatio + restModels)
-        #info("Worker $(p + 1) runs $restModels models: from $startIndex to $endIndex")
+        info("Worker $(p+1) runs $restModels models: from $startIndex to $endIndex")
+        nModelsPerWorker = Int(restModels)
     end
 
-    @show p
-    @show fetch(R[p])
-    #=
-    for k = startIndex:endIndex
-        for i = 1:nCharacteristics
-
-        end
-    end
-    =#
+    # store the data retrieved from worker p
+    summaryData[startIndex + 1:endIndex + 1, :] = fetch(R[p][2:nModelsPerWorker + 1, :])
 end
 #=
 using COBRA, MAT
