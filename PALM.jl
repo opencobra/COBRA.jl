@@ -65,7 +65,6 @@ end
 
 # Preload the COBRA module everywhere
 # retrieve the numerical characteristics from each worker
-@everywhere using COBRA, MATLAB
 
 # broadcast local variables to every worker
 @eval @everywhere dirContent = $dirContent
@@ -83,6 +82,9 @@ R = Array{Future}(nWorkers)
 
 # declare an empty array for storing a summary of all data
 summaryData = Array{Union{Int,Float64,AbstractString}}(nModels + 1, nCharacteristics + 1)
+
+# use the MATLAB module on every worker
+@everywhere using MATLAB
 
 @everywhere function loopModels(p, dirContent, startIndex, endIndex, nCharacteristics, varsCharact)
 
