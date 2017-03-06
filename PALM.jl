@@ -110,7 +110,7 @@ summaryData = Array{Union{Int,Float64,AbstractString}}(nModels + 1, nCharacteris
         endIndex = endIndex - nModels
     end
 
-    data = Array{Union{Int,Float64,AbstractString}}(nModels + 1, nCharacteristics + 1)
+    data = Array{Union{Int,Float64,AbstractString}}(nModels, nCharacteristics + 1)
 
     for k = startIndex:endIndex
 
@@ -118,14 +118,14 @@ summaryData = Array{Union{Int,Float64,AbstractString}}(nModels + 1, nCharacteris
         PALM_modelFile = dirContent[PALM_iModel]
 
         # save the modelName
-        data[k + 1, 1] = PALM_modelFile
+        data[k, 1] = PALM_modelFile
 
         @mput PALM_iModel
         @mput PALM_modelFile
         @matlab tutorial_modelCharact_script
 
         for i = 1:nCharacteristics
-            data[k + 1, i + 1] = MATLAB.get_variable(Symbol(varsCharact[i]))
+            data[k, i + 1] = MATLAB.get_variable(Symbol(varsCharact[i]))
         end
 
     end
@@ -176,7 +176,7 @@ summaryData[1, :] = [""; varsCharact]
     end
 
     # store the data retrieved from worker p
-    summaryData[startIndex + 1:endIndex + 1, :] = fetch(R[p][2:nModelsPerWorker + 1, :])
+    summaryData[startIndex + 1:endIndex + 1, :] = fetch(R[p][1:nModelsPerWorker, :])
 end
 #=
 using COBRA, MAT
