@@ -37,7 +37,7 @@ end
 # Definition of workers and load distribution
 wrks = workers()
 nWorkers = length(wrks)
-realLoadRatio = round(nModels/nWorkers)
+realLoadRatio = Int(round(nModels/nWorkers))
 
 println("\n -- Load distribution --\n")
 println(" - Number of workers:                $nWorkers")
@@ -48,12 +48,12 @@ println(" - Realistic load ratio :            $realLoadRatio\n")
 restModels = 0
 if nModels%nWorkers > 0
     println(" >> Every worker (#", wrks[1], " - #", wrks[end - 1], ") will solve ", realLoadRatio, " model(s).")
-    restModels = nModels - (nWorkers-1)*realLoadRatio
+    restModels = Int(nModels - (nWorkers - 1) * realLoadRatio)
     if restModels > 0
         println(" >> Worker #", wrks[end], " will solve ", restModels, " model(s).")
     end
 
-    if realLoadRatio < restModels-1 || restModels < 1
+    if realLoadRatio < restModels - 1 || restModels < 1
         print_with_color(:red, "\n >> Load sharing is not fair. Consider adjusting the maximum poolsize.\n")
     else
         print_with_color(:yellow, "\n >> Load sharing is almost ideal.\n")
@@ -64,12 +64,13 @@ else
 end
 
 # Preload the COBRA module everywhere
-using COBRA, MATLAB
+# retrieve the numerical characteristics from each worker
+@everywhere using COBRA, MATLAB
 
 # broadcast local variables to every worker
 @eval @everywhere dirContent = $dirContent
-#@eval @everywhere MATLAB_EXEC = $MATLAB_EXEC
-#@eval @everywhere SCRIPT_NAME = $SCRIPT_NAME
+@eval @everywhere restModels = $restModels
+@eval @everywhere realLoadRatio = $realLoadRatio
 @eval @everywhere LOCAL_DIR_PATH = $LOCAL_DIR_PATH
 
 varsCharact = ["Nmets", "Nrxns", "Nelem", "Nnz", "sparsityRatio", "bwidth", "maxVal", "minVal", "columnDensity", "rankA", "rankDeficiencyA", "maxSingVal", "minSingVal", "condNumber"]
@@ -78,16 +79,10 @@ varsCharact = ["Nmets", "Nrxns", "Nelem", "Nnz", "sparsityRatio", "bwidth", "max
 nCharacteristics = length(varsCharact)
 
 # prepare array for storing remote references
-#R = Array{Future}(nModels, nCharacteristics)
-#R = Array{Union{Int,Float64,AbstractString}}(nModels, nCharacteristics)
 R = Array{Future}(nWorkers)
 
-# retrieve the numerical characteristics from each worker
+# declare an empty array for storing a summary of all data
 summaryData = Array{Union{Int,Float64,AbstractString}}(nModels + 1, nCharacteristics + 1)
-
-# set the header of all the columns
-
-@everywhere using MATLAB
 
 @everywhere function loopModels(p, dirContent, startIndex, endIndex, nCharacteristics, varsCharact)
 
@@ -97,7 +92,6 @@ summaryData = Array{Union{Int,Float64,AbstractString}}(nModels + 1, nCharacteris
     #local nModels
     if endIndex > startIndex
         nModels = endIndex - startIndex + 1
-        @show nModels
     else
         error("The specified endIndex (=$endIndex) is greater than the specified startIndex (=$startIndex).")
     end
@@ -127,7 +121,6 @@ summaryData = Array{Union{Int,Float64,AbstractString}}(nModels + 1, nCharacteris
         for i = 1:nCharacteristics
             data[k, i + 1] = MATLAB.get_variable(Symbol(varsCharact[i]))
         end
-
     end
 
     return data
@@ -143,21 +136,23 @@ end
         endIndex = Int(p * realLoadRatio)
         info("Worker $(p+1) runs $realLoadRatio models: from $startIndex to $endIndex")
     else
-        endIndex = Int((p-1) * realLoadRatio + restModels)
+        endIndex = Int((p - 1) * realLoadRatio + restModels)
         info("Worker $(p+1) runs $restModels models: from $startIndex to $endIndex")
     end
 
-    @async R[p] = @spawnat (p+1) begin
+    @async R[p] = @spawnat (p + 1) begin
         loopModels(p, dirContent, startIndex, endIndex, nCharacteristics, varsCharact)
     end
 
 end
 
 ## 3 models/worker
-# 6 models, 2 workers -> 4.31s
+# 6 models, 2 workers -> 3.38s
 # 12 models, 4 workers -> 7.68s
-# 12 models, 2 workers -> 5.64s
+# 12 models, 2 workers -> 5.96s
+# 24 models, 2 workers -> 12.65s
 
+# set the header of all the columns
 summaryData[1, :] = [""; varsCharact]
 
 # insert the data and the model name
@@ -167,12 +162,12 @@ summaryData[1, :] = [""; varsCharact]
 
     if p < wrks[end]
         endIndex = Int(p * realLoadRatio)
-        info("Worker $(p+1) runs $realLoadRatio models: from $startIndex to $endIndex")
-        nModelsPerWorker = Int(realLoadRatio)
+        #info("Worker $(p+1) runs $realLoadRatio models: from $startIndex to $endIndex")
+        nModelsPerWorker = realLoadRatio
     else
         endIndex = Int((p-1) * realLoadRatio + restModels)
-        info("Worker $(p+1) runs $restModels models: from $startIndex to $endIndex")
-        nModelsPerWorker = Int(restModels)
+        #info("Worker $(p+1) runs $restModels models: from $startIndex to $endIndex")
+        nModelsPerWorker = restModels
     end
 
     # store the data retrieved from worker p
