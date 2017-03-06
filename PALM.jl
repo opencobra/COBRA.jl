@@ -80,6 +80,9 @@ nCharacteristics = length(varsCharact)
 # prepare array for storing remote references
 R = Array{Future}(nWorkers)
 
+# declare an array to store the indices for each worker
+indicesWorkers = Array{Int}(nWorkers, 3)
+
 # declare an empty array for storing a summary of all data
 summaryData = Array{Union{Int,Float64,AbstractString}}(nModels + 1, nCharacteristics + 1)
 
@@ -128,17 +131,25 @@ summaryData = Array{Union{Int,Float64,AbstractString}}(nModels + 1, nCharacteris
     return data
 end
 
+# launch the function loopModels on every worker
 @sync for (p, pid) in enumerate(workers())
 
     info("Launching MATLAB session on worker $(p+1).")
 
     startIndex = Int((p-1) * realLoadRatio + 1)
 
+    # save the startIndex for each worker
+    indicesWorkers[p, 1] = startIndex
+
     if p < wrks[end]
         endIndex = Int(p * realLoadRatio)
+        indicesWorkers[p, 2] = endIndex
+        indicesWorkers[p, 3] = realLoadRatio
         info("Worker $(p+1) runs $realLoadRatio models: from $startIndex to $endIndex")
     else
         endIndex = Int((p - 1) * realLoadRatio + restModels)
+        indicesWorkers[p, 2] = endIndex
+        indicesWorkers[p, 3] = restModels
         info("Worker $(p+1) runs $restModels models: from $startIndex to $endIndex")
     end
 
@@ -148,47 +159,29 @@ end
 
 end
 
-## 3 models/worker
-# 6 models, 2 workers -> 3.38s
-# 12 models, 4 workers -> 7.68s
-# 12 models, 2 workers -> 5.96s
-# 24 models, 2 workers -> 12.65s
-
 # set the header of all the columns
 summaryData[1, :] = [""; varsCharact]
 
-# insert the data and the model name
+# store the data retrieved from worker p
 @sync for (p, pid) in enumerate(workers())
-
-    startIndex = Int((p-1) * realLoadRatio + 1)
-
-    if p < wrks[end]
-        endIndex = Int(p * realLoadRatio)
-        #info("Worker $(p+1) runs $realLoadRatio models: from $startIndex to $endIndex")
-        nModelsPerWorker = realLoadRatio
-    else
-        endIndex = Int((p-1) * realLoadRatio + restModels)
-        #info("Worker $(p+1) runs $restModels models: from $startIndex to $endIndex")
-        nModelsPerWorker = restModels
-    end
-
-    # store the data retrieved from worker p
-    summaryData[startIndex + 1:endIndex + 1, :] = fetch(R[p][1:nModelsPerWorker, :])
+    summaryData[indicesWorkers[p, 1] + 1:indicesWorkers[p, 2] + 1, :] = fetch(R[p][1:indicesWorkers[p, 3], :])
 end
-#=
-using COBRA, MAT
+
+
+@everywhere using MAT
+
 # save the summaries to individual files
 # open a file with a give filename
 fileName = "modelCharacteristics.mat"
 file = matopen(fileName, "w")
 # set the list of variables
-vars = ["data"]
+vars = ["summaryData"]
 countSavedVars = 0
 # loop through the list of variables
 for i = 1:length(vars)
     if isdefined(Main, Symbol(vars[i]))
         print("Saving $(vars[i]) (T:> $(typeof(eval(Main, Symbol(vars[i]))))) ...")
-        write(file, "$(vars[i])", convertUnitRange( eval(Main, Symbol(vars[i])) ))
+        write(file, "$(vars[i])", COBRA.convertUnitRange( eval(Main, Symbol(vars[i])) ))
         # increment the counter
         countSavedVars = countSavedVars + 1
         print_with_color(:green, "Done.\n")
@@ -196,4 +189,13 @@ for i = 1:length(vars)
 end
 # close the file and return a status message
 close(file)
+
+#=
+## 3 models/worker
+# 6 models, 2 workers -> 3.38s
+# 12 models, 4 workers -> 7.68s
+# 12 models, 2 workers -> 5.96s
+# 24 models, 2 workers -> 12.65s
+
+
 =#
