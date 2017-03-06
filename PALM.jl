@@ -112,7 +112,7 @@ data[1, :] = [""; varsCharact]
 
     for k = startIndex:endIndex
 
-        PALM_iModel = k + nModels
+        PALM_iModel = k + (p - 1) * nModels
         PALM_modelFile = dirContent[PALM_iModel]
 
         # save the modelName
@@ -181,9 +181,9 @@ end
 # 6 models, 2 workers -> 4.31s
 # 12 models, 4 workers -> 7.68s
 # 12 models, 2 workers -> 5.64s
-#=
+
 # insert the data and the model name
-for (p, pid) in enumerate(workers())
+@sync for (p, pid) in enumerate(workers())
 
     startIndex = Int((p-1) * realLoadRatio + 1)
 
@@ -195,13 +195,17 @@ for (p, pid) in enumerate(workers())
         #info("Worker $(p + 1) runs $restModels models: from $startIndex to $endIndex")
     end
 
+    @show p
+    @show fetch(R[p])
+    #=
     for k = startIndex:endIndex
         for i = 1:nCharacteristics
-            data[k + 1, i + 1] =  fetch(R[k, i])
+
         end
     end
+    =#
 end
-
+#=
 using COBRA, MAT
 # save the summaries to individual files
 # open a file with a give filename
