@@ -14,16 +14,16 @@ Layout
 
 ![Code Layout](https://raw.githubusercontent.com/opencobra/COBRA.jl/master/docs/src/assets/codeLayout.jpg)
 
-Complete Beginner's Guide
+Beginner's Guide
 --------------------------
 
-Should you not have any prior experience with Julia and/or Linux, please **read carefully** the [Complete Beginner's Guide](http://opencobra.github.io/COBRA.jl/stable/cbg.html). If you however feel that you are set to proceed with this tutorial, please consider the Complete Beginner's Guide as a go-to reference in case you are running into any issues.
+Should you not have any prior experience with Julia and/or Linux, please **read carefully** the [Beginner's Guide](http://opencobra.github.io/COBRA.jl/stable/cbg.html). If you however feel that you are set to proceed with this tutorial, please consider the [Beginner's Guide](http://opencobra.github.io/COBRA.jl/stable/cbg.html) as a go-to reference in case you are running into any issues.
 
 Requirements and compatibility
 ------------------------------
 
 >
-If you are new to Julia, you may find the [Complete Beginner's Guide](http://opencobra.github.io/COBRA.jl/stable/cbg.html) interesting. In this manual, a working installation of Julia is assumed.
+If you are new to Julia, you may find the [Beginner's Guide](http://opencobra.github.io/COBRA.jl/stable/cbg.html) interesting. In this manual, a working installation of Julia is assumed.
 >
 
 `COBRA.jl` has been tested on *Ubuntu Linux 14.04+*, *MacOS 10.7+*, and *Windows 7 (64-bit)*. Currently, all solvers that are [supported](https://github.com/JuliaOpt/MathProgBase.jl/blob/master/src/defaultsolvers.jl) by `MathProgBase.jl` are supported by `COBRA.jl`, but must be installed **separately**. The `COBRA.jl` package has been tested with `Julia v0.5+`, and requires a working installation of the latest [`MathProgBase.jl`](https://github.com/JuliaOpt/MathProgBase.jl). In order to load the COBRA model from a `.mat` file, the module [`MAT.jl`](https://github.com/simonster/MAT.jl) is required.
@@ -88,9 +88,9 @@ Should you encounter any errors or unusual behavior, please refer to the [FAQ se
 How to cite `distributedFBA.jl`?
 -----------------------------------------------
 
-The corresponding paper can be downloaded from [here](https://arxiv.org/abs/1611.04743). You may cite `distributedFBA.jl` as follows:
+The corresponding paper can be downloaded from [here](https://academic.oup.com/bioinformatics/article-lookup/doi/10.1093/bioinformatics/btw838). You may cite `distributedFBA.jl` as follows:
 
-> Laurent Heirendt, Ronan M.T. Fleming, Ines Thiele, DistributedFBA.jl: High-level, high-performance flux balance analysis in Julia, 2016, arXiv:1611.04743.
+> Laurent Heirendt, Ines Thiele, Ronan M. T. Fleming; DistributedFBA.jl: high-level, high-performance flux balance analysis in Julia. Bioinformatics 2017 btw838. doi: 10.1093/bioinformatics/btw838
 
 Limitations
 -----------

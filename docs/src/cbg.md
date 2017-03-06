@@ -1,4 +1,4 @@
-# Complete Beginner's Guide
+# Beginner's Guide
 
 What is Julia?
 --------------
