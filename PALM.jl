@@ -91,33 +91,33 @@ summaryData = Array{Union{Int,Float64,AbstractString}}(nModels + 1, nCharacteris
 
 @everywhere function loopModels(p, dirContent, startIndex, endIndex, nCharacteristics, varsCharact)
 
-    # declaration of local data array
-    data = Array{Union{Int,Float64,AbstractString}}(nModels, nCharacteristics + 1)
-
     #local nModels
     if endIndex >= startIndex
         nModels = endIndex - startIndex + 1
+
+        # declaration of local data array
+        data = Array{Union{Int,Float64,AbstractString}}(nModels, nCharacteristics + 1)
+
+        for k = 1:nModels
+            PALM_iModel = k + (p - 1) * nModels
+            PALM_modelFile = dirContent[PALM_iModel]
+
+            # save the modelName
+            data[k, 1] = PALM_modelFile
+
+            @mput PALM_iModel
+            @mput PALM_modelFile
+            @matlab tutorial_modelCharact_script
+
+            for i = 1:nCharacteristics
+                data[k, i + 1] = MATLAB.get_variable(Symbol(varsCharact[i]))
+            end
+        end
+
+        return data
     else
         error("The specified endIndex (=$endIndex) is greater than the specified startIndex (=$startIndex).")
     end
-
-    for k = 1:nModels
-        PALM_iModel = k + (p - 1) * nModels
-        PALM_modelFile = dirContent[PALM_iModel]
-
-        # save the modelName
-        data[k, 1] = PALM_modelFile
-
-        @mput PALM_iModel
-        @mput PALM_modelFile
-        @matlab tutorial_modelCharact_script
-
-        for i = 1:nCharacteristics
-            data[k, i + 1] = MATLAB.get_variable(Symbol(varsCharact[i]))
-        end
-    end
-
-    return data
 end
 
 # launch the function loopModels on every worker
