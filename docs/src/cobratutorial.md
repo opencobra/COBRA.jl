@@ -4,9 +4,9 @@ This tutorial serves as a quick start guide as well as an interactive reference 
 
 Download the live notebook [here](https://github.com/opencobra/COBRA.jl/tree/master/docs/tutorial).
 
-## Complete Beginner's Guide
+## Beginner's Guide
 
-Should you not have any prior experience with Julia and/or Linux, please **read carefully** the [Complete Beginner's Guide](http://opencobra.github.io/COBRA.jl/stable/cobratutorial.html). If you however feel that you are set to proceed with this tutorial, please consider the Complete Beginner's Guide as a go-to reference in case you are running into any issues. If you see unusual behavior, you may consider reading the [FAQ section](http://opencobra.github.io/COBRA.jl/stable/faq.html).
+Should you not have any prior experience with Julia and/or Linux, please **read carefully** the [Beginner's Guide](http://opencobra.github.io/COBRA.jl/stable/cobratutorial.html). If you however feel that you are set to proceed with this tutorial, please consider the Beginner's Guide as a go-to reference in case you are running into any issues. If you see unusual behavior, you may consider reading the [FAQ section](http://opencobra.github.io/COBRA.jl/stable/faq.html).
 
 ## Quick installation
 
