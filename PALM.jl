@@ -5,10 +5,10 @@ MATLAB_EXEC = "/Applications/MATLAB_R2016b.app/bin/matlab"
 SCRIPT_NAME = "tutorial_modelCharact_script"
 
 # Number of MATLAB sessions
-Nmatlab = 4
+nMatlab = 4
 
 # Part below is FROZEN - do not change unless you know what you are doing.
-if Nmatlab == 1
+if nMatlab == 1
     error("The poolsize is equal to 1. PALM.jl is meant to be used in parallel, not serial or sequential.")
 end
 
@@ -17,54 +17,58 @@ nModels = length(dirContent);
 
 info("Directory read successfully ($nModels models).")
 
-# Make sure that not more processes are launched than there are models (load ratio >= 1)
-if Nmatlab > nModels
-    warn("Number of workers ($Nmatlab) exceeds the number of models ($nModels).")
-    Nmatlab = nModels
-    warn("Number of workers reduced to number of models for ideal load distribution.\n")
-end
+function shareLoad(nMatlab, nModels)
 
-# Add workers if workerpool is not yet initialized
-poolsize = nprocs()
-if poolsize < Nmatlab
-    addprocs(Nmatlab)
+    # Make sure that not more processes are launched than there are models (load ratio >= 1)
+    if nMatlab > nModels
+        warn("Number of workers ($nMatlab) exceeds the number of models ($nModels).")
+        nMatlab = nModels
+        warn("Number of workers reduced to number of models for ideal load distribution.\n")
+    end
+
+    # Add workers if workerpool is not yet initialized
     poolsize = nprocs()
-    info("$Nmatlab workers added to the pool (poolsize+ = $poolsize).")
-else
-    print_with_color(:yellow, "Maximum poolsize of $(poolsize-1) (+1 host) reached.\n")
-end
-
-# Definition of workers and load distribution
-wrks = workers()
-nWorkers = length(wrks)
-realLoadRatio = Int(round(nModels/nWorkers))
-
-println("\n -- Load distribution --\n")
-println(" - Number of workers:                $nWorkers")
-println(" - Number of models:                 $nModels")
-println(" - True load ratio (Models/worker):  $(nModels/nWorkers)")
-println(" - Realistic load ratio :            $realLoadRatio\n")
-
-restModels = 0
-if nModels%nWorkers > 0
-    println(" >> Every worker (#", wrks[1], " - #", wrks[end - 1], ") will solve ", realLoadRatio, " model(s).")
-    restModels = Int(nModels - (nWorkers - 1) * realLoadRatio)
-    if restModels > 0
-        println(" >> Worker #", wrks[end], " will solve ", restModels, " model(s).")
-    end
-
-    if realLoadRatio < restModels - 1 || restModels < 1
-        print_with_color(:red, "\n >> Load sharing is not fair. Consider adjusting the maximum poolsize.\n")
+    if poolsize < nMatlab
+        addprocs(nMatlab)
+        poolsize = nprocs()
+        info("$nMatlab workers added to the pool (poolsize+ = $poolsize).")
     else
-        print_with_color(:yellow, "\n >> Load sharing is almost ideal.\n")
+        print_with_color(:yellow, "Maximum poolsize of $(poolsize-1) (+1 host) reached.\n")
     end
-else
-    println(" >> Every worker will run ", realLoadRatio, " model(s).")
-    print_with_color(:green, " >> Load sharing is ideal.\n")
+
+    # Definition of workers and load distribution
+    wrks = workers()
+    nWorkers = length(wrks)
+    realLoadRatio = Int(round(nModels / nWorkers))
+
+    println("\n -- Load distribution --\n")
+    println(" - Number of workers:                $nWorkers")
+    println(" - Number of models:                 $nModels")
+    println(" - True load ratio (Models/worker):  $(nModels/nWorkers)")
+    println(" - Realistic load ratio :            $realLoadRatio\n")
+
+    restModels = 0
+    if nModels%nWorkers > 0
+        println(" >> Every worker (#", wrks[1], " - #", wrks[end - 1], ") will solve ", realLoadRatio, " model(s).")
+        restModels = Int(nModels - (nWorkers - 1) * realLoadRatio)
+        if restModels > 0
+            println(" >> Worker #", wrks[end], " will solve ", restModels, " model(s).")
+        end
+
+        if realLoadRatio < restModels - 1 || restModels < 1
+            print_with_color(:red, "\n >> Load sharing is not fair. Consider adjusting the maximum poolsize.\n")
+        else
+            print_with_color(:yellow, "\n >> Load sharing is almost ideal.\n")
+        end
+    else
+        println(" >> Every worker will run ", realLoadRatio, " model(s).")
+        print_with_color(:green, " >> Load sharing is ideal.\n")
+    end
+
+    return nWorkers, realLoadRatio, restModels
 end
 
-# Preload the COBRA module everywhere
-# retrieve the numerical characteristics from each worker
+nWorkers, realLoadRatio, restModels = shareLoad(nMatlab, nModels)
 
 # broadcast local variables to every worker
 @eval @everywhere dirContent = $dirContent
@@ -125,7 +129,7 @@ end
 
     info("Launching MATLAB session on worker $(p+1).")
 
-    startIndex = Int((p-1) * realLoadRatio + 1)
+    startIndex = Int((p - 1) * realLoadRatio + 1)
 
     # save the startIndex for each worker
     indicesWorkers[p, 1] = startIndex
@@ -164,9 +168,11 @@ end
 # open a file with a give filename
 fileName = "modelCharacteristics.mat"
 file = matopen(fileName, "w")
+
 # set the list of variables
 vars = ["summaryData"]
 countSavedVars = 0
+
 # loop through the list of variables
 for i = 1:length(vars)
     if isdefined(Main, Symbol(vars[i]))
