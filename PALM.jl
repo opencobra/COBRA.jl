@@ -7,7 +7,7 @@ SCRIPT_NAME = "tutorial_modelCharact_script"
 include("tools.jl")
 
 # Number of MATLAB sessions
-nMatlab = 4
+nMatlab = 2
 
 # Part below is FROZEN - do not change unless you know what you are doing.
 if nMatlab == 1
@@ -85,7 +85,7 @@ end
     # save the startIndex for each worker
     indicesWorkers[p, 1] = startIndex
 
-    if p < wrks[end]
+    if p <  workers()[end]
         endIndex = Int(p * realLoadRatio)
         indicesWorkers[p, 2] = endIndex
         indicesWorkers[p, 3] = realLoadRatio
