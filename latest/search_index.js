@@ -25,11 +25,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#Complete-Beginner's-Guide-1",
+    "location": "index.html#Beginner's-Guide-1",
     "page": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
-    "title": "Complete Beginner's Guide",
+    "title": "Beginner's Guide",
     "category": "section",
-    "text": "Should you not have any prior experience with Julia and/or Linux, please read carefully the Complete Beginner's Guide. If you however feel that you are set to proceed with this tutorial, please consider the Complete Beginner's Guide as a go-to reference in case you are running into any issues."
+    "text": "Should you not have any prior experience with Julia and/or Linux, please read carefully the Beginner's Guide. If you however feel that you are set to proceed with this tutorial, please consider the Beginner's Guide as a go-to reference in case you are running into any issues."
 },
 
 {
@@ -37,7 +37,7 @@ var documenterSearchIndex = {"docs": [
     "page": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
     "title": "Requirements and compatibility",
     "category": "section",
-    "text": "If you are new to Julia, you may find the Complete Beginner's Guide interesting. In this manual, a working installation of Julia is assumed.COBRA.jl has been tested on Ubuntu Linux 14.04+, MacOS 10.7+, and Windows 7 (64-bit). Currently, all solvers that are supported by MathProgBase.jl are supported by COBRA.jl, but must be installed separately. The COBRA.jl package has been tested with Julia v0.5+, and requires a working installation of the latest MathProgBase.jl. In order to load the COBRA model from a .mat file, the module MAT.jl is required."
+    "text": "If you are new to Julia, you may find the Beginner's Guide interesting. In this manual, a working installation of Julia is assumed.COBRA.jl has been tested on Ubuntu Linux 14.04+, MacOS 10.7+, and Windows 7 (64-bit). Currently, all solvers that are supported by MathProgBase.jl are supported by COBRA.jl, but must be installed separately. The COBRA.jl package has been tested with Julia v0.5+, and requires a working installation of the latest MathProgBase.jl. In order to load the COBRA model from a .mat file, the module MAT.jl is required."
 },
 
 {
@@ -77,7 +77,7 @@ var documenterSearchIndex = {"docs": [
     "page": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
     "title": "How to cite distributedFBA.jl?",
     "category": "section",
-    "text": "The corresponding paper can be downloaded from here. You may cite distributedFBA.jl as follows:Laurent Heirendt, Ronan M.T. Fleming, Ines Thiele, DistributedFBA.jl: High-level, high-performance flux balance analysis in Julia, 2016, arXiv:1611.04743."
+    "text": "The corresponding paper can be downloaded from here. You may cite distributedFBA.jl as follows:Laurent Heirendt, Ines Thiele, Ronan M. T. Fleming; DistributedFBA.jl: high-level, high-performance flux balance analysis in Julia. Bioinformatics 2017 btw838. doi: 10.1093/bioinformatics/btw838"
 },
 
 {
@@ -98,23 +98,23 @@ var documenterSearchIndex = {"docs": [
 
 {
     "location": "cbg.html#",
-    "page": "Complete Beginner's Guide",
-    "title": "Complete Beginner's Guide",
+    "page": "Beginner's Guide",
+    "title": "Beginner's Guide",
     "category": "page",
     "text": ""
 },
 
 {
-    "location": "cbg.html#Complete-Beginner's-Guide-1",
-    "page": "Complete Beginner's Guide",
-    "title": "Complete Beginner's Guide",
+    "location": "cbg.html#Beginner's-Guide-1",
+    "page": "Beginner's Guide",
+    "title": "Beginner's Guide",
     "category": "section",
     "text": ""
 },
 
 {
     "location": "cbg.html#What-is-Julia?-1",
-    "page": "Complete Beginner's Guide",
+    "page": "Beginner's Guide",
     "title": "What is Julia?",
     "category": "section",
     "text": "\"Julia is a high-level, high-performance dynamic programming language […]\". You may read more about Julia here."
@@ -122,7 +122,7 @@ var documenterSearchIndex = {"docs": [
 
 {
     "location": "cbg.html#How-do-I-get-Julia?-1",
-    "page": "Complete Beginner's Guide",
+    "page": "Beginner's Guide",
     "title": "How do I get Julia?",
     "category": "section",
     "text": "You may install Julia as explained here. Please read through the Julia documentation if this is your first time trying out Julia.For Linux users (you must have sudo rights for this), you may install Julia as follows:sudo add-apt-repository ppa:staticfloat/juliareleases\nsudo add-apt-repository ppa:staticfloat/julia-deps\nsudo apt-get update\nsudo apt-get install juliaFor macOS and Windows, you may download the Julia binaries here."
@@ -130,7 +130,7 @@ var documenterSearchIndex = {"docs": [
 
 {
     "location": "cbg.html#How-do-I-use-Julia?-1",
-    "page": "Complete Beginner's Guide",
+    "page": "Beginner's Guide",
     "title": "How do I use Julia?",
     "category": "section",
     "text": "You may launch Julia on Linux or macOS by in a terminal window:juliaOn Windows systems, you may click on the executable .exe to start Julia. In both cases, you should see the prompt of Julia:julia>You are now in the so-called REPL. Here, you can type all Julia-commands."
@@ -138,7 +138,7 @@ var documenterSearchIndex = {"docs": [
 
 {
     "location": "cbg.html#What-if-I-need-help?-1",
-    "page": "Complete Beginner's Guide",
+    "page": "Beginner's Guide",
     "title": "What if I need help?",
     "category": "section",
     "text": "If you need help, you can always type a ?at the Julia REPL. For instance, if you require assistance with the abs (absolute value) function, you may type (in the Julia REPL next to julia>):? absYou may also find the FAQ section of this documentation interesting, especially if you are running into issues."
@@ -146,7 +146,7 @@ var documenterSearchIndex = {"docs": [
 
 {
     "location": "cbg.html#How-do-I-install-a-solver?-1",
-    "page": "Complete Beginner's Guide",
+    "page": "Beginner's Guide",
     "title": "How do I install a solver?",
     "category": "section",
     "text": "Please make sure that you have ***at least one*** of the supported solvers installed on your system.In order to get you started, you may install the Clp solver using:Pkg.add(\"Clp\")This might take a while, as the Clp solver is downloaded to your system and then installed."
@@ -154,7 +154,7 @@ var documenterSearchIndex = {"docs": [
 
 {
     "location": "cbg.html#What-if-I-want-another-solver?-1",
-    "page": "Complete Beginner's Guide",
+    "page": "Beginner's Guide",
     "title": "What if I want another solver?",
     "category": "section",
     "text": "As an example, and in order to get you started quickly, you may install the GLPK solver. On Windows, please follow these instructions. You must have cmake installed and gcc as described here and here.On Linux, type:sudo apt-get install cmake glpk-utils python-glpk libgmp-dev hdf5-toolsOn macOS, you may install GLPK by using brew:brew install glpkIn order to be able to use the GLPK solver, you must add the GLPKMathProgInterface and GLPK packages (see their respective GitHub pages here and here):Pkg.add(\"GLPK\")\nPkg.add(\"GLPKMathProgInterface\")Other supported solvers, such as CPLEX, Clp, Gurobi, or Mosek, may be installed in a similar way. Their respective interfaces are described here. If you want to use CPLEX, you must follow the installation instructions here. Most importantly, make sure that you set the LD_LIBRARY_PATH environment variable."
@@ -162,7 +162,7 @@ var documenterSearchIndex = {"docs": [
 
 {
     "location": "cbg.html#Now-I-have-a-solver,-and-I-have-Julia.-What-is-next?-1",
-    "page": "Complete Beginner's Guide",
+    "page": "Beginner's Guide",
     "title": "Now I have a solver, and I have Julia. What is next?",
     "category": "section",
     "text": "You are now all set to install COBRA.jl. Follow the installation instructions here. You may then also follow this tutorial to get you started."
@@ -170,7 +170,7 @@ var documenterSearchIndex = {"docs": [
 
 {
     "location": "cbg.html#There-is-a-tutorial,-but-I-cannot-open-it.-What-should-I-do?-1",
-    "page": "Complete Beginner's Guide",
+    "page": "Beginner's Guide",
     "title": "There is a tutorial, but I cannot open it. What should I do?",
     "category": "section",
     "text": "If you wish to install Jupyter notebook on your own system, you may download Jupyter notebook from here.Please make sure that you have at least Julia 0.5 as a kernel when running the Jupyter notebook. You may install the Julia kernel by launching Julia and running the following command from within the Julia REPL (as explained here):Pkg.add(\"IJulia\")You have a working kernel if you see in the top right corner the name of the Julia kernel (Julia 0.5).Please note that before adding the IJulia package, you must have followed the Jupyter installation instructions. If you are running into any issue running this tutorial on either Jupyter notebook, try it out locally by downloading first Julia as explained here.Now, you can start the Jupyter notebook. On Linux, you may start Jupyter with:jupyter notebookYou are all set. You can run the tutorial."
@@ -193,11 +193,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "cobratutorial.html#Complete-Beginner's-Guide-1",
+    "location": "cobratutorial.html#Beginner's-Guide-1",
     "page": "Tutorial",
-    "title": "Complete Beginner's Guide",
+    "title": "Beginner's Guide",
     "category": "section",
-    "text": "Should you not have any prior experience with Julia and/or Linux, please read carefully the Complete Beginner's Guide. If you however feel that you are set to proceed with this tutorial, please consider the Complete Beginner's Guide as a go-to reference in case you are running into any issues. If you see unusual behavior, you may consider reading the FAQ section."
+    "text": "Should you not have any prior experience with Julia and/or Linux, please read carefully the Beginner's Guide. If you however feel that you are set to proceed with this tutorial, please consider the Beginner's Guide as a go-to reference in case you are running into any issues. If you see unusual behavior, you may consider reading the FAQ section."
 },
 
 {
