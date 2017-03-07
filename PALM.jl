@@ -5,7 +5,7 @@ MATLAB_EXEC = "/Applications/MATLAB_R2016b.app/bin/matlab"
 SCRIPT_NAME = "tutorial_modelCharact_script"
 
 # Number of MATLAB sessions
-Nmatlab = 2
+Nmatlab = 4
 
 # Part below is FROZEN - do not change unless you know what you are doing.
 if Nmatlab == 1
@@ -91,28 +91,17 @@ summaryData = Array{Union{Int,Float64,AbstractString}}(nModels + 1, nCharacteris
 
 @everywhere function loopModels(p, dirContent, startIndex, endIndex, nCharacteristics, varsCharact)
 
-    # directly call the local Function on each of the workers using the system command
-    #@spawnat p run(`$MATLAB_EXEC -nodesktop -nosplash -r "PALM_modelFile = '$(dirContent[p-1])'; PALM_iModel = $(p-1); $SCRIPT_NAME;" -logfile $LOCAL_DIR_PATH/logs/logFile_$(dirContent[p-1][1:end-4])_$(p-1).log`)
+    # declaration of local data array
+    data = Array{Union{Int,Float64,AbstractString}}(nModels, nCharacteristics + 1)
 
     #local nModels
-    if endIndex > startIndex
+    if endIndex >= startIndex
         nModels = endIndex - startIndex + 1
     else
         error("The specified endIndex (=$endIndex) is greater than the specified startIndex (=$startIndex).")
     end
 
-    # convert global to local counter
-    if startIndex - nModels > 0
-        startIndex = startIndex - nModels
-    end
-    if endIndex - nModels >= nModels
-        endIndex = endIndex - nModels
-    end
-
-    data = Array{Union{Int,Float64,AbstractString}}(nModels, nCharacteristics + 1)
-
-    for k = startIndex:endIndex
-
+    for k = 1:nModels
         PALM_iModel = k + (p - 1) * nModels
         PALM_modelFile = dirContent[PALM_iModel]
 
@@ -169,6 +158,7 @@ end
 
 
 @everywhere using MAT
+@everywhere using COBRA
 
 # save the summaries to individual files
 # open a file with a give filename
@@ -187,15 +177,6 @@ for i = 1:length(vars)
         print_with_color(:green, "Done.\n")
     end
 end
+
 # close the file and return a status message
 close(file)
-
-#=
-## 3 models/worker
-# 6 models, 2 workers -> 3.38s
-# 12 models, 4 workers -> 7.68s
-# 12 models, 2 workers -> 5.96s
-# 24 models, 2 workers -> 12.65s
-
-
-=#
