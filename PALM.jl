@@ -2,7 +2,7 @@
 # Local directory with model files
 LOCAL_DIR_PATH = "./testModels" #/AGORA_fixedRxns_17_01_10_sorted_fixGPR
 MATLAB_EXEC = "/Applications/MATLAB_R2016b.app/bin/matlab"
-SCRIPT_NAME = "tutorial_modelCharact_script"
+scriptName = "tutorial_modelCharact_script"
 
 include("tools.jl")
 
@@ -22,11 +22,13 @@ info("Directory read successfully ($nModels models).")
 nWorkers, realLoadRatio, restModels = shareLoad(nMatlab, nModels)
 
 # broadcast local variables to every worker
-@eval @everywhere dirContent = $dirContent
-@eval @everywhere restModels = $restModels
-@eval @everywhere realLoadRatio = $realLoadRatio
-@eval @everywhere LOCAL_DIR_PATH = $LOCAL_DIR_PATH
+globalVars = ["dirContent", "restModels", "realLoadRatio", "LOCAL_DIR_PATH", "scriptName"]
 
+for i = 1:length(globalVars)
+    eval(parse("@eval @everywhere $(globalVars[i]) = \$$(globalVars[i])"))
+end
+
+# define the names of the numerical characteristics to be retrieved
 varsCharact = ["Nmets", "Nrxns", "Nelem", "Nnz", "sparsityRatio", "bwidth", "maxVal", "minVal", "columnDensity", "rankA", "rankDeficiencyA", "maxSingVal", "minSingVal", "condNumber"]
 
 # determine the number of characteristics to be retrieved
@@ -42,9 +44,9 @@ indicesWorkers = Array{Int}(nWorkers, 3)
 summaryData = Array{Union{Int,Float64,AbstractString}}(nModels + 1, nCharacteristics + 1)
 
 # use the MATLAB module on every worker
-@everywhere using MATLAB
+@everywhere using MAT, MATLAB, COBRA
 
-@everywhere function loopModels(p, dirContent, startIndex, endIndex, nCharacteristics, varsCharact)
+@everywhere function loopModels(p, scriptName, dirContent, startIndex, endIndex, nCharacteristics, varsCharact)
 
     #local nModels
     if endIndex >= startIndex
@@ -62,7 +64,7 @@ summaryData = Array{Union{Int,Float64,AbstractString}}(nModels + 1, nCharacteris
 
             @mput PALM_iModel
             @mput PALM_modelFile
-            @matlab tutorial_modelCharact_script
+            eval(parse("@matlab $scriptName"))
 
             for i = 1:nCharacteristics
                 data[k, i + 1] = MATLAB.get_variable(Symbol(varsCharact[i]))
@@ -98,7 +100,7 @@ end
     end
 
     @async R[p] = @spawnat (p + 1) begin
-        loopModels(p, dirContent, startIndex, endIndex, nCharacteristics, varsCharact)
+        loopModels(p, scriptName, dirContent, startIndex, endIndex, nCharacteristics, varsCharact)
     end
 
 end
@@ -111,28 +113,10 @@ summaryData[1, :] = [""; varsCharact]
     summaryData[indicesWorkers[p, 1] + 1:indicesWorkers[p, 2] + 1, :] = fetch(R[p][1:indicesWorkers[p, 3], :])
 end
 
-@everywhere using MAT
-@everywhere using COBRA
-
-# save the summaries to individual files
-# open a file with a give filename
+# save the summary data
 fileName = "modelCharacteristics.mat"
 file = matopen(fileName, "w")
-
-# set the list of variables
-vars = ["summaryData"]
-countSavedVars = 0
-
-# loop through the list of variables
-for i = 1:length(vars)
-    if isdefined(Main, Symbol(vars[i]))
-        print("Saving $(vars[i]) (T:> $(typeof(eval(Main, Symbol(vars[i]))))) ...")
-        write(file, "$(vars[i])", COBRA.convertUnitRange( eval(Main, Symbol(vars[i])) ))
-        # increment the counter
-        countSavedVars = countSavedVars + 1
-        print_with_color(:green, "Done.\n")
-    end
-end
+write(file, "summaryData", summaryData)
 
 # close the file and return a status message
 close(file)
