@@ -6,8 +6,43 @@
 =#
 
 #-------------------------------------------------------------------------------------------
+"""
+    shareLoad(nModels, nMatlab, verbose)
 
-function shareLoad(nMatlab::Int, nModels::Int, verbose::Bool = true)
+Function shares the number of `nModels` across `nMatlab` sessions (Euclidian division)
+
+# INPUTS
+
+- `nModels`:        Number of models to be run
+
+# OPTIONAL INPUTS
+
+- `nMatlab`:        Number of desired MATLAB sessions (default: nModels)
+- `verbose`:        Verbose mode, set `false` for quiet load sharing (default: true)
+
+# OUTPUTS
+
+- `nWorkers`:       Number of effective workers in the parallel pool; corresponds to `nMatlab` if `nMatlab` < `nModels` and to `nModels` otherwise
+- `quotientModels`:  Rounded number of models to be run by all MATLAB sessions apart from the last one
+- `remainderModels`:     Number of remaining models to be run by the last MATLAB session
+
+# EXAMPLES
+
+- Minimum working example
+```julia
+julia> shareLoad(nModels)
+```
+
+- Determination of the load of 4 models in 2 MATLAB sessions
+```julia
+julia> shareLoad(4, 2, false)
+```
+
+See also: `createPool()`, `launchPALM()`, and `PALM`
+
+"""
+
+function shareLoad(nModels::Int, nMatlab::Int = nModels, verbose::Bool = true)
 
     # Make sure that not more processes are launched than there are models (load ratio >= 1)
     if nMatlab > nModels
@@ -30,31 +65,32 @@ function shareLoad(nMatlab::Int, nModels::Int, verbose::Bool = true)
     # Definition of workers and load distribution
     wrks = workers()
     nWorkers = length(wrks)
-    realLoadRatio = Int(round(nModels / nWorkers))
+    quotientModels = Int(round(nModels / nWorkers))
 
     if verbose
         println("\n -- Load distribution --\n")
-        println(" - Number of workers:                $nWorkers")
         println(" - Number of models:                 $nModels")
-        println(" - True load ratio (Models/worker):  $(nModels/nWorkers)")
-        println(" - Realistic load ratio :            $realLoadRatio\n")
+        println(" - Number of workers:                $nWorkers")
+        println(" - True load (models/worker):        $(nModels/nWorkers)")
+        println(" - Realistic load (quotient):        $quotientModels\n")
+        println(" - Remaining load (remainder):       $remainderModels\n")
     end
 
-    restModels = 0
+    remainderModels = 0
 
     if nModels%nWorkers > 0
         if verbose
-            println(" >> Every worker (#", wrks[1], " - #", wrks[end - 1], ") will solve ", realLoadRatio, " model(s).")
+            println(" >> Every worker (#", wrks[1], " - #", wrks[end - 1], ") will solve ", quotientModels, " model(s).")
         end
 
-        restModels = Int(nModels - (nWorkers - 1) * realLoadRatio)
-        if restModels > 0
+        remainderModels = Int(nModels - (nWorkers - 1) * quotientModels)
+        if remainderModels > 0
             if verbose
-                println(" >> Worker #", wrks[end], " will solve ", restModels, " model(s).")
+                println(" >> Worker #", wrks[end], " will solve ", remainderModels, " model(s).")
             end
         end
 
-        if realLoadRatio < restModels - 1 || restModels < 1
+        if quotientModels < remainderModels - 1 || remainderModels < 1
             if verbose
                 print_with_color(:red, "\n >> Load sharing is not fair. Consider adjusting the maximum poolsize.\n")
             end
@@ -65,12 +101,12 @@ function shareLoad(nMatlab::Int, nModels::Int, verbose::Bool = true)
         end
     else
         if verbose
-            println(" >> Every worker will run ", realLoadRatio, " model(s).")
+            println(" >> Every worker will run ", quotientModels, " model(s).")
             print_with_color(:green, " >> Load sharing is ideal.\n")
         end
     end
 
-    return nWorkers, realLoadRatio, restModels
+    return nWorkers, quotientModels, remainderModels
 end
 
 @everywhere function loopModels(p, scriptName, dirContent, startIndex, endIndex, nCharacteristics, varsCharact)
@@ -104,7 +140,7 @@ end
     end
 end
 
-function launchPALM(dirContent, nModels, scriptName, nWorkers, realLoadRatio, restModels, varsCharact, outputFile)
+function launchPALM(dirContent, nModels, scriptName, nWorkers, quotientModels, remainderModels, varsCharact, outputFile)
 
     # throw an error if not parallel
     if nWorkers == 1
@@ -128,21 +164,21 @@ function launchPALM(dirContent, nModels, scriptName, nWorkers, realLoadRatio, re
 
         info("Launching MATLAB session on worker $(p+1).")
 
-        startIndex = Int((p - 1) * realLoadRatio + 1)
+        startIndex = Int((p - 1) * quotientModels + 1)
 
         # save the startIndex for each worker
         indicesWorkers[p, 1] = startIndex
 
         if p <  workers()[end]
-            endIndex = Int(p * realLoadRatio)
+            endIndex = Int(p * quotientModels)
             indicesWorkers[p, 2] = endIndex
-            indicesWorkers[p, 3] = realLoadRatio
-            info("Worker $(p+1) runs $realLoadRatio models: from $startIndex to $endIndex")
+            indicesWorkers[p, 3] = quotientModels
+            info("Worker $(p+1) runs $quotientModels models: from $startIndex to $endIndex")
         else
-            endIndex = Int((p - 1) * realLoadRatio + restModels)
+            endIndex = Int((p - 1) * quotientModels + remainderModels)
             indicesWorkers[p, 2] = endIndex
-            indicesWorkers[p, 3] = restModels
-            info("Worker $(p+1) runs $restModels models: from $startIndex to $endIndex")
+            indicesWorkers[p, 3] = remainderModels
+            info("Worker $(p+1) runs $remainderModels models: from $startIndex to $endIndex")
         end
 
         @async R[p] = @spawnat (p + 1) begin
@@ -177,7 +213,7 @@ function PALM(dir, nMatlab, scriptName, outputFile)
 
     info("Directory with $nModels models read successfully.")
 
-    nWorkers, realLoadRatio, restModels = shareLoad(nMatlab, nModels)
+    nWorkers, quotientModels, remainderModels = shareLoad(nModels, nMatlab)
 
-    launchPALM(dirContent, nModels, scriptName, nWorkers, realLoadRatio, restModels, varsCharact, outputFile)
+    launchPALM(dirContent, nModels, scriptName, nWorkers, quotientModels, remainderModels, varsCharact, outputFile)
 end
