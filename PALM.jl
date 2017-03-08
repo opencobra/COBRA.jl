@@ -17,26 +17,15 @@ function shareLoad(nMatlab::Int, nModels::Int, verbose::Bool = true)
 
         nMatlab = nModels
 
+        # remove the last workers in the pool
+        for k = length(workers()):-1:nModels
+            rmprocs(k)
+        end
+
         if verbose
             warn("Number of workers reduced to number of models for ideal load distribution.\n")
         end
     end
-
-    # Add workers if workerpool is not yet initialized
-    #=
-    poolsize = nprocs()
-    if poolsize < nMatlab
-        createPool(nMatlab)
-        poolsize = nprocs()
-        if verbose
-            info("$nMatlab workers added to the pool (poolsize+ = $poolsize).")
-        end
-    else
-        if verbose
-            print_with_color(:yellow, "Maximum poolsize of $(poolsize-1) (+1 host) reached.\n")
-        end
-    end
-    =#
 
     # Definition of workers and load distribution
     wrks = workers()
@@ -115,7 +104,7 @@ end
     end
 end
 
-function prePALM(dirContent, nModels, scriptName, nWorkers, realLoadRatio, restModels, varsCharact, outputFile)
+function launchPALM(dirContent, nModels, scriptName, nWorkers, realLoadRatio, restModels, varsCharact, outputFile)
 
     # throw an error if not parallel
     if nWorkers == 1
@@ -186,9 +175,9 @@ function PALM(dir, nMatlab, scriptName, outputFile)
     dirContent = readdir(dir)
     nModels = length(dirContent)
 
-    info("Directory read successfully ($nModels models).")
+    info("Directory with $nModels models read successfully.")
 
     nWorkers, realLoadRatio, restModels = shareLoad(nMatlab, nModels)
 
-    prePALM(dirContent, nModels, scriptName, nWorkers, realLoadRatio, restModels, varsCharact, outputFile)
+    launchPALM(dirContent, nModels, scriptName, nWorkers, realLoadRatio, restModels, varsCharact, outputFile)
 end
