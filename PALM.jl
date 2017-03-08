@@ -7,6 +7,83 @@
 
 #-------------------------------------------------------------------------------------------
 
+function shareLoad(nMatlab::Int, nModels::Int, verbose::Bool = true)
+
+    # Make sure that not more processes are launched than there are models (load ratio >= 1)
+    if nMatlab > nModels
+        if verbose
+            warn("Number of workers ($nMatlab) exceeds the number of models ($nModels).")
+        end
+
+        nMatlab = nModels
+
+        if verbose
+            warn("Number of workers reduced to number of models for ideal load distribution.\n")
+        end
+    end
+
+    # Add workers if workerpool is not yet initialized
+    #=
+    poolsize = nprocs()
+    if poolsize < nMatlab
+        createPool(nMatlab)
+        poolsize = nprocs()
+        if verbose
+            info("$nMatlab workers added to the pool (poolsize+ = $poolsize).")
+        end
+    else
+        if verbose
+            print_with_color(:yellow, "Maximum poolsize of $(poolsize-1) (+1 host) reached.\n")
+        end
+    end
+    =#
+
+    # Definition of workers and load distribution
+    wrks = workers()
+    nWorkers = length(wrks)
+    realLoadRatio = Int(round(nModels / nWorkers))
+
+    if verbose
+        println("\n -- Load distribution --\n")
+        println(" - Number of workers:                $nWorkers")
+        println(" - Number of models:                 $nModels")
+        println(" - True load ratio (Models/worker):  $(nModels/nWorkers)")
+        println(" - Realistic load ratio :            $realLoadRatio\n")
+    end
+
+    restModels = 0
+
+    if nModels%nWorkers > 0
+        if verbose
+            println(" >> Every worker (#", wrks[1], " - #", wrks[end - 1], ") will solve ", realLoadRatio, " model(s).")
+        end
+
+        restModels = Int(nModels - (nWorkers - 1) * realLoadRatio)
+        if restModels > 0
+            if verbose
+                println(" >> Worker #", wrks[end], " will solve ", restModels, " model(s).")
+            end
+        end
+
+        if realLoadRatio < restModels - 1 || restModels < 1
+            if verbose
+                print_with_color(:red, "\n >> Load sharing is not fair. Consider adjusting the maximum poolsize.\n")
+            end
+        else
+            if verbose
+                print_with_color(:yellow, "\n >> Load sharing is almost ideal.\n")
+            end
+        end
+    else
+        if verbose
+            println(" >> Every worker will run ", realLoadRatio, " model(s).")
+            print_with_color(:green, " >> Load sharing is ideal.\n")
+        end
+    end
+
+    return nWorkers, realLoadRatio, restModels
+end
+
 @everywhere function loopModels(p, scriptName, dirContent, startIndex, endIndex, nCharacteristics, varsCharact)
 
     #local nModels
@@ -38,9 +115,9 @@
     end
 end
 
-function PALM(scriptName, nWorkers, varsCharact, outputFile)
+function prePALM(dirContent, nModels, scriptName, nWorkers, realLoadRatio, restModels, varsCharact, outputFile)
 
-    # Part below is FROZEN - do not change unless you know what you are doing.
+    # throw an error if not parallel
     if nWorkers == 1
         error("The poolsize is equal to 1. PALM.jl is meant to be used in parallel, not serial or sequential.")
     end
@@ -101,4 +178,17 @@ function PALM(scriptName, nWorkers, varsCharact, outputFile)
     # close the file and return a status message
     close(file)
 
+end
+
+function PALM(dir, nMatlab, scriptName, outputFile)
+    #include("shareLoad.jl")
+
+    dirContent = readdir(dir)
+    nModels = length(dirContent)
+
+    info("Directory read successfully ($nModels models).")
+
+    nWorkers, realLoadRatio, restModels = shareLoad(nMatlab, nModels)
+
+    prePALM(dirContent, nModels, scriptName, nWorkers, realLoadRatio, restModels, varsCharact, outputFile)
 end
