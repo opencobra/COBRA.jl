@@ -109,7 +109,44 @@ function shareLoad(nModels::Int, nMatlab::Int = nModels, verbose::Bool = true)
     return nWorkers, quotientModels, remainderModels
 end
 
-@everywhere function loopModels(p, scriptName, dirContent, startIndex, endIndex, nCharacteristics, varsCharact)
+#-------------------------------------------------------------------------------------------
+"""
+    loopModels(p, scriptName, dirContent, startIndex, endIndex, varsCharact)
+
+Function `loopModels` that is called in a loop from `PALM` on worker `p`, and runs
+`scriptName` for all models with an index in `dirContent` between `startIndex` and `endIndex`
+and retrieves all variables defined in `varsCharact`. The number of models run on worker `p`
+is computed as `nModels = endIndex - startIndex + 1`.
+
+# INPUTS
+
+- `p`:              Process or worker number
+- `scriptName`:     Name of MATLAB script to be run
+- `dirContent`:     Array with file names (commonly read from a directory)
+- `startIndex`:     Index of the first model in `dirContent` to be used on worker `p`
+- `endIndex`:       Index of the last model in `dirContent` to be used on worker `p`
+- `varsCharact`:    Array with the names of variables to be retrieved from the MATLAB session on worker `p`
+
+# OUTPUTS
+
+- `data`:           Mixed array of variables retrieved from worker p (rows: models, columns: variables).
+                    First column corresponds to the model name, and first row corresponds to `varsCharact`.
+
+# EXAMPLES
+
+- Minimum working example
+```julia
+julia> loopModels(p, scriptName, dirContent, startIndex, endIndex, varsCharact)
+```
+
+See also: `PALM()`
+
+"""
+
+@everywhere function loopModels(p, scriptName, dirContent, startIndex, endIndex, varsCharact)
+
+    # determine the lengt of the number of variables
+    nCharacteristics = length(varsCharact)
 
     #local nModels
     if endIndex >= startIndex
@@ -182,7 +219,7 @@ function launchPALM(dirContent, nModels, scriptName, nWorkers, quotientModels, r
         end
 
         @async R[p] = @spawnat (p + 1) begin
-            loopModels(p, scriptName, dirContent, startIndex, endIndex, nCharacteristics, varsCharact)
+            loopModels(p, scriptName, dirContent, startIndex, endIndex, varsCharact)
         end
 
     end
