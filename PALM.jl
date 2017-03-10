@@ -17,7 +17,7 @@ Function shares the number of `nModels` across `nMatlab` sessions (Euclidian div
 
 # OPTIONAL INPUTS
 
-- `nMatlab`:        Number of desired MATLAB sessions (default: nModels)
+- `nMatlab`:        Number of desired MATLAB sessions (default: 2)
 - `verbose`:        Verbose mode, set `false` for quiet load sharing (default: true)
 
 # OUTPUTS
@@ -42,7 +42,7 @@ See also: `createPool()`, `launchPALM()`, and `PALM`
 
 """
 
-function shareLoad(nModels::Int, nMatlab::Int = nModels, verbose::Bool = true)
+function shareLoad(nModels::Int, nMatlab::Int = 2, verbose::Bool = true)
 
     # Make sure that not more processes are launched than there are models (load ratio >= 1)
     if nMatlab > nModels
@@ -66,15 +66,6 @@ function shareLoad(nModels::Int, nMatlab::Int = nModels, verbose::Bool = true)
     wrks = workers()
     nWorkers = length(wrks)
     quotientModels = Int(round(nModels / nWorkers))
-
-    if verbose
-        println("\n -- Load distribution --\n")
-        println(" - Number of models:                 $nModels")
-        println(" - Number of workers:                $nWorkers")
-        println(" - True load (models/worker):        $(nModels/nWorkers)")
-        println(" - Realistic load (quotient):        $quotientModels\n")
-        println(" - Remaining load (remainder):       $remainderModels\n")
-    end
 
     remainderModels = 0
 
@@ -106,6 +97,15 @@ function shareLoad(nModels::Int, nMatlab::Int = nModels, verbose::Bool = true)
         end
     end
 
+    if verbose
+        println("\n -- Load distribution --\n")
+        println(" - Number of models:                 $nModels")
+        println(" - Number of workers:                $nWorkers")
+        println(" - True load (models/worker):        $(nModels/nWorkers)")
+        println(" - Realistic load (quotient):        $quotientModels\n")
+        println(" - Remaining load (remainder):       $remainderModels\n")
+    end
+
     return nWorkers, quotientModels, remainderModels
 end
 
@@ -113,15 +113,15 @@ end
 """
     loopModels(p, scriptName, dirContent, startIndex, endIndex, varsCharact)
 
-Function `loopModels` that is called in a loop from `PALM` on worker `p`, and runs
-`scriptName` for all models with an index in `dirContent` between `startIndex` and `endIndex`
-and retrieves all variables defined in `varsCharact`. The number of models run on worker `p`
+Function `loopModels` is generally called in a loop from `PALM()` on worker `p`.
+Runs `scriptName` for all models with an index in `dirContent` between `startIndex` and `endIndex`.
+Retrieves all variables defined in `varsCharact`. The number of models on worker `p`
 is computed as `nModels = endIndex - startIndex + 1`.
 
 # INPUTS
 
 - `p`:              Process or worker number
-- `scriptName`:     Name of MATLAB script to be run
+- `scriptName`:     Name of MATLAB script to be run (without extension `.m`)
 - `dirContent`:     Array with file names (commonly read from a directory)
 - `startIndex`:     Index of the first model in `dirContent` to be used on worker `p`
 - `endIndex`:       Index of the last model in `dirContent` to be used on worker `p`
@@ -143,7 +143,7 @@ See also: `PALM()`
 
 """
 
-@everywhere function loopModels(p, scriptName, dirContent, startIndex, endIndex, varsCharact)
+function loopModels(p, scriptName, dirContent, startIndex, endIndex, varsCharact)
 
     # determine the lengt of the number of variables
     nCharacteristics = length(varsCharact)
@@ -177,7 +177,55 @@ See also: `PALM()`
     end
 end
 
-function launchPALM(dirContent, nModels, scriptName, nWorkers, quotientModels, remainderModels, varsCharact, outputFile)
+#-------------------------------------------------------------------------------------------
+"""
+    PALM(dir, scriptName, nMatlab, outputFile)
+
+Function reads the directory `dir`, and launches `nMatlab` sessions to run `scriptName`.
+Results are saved in the `outputFile`.
+
+# INPUTS
+
+- `dir`:            Directory that contains the models (model file format: `.mat`)
+- `scriptName`:     Name of MATLAB script to be run (without extension `.m`)
+
+# OPTIONAL INPUTS
+
+- `nMatlab`:        Number of desired MATLAB sessions (default: 2)
+- `outputFile`:     Name of `.mat` file to save the result table named "summaryData" (default name: "PALM_data.mat")
+
+# OUTPUTS
+
+File with the name specified in `outputFile`.
+
+# EXAMPLES
+
+- Minimum working example
+```julia
+julia> PALM("~/models", "characteristics")
+```
+
+- Running `PALM` on 12 MATLAB sessions
+```julia
+julia> PALM("~/models", "characteristics", 12, "characteristicsResults.mat")
+```
+
+See also: `loopModels()` and `shareLoad()`
+
+"""
+
+function PALM(dir, scriptName, nMatlab::Int = 2, outputFile::AbstractString = "PALM_data.mat")
+    #include("shareLoad.jl")
+
+    dirContent = readdir(dir)
+
+    info("Directory with $(length(dirContent)) models read successfully.")
+
+    nWorkers, quotientModels, remainderModels = shareLoad(length(dirContent), nMatlab)
+
+    #launchPALM(dirContent, scriptName, nWorkers, quotientModels, remainderModels, varsCharact, outputFile)
+    # determine the number of models
+    nModels = length(dirContent)
 
     # throw an error if not parallel
     if nWorkers == 1
@@ -240,17 +288,4 @@ function launchPALM(dirContent, nModels, scriptName, nWorkers, quotientModels, r
     # close the file and return a status message
     close(file)
 
-end
-
-function PALM(dir, nMatlab, scriptName, outputFile)
-    #include("shareLoad.jl")
-
-    dirContent = readdir(dir)
-    nModels = length(dirContent)
-
-    info("Directory with $nModels models read successfully.")
-
-    nWorkers, quotientModels, remainderModels = shareLoad(nModels, nMatlab)
-
-    launchPALM(dirContent, nModels, scriptName, nWorkers, quotientModels, remainderModels, varsCharact, outputFile)
 end
