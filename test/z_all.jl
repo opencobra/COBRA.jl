@@ -103,7 +103,7 @@ solver.handle = -1
 
 # test if an infeasible solution status is returned
 solver = changeCobraSolver(solverName, solParams)
-m = MathProgBase.HighLevelInterface.buildlp([1.0, 0.0], [2.0, 1.0]', '<', -1.0, solver.handle)
+m = MathProgBase.HighLevelInterface.buildlp([1.0, 0.0], [2.0 1.0], '<', -1.0, solver.handle)
 retObj, retFlux, retStat = loopFBA(m, 1, 2)
 if solverName == "Clp" || solverName == "Gurobi" || solverName == "CPLEX" || solverName == "Mosek"
     @test retStat[1] == 0 # infeasible
@@ -117,7 +117,7 @@ modelTest = loadModel("$(dirname(@__FILE__))/testData.mat", "S", "modelTest")
 @test modelTest.csense == fill('E', length(modelTest.b))
 
 # test buildlp and solvelp for an unbounded problem
-m = MathProgBase.HighLevelInterface.buildlp([-1.0, -1.0], [-1.0, 2.0]', '<', [0.0], solver.handle)
+m = MathProgBase.HighLevelInterface.buildlp([-1.0, -1.0], [-1.0 2.0], '<', [0.0], solver.handle)
 sol = MathProgBase.HighLevelInterface.solvelp(m)
 if solver.name == "Clp" || solver.name == "Gurobi" || solver.name == "GLPK" || solver.name == "Mosek"
     @test sol.status == :Unbounded
@@ -126,7 +126,7 @@ elseif solverName == "CPLEX"
 end
 
 # solve an unbounded problem using loopFBA
-m = MathProgBase.HighLevelInterface.buildlp([0.0, -1.0], [-1.0, 2.0]', '<', [0.0], solver.handle)
+m = MathProgBase.HighLevelInterface.buildlp([0.0, -1.0], [-1.0 2.0], '<', [0.0], solver.handle)
 retObj, retFlux, retStat = loopFBA(m, 1, 2, 2, 1)
 if solver.name == "Clp" || solver.name == "Gurobi" || solver.name == "GLPK" || solver.name == "Mosek"
     @test retStat == [2, -1] # unbounded and not solved
