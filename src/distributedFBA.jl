@@ -299,6 +299,8 @@ Generally, `loopFBA` is called in a loop over multiple workers and makes use of 
     - 0: minimization
     - 1: maximization
 - `pid`:            Julia ID of launched process
+- `resultsDir`:     Path to results folder (default is a `results` folder in the Julia package directory)
+- `logFiles`:       Boolean to write a solver logfile of each optimization (default: false)
 
 # OUTPUTS
 
@@ -324,12 +326,12 @@ See also: `distributeFBA()`, `MathProgBase.HighLevelInterface`
 
 """
 
-function loopFBA(m, rxnsList, nRxns::Int, rxnsOptMode = 2 + zeros(Int, length(rxnsList)), iRound::Int = 0, pid::Int = 1)
+function loopFBA(m, rxnsList, nRxns::Int, rxnsOptMode = 2 + zeros(Int, length(rxnsList)), iRound::Int = 0, pid::Int = 1, resultsDir::String = "$(dirname(@__FILE__))/../results", logFiles::Bool = false)
 
     # initialize vectors and counters
     retObj = zeros(nRxns)
     retStat = -1 + zeros(Int, nRxns)
-    retFlux = zeros(nRxns, length(rxnsList))
+    retFlux = 0.0/0.0 * ones(nRxns, length(rxnsList))
     j = 1
 
     # loop over all the reactions
@@ -361,6 +363,13 @@ function loopFBA(m, rxnsList, nRxns::Int, rxnsOptMode = 2 + zeros(Int, length(rx
             # set the objective of the CPLEX model
             MathProgBase.HighLevelInterface.setobj!(m, c)
 
+            if logFiles
+                # save individual logFiles with the CPLEX solver
+                if string(typeof(m.inner)) == "CPLEX.Model"
+                    CPLEX.set_logfile(m.inner.env, "$resultsDir/logs/$((iRound == 0 ) ? "min" : "max")-myLogFile-$(rxnsList[k]).log")
+                end
+            end
+
             # solve the model using the general MathProgBase interface
             solutionLP = MathProgBase.HighLevelInterface.solvelp(m)
 
@@ -370,7 +379,7 @@ function loopFBA(m, rxnsList, nRxns::Int, rxnsOptMode = 2 + zeros(Int, length(rx
             # output the solution, save the minimum and maximum fluxes
             if statLP == :Optimal
                 # retrieve the objective value
-                retObj[rxnsList[k]] = solutionLP.objval / 1000.0
+                retObj[rxnsList[k]] = solutionLP.sol[rxnsList[k]] #solutionLP.objval / 1000.0
 
                 # retrieve the solution vector
                 retFlux[:, k] = solutionLP.sol
@@ -391,7 +400,11 @@ function loopFBA(m, rxnsList, nRxns::Int, rxnsOptMode = 2 + zeros(Int, length(rx
                 retStat[rxnsList[k]] = 4 # LP problem is infeasible or unbounded
 
             else
-                retStat[rxnsList[k]] = 5 # LP problem has a non-documented solution status
+                if string(typeof(m.inner)) == "CPLEX.Model"
+                    retStat[rxnsList[k]] = 10 + CPLEX.get_status_code(m.inner)
+                else
+                    retStat[rxnsList[k]] = 5 # LP problem has a non-documented solution status
+                end
             end
 
             j = j + 1 # increase the counter for the return flux vector
@@ -404,7 +417,7 @@ end
 
 # ------------------------------------------------------------------------------------------
 """
-    distributedFBA(model, solver, nWorkers, optPercentage, objective, rxnsList, strategy, preFBA, rxnsOptMode, saveChunks)
+    distributedFBA(model, solver, nWorkers, optPercentage, objective, rxnsList, strategy, rxnsOptMode, preFBA, saveChunks, resultsDir, logFiles)
 
 Function to distribute a series of FBA problems across one or more workers that have been
 initialized using the `createPool` function (or similar).
@@ -432,6 +445,8 @@ initialized using the `createPool` function (or similar).
       [default: all reactions are minimized and maximized, i.e. 2+zeros(Int,length(model.rxns))]
 - `preFBA`:         Solve the original FBA and add a percentage condition (Boolean variable, default: true for flux variability analysis FVA)
 - `saveChunks`:     Save the fluxes of the minimizations and maximizations in individual files on each worker (applicable for large models)
+- `resultsDir`:     Path to results folder (default is a `results` folder in the Julia package directory)
+- `logFiles`:       Boolean to write a solver logfile of each optimization (default: false)
 
 # OUTPUTS
 
@@ -463,7 +478,8 @@ See also: `preFBA!()`, `splitRange()`, `buildCobraLP()`, `loopFBA()`, or `fetch(
 
 function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64 = 100.0, objective::String = "max",
                         rxnsList = 1:length(model.rxns), strategy::Int = 0,
-                        rxnsOptMode = 2 + zeros(Int,length(model.rxns)), preFBA::Bool = true, saveChunks::Bool = false)
+                        rxnsOptMode = 2 + zeros(Int,length(model.rxns)), preFBA::Bool = true,
+                        saveChunks::Bool = false, resultsDir::String = "$(dirname(@__FILE__))/../results", logFiles::Bool = false)
 
     # calculate a default FBA solution
     if preFBA
@@ -499,22 +515,28 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
         fvamin = zeros(nRxns, nRxns)
     else
         # create a folder for storing the results
-        if !isdir("$(dirname(@__FILE__))/../results")
-            mkdir("$(dirname(@__FILE__))/../results")
-            print_with_color(:green, "Directory `results` created.\n\n")
-
-            # create a folder for storing the chunks of the fluxes of each minimization
-            if !isdir("$(dirname(@__FILE__))/../results/fvamin")
-                mkdir("$(dirname(@__FILE__))/../results/fvamin")
-            end
-
-            # create a folder for storing the chunks of the fluxes of each maximization
-            if !isdir("$(dirname(@__FILE__))/../results/fvamax")
-                mkdir("$(dirname(@__FILE__))/../results/fvamax")
-            end
+        if !isdir("$resultsDir")
+            mkdir("$resultsDir")
+            print_with_color(:green, "Directory `$resultsDir` created.\n\n")
         else
-            print_with_color(:cyan, "Directory `results` already exists.\n\n")
+            print_with_color(:cyan, "Directory `$resultsDir` already exists.\n\n")
         end
+
+        # create a folder for storing the chunks of the fluxes of each minimization
+        if !isdir("$resultsDir/fvamin")
+            mkdir("$resultsDir/fvamin")
+        end
+
+        # create a folder for storing the chunks of the fluxes of each maximization
+        if !isdir("$resultsDir/fvamax")
+            mkdir("$resultsDir/fvamax")
+        end
+
+        # create a folder for log files
+        if logFiles && !isdir("$resultsDir/logs")
+            mkdir("$resultsDir/logs")
+        end
+
         fvamin = zeros(2, 2)
         fvamax = zeros(2, 2)
     end
@@ -561,7 +583,19 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
             for iRound = 0:1
                 @async R[p, iRound + 1] = @spawnat (p + 1) begin
                     m = buildCobraLP(model, solver) # on each worker, the model must be built individually
-                    loopFBA(m, rxnsList[rxnsKey[p]], nRxns, rxnsOptMode[rxnsKey[p]], iRound, pid)
+
+                    # turn scaling off in CPLEX when solving coupled models or models with more metabolites that reactions in the stoichiometric matrix
+                    if nMets >= nRxns && solver.name == "CPLEX"
+                        CPLEX.set_param!(m.inner.env,"CPX_PARAM_SCAIND", -1)
+                        if CPLEX.get_param(m.inner.env,"CPX_PARAM_SCAIND") == -1
+                            print_with_color(:yellow, "The CPX_PARAM_SCAIND parameter has been set to -1 (CPLEX scaling turned off).\n")
+                        else
+                            error("The CPX_PARAM_SCAIND parameter could not be set.")
+                        end
+                    end
+
+                    # start the loop of FBA
+                    loopFBA(m, rxnsList[rxnsKey[p]], nRxns, rxnsOptMode[rxnsKey[p]], iRound, pid, resultsDir, logFiles)
                 end
             end
         end
@@ -580,8 +614,8 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
                 print(" Saving the minimum and maximum fluxes for reactions $(rxnsList[rxnsKey[p]]) from worker $p ... ")
 
                 # open 2 file streams
-                filemin = matopen("$(dirname(@__FILE__))/../results/fvamin/fvamin_$p.mat", "w")
-                filemax = matopen("$(dirname(@__FILE__))/../results/fvamax/fvamax_$p.mat", "w")
+                filemin = matopen("$resultsDir/fvamin/fvamin_$p.mat", "w")
+                filemax = matopen("$resultsDir/fvamax/fvamax_$p.mat", "w")
 
                 # saving the rxnsList and rxnsOptMode temporarily
                 tmpRxnsList = convertUnitRange(rxnsList[rxnsKey[p]])
@@ -614,6 +648,17 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
     # perform maximizations and minimizations sequentially
     else
         m = buildCobraLP(model, solver)
+
+        # turn scaling off in CPLEX when solving coupled models or models with more metabolites that reactions in the stoichiometric matrix
+        if nMets >= nRxns && solver.name == "CPLEX"
+            CPLEX.set_param!(m.inner.env,"CPX_PARAM_SCAIND", -1)
+            if CPLEX.get_param(m.inner.env,"CPX_PARAM_SCAIND") == -1
+                print_with_color(:yellow, "The CPX_PARAM_SCAIND parameter has been set to -1 (CPLEX scaling turned off).\n")
+            else
+                error("The CPX_PARAM_SCAIND parameter could not be set.")
+            end
+        end
+
         minFlux, fvamin, statussolmin = loopFBA(m, rxnsList, nRxns, rxnsOptMode, 0)
         maxFlux, fvamax, statussolmax = loopFBA(m, rxnsList, nRxns, rxnsOptMode, 1)
     end
