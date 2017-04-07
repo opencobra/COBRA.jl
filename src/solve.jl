@@ -204,6 +204,52 @@ function solveCobraLP(model, solver)
 
 end
 
-export buildCobraLP, changeCobraSolver, solveCobraLP
+#-------------------------------------------------------------------------------------------
+"""
+    autoTuneSolver(m, nMets, nRxns, solver)
+
+Function to auto-tune the parameter of a solver based on model size
+
+# INPUTS
+
+- `m`:              A MathProgBase.LinearQuadraticModel object with `inner` field
+- `nMets`:          Total number of metabolites in the model `m.inner`
+- `nRxns`:          Total number of reaction in the model `m.inner`
+- `solver`:         A `::SolverConfig` object that contains a valid `handle`to the solver
+
+# OUTPUT
+
+Sets the solver parameters in the environment `env`
+
+# EXAMPLES
+
+Minimum working example
+```julia
+julia> autoTuneSolver(env, nMets, nRxns, solver)
+```
+
+See also: `MathProgBase.linprog()`
+"""
+
+function autoTuneSolver(m, nMets, nRxns, solver, pid::Int = 1)
+
+    # turn scaling off in CPLEX when solving coupled models or models with more metabolites that reactions in the stoichiometric matrix
+    if nMets >= nRxns && nRxns >= 50000 && solver.name == "CPLEX"
+
+        # set the scaling parameter
+        CPLEX.set_param!(m.inner.env, "CPX_PARAM_SCAIND", -1)
+
+        # verify that the scaling parameter has been set properly
+        if CPLEX.get_param(m.inner.env, "CPX_PARAM_SCAIND") == -1
+            print_with_color(:yellow, "The CPX_PARAM_SCAIND parameter has been set to -1 (CPLEX scaling turned off).\n")
+        else
+            error("The CPX_PARAM_SCAIND parameter could not be set.")
+        end
+
+    end
+
+end
+
+export buildCobraLP, changeCobraSolver, solveCobraLP, autoTuneSolver
 
 #-------------------------------------------------------------------------------------------

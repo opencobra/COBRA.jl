@@ -584,15 +584,8 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
                 @async R[p, iRound + 1] = @spawnat (p + 1) begin
                     m = buildCobraLP(model, solver) # on each worker, the model must be built individually
 
-                    # turn scaling off in CPLEX when solving coupled models or models with more metabolites that reactions in the stoichiometric matrix
-                    if nMets >= nRxns && solver.name == "CPLEX"
-                        CPLEX.set_param!(m.inner.env,"CPX_PARAM_SCAIND", -1)
-                        if CPLEX.get_param(m.inner.env,"CPX_PARAM_SCAIND") == -1
-                            print_with_color(:yellow, "The CPX_PARAM_SCAIND parameter has been set to -1 (CPLEX scaling turned off).\n")
-                        else
-                            error("The CPX_PARAM_SCAIND parameter could not be set.")
-                        end
-                    end
+                    # adjust the solver parameters based on the model
+                    autoTuneSolver(m, nMets, nRxns, solver, pid)
 
                     # start the loop of FBA
                     loopFBA(m, rxnsList[rxnsKey[p]], nRxns, rxnsOptMode[rxnsKey[p]], iRound, pid, resultsDir, logFiles)
@@ -649,15 +642,8 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
     else
         m = buildCobraLP(model, solver)
 
-        # turn scaling off in CPLEX when solving coupled models or models with more metabolites that reactions in the stoichiometric matrix
-        if nMets >= nRxns && solver.name == "CPLEX"
-            CPLEX.set_param!(m.inner.env,"CPX_PARAM_SCAIND", -1)
-            if CPLEX.get_param(m.inner.env,"CPX_PARAM_SCAIND") == -1
-                print_with_color(:yellow, "The CPX_PARAM_SCAIND parameter has been set to -1 (CPLEX scaling turned off).\n")
-            else
-                error("The CPX_PARAM_SCAIND parameter could not be set.")
-            end
-        end
+        # adjust the solver parameters based on the model
+        autoTuneSolver(m, nMets, nRxns, solver)
 
         minFlux, fvamin, statussolmin = loopFBA(m, rxnsList, nRxns, rxnsOptMode, 0)
         maxFlux, fvamax, statussolmax = loopFBA(m, rxnsList, nRxns, rxnsOptMode, 1)
