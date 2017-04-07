@@ -301,6 +301,7 @@ Generally, `loopFBA` is called in a loop over multiple workers and makes use of 
 - `pid`:            Julia ID of launched process
 - `resultsDir`:     Path to results folder (default is a `results` folder in the Julia package directory)
 - `logFiles`:       (only available for CPLEX) Boolean to write a solver logfile of each optimization (default: false)
+- `onlyFluxes`:     Save only minFlux and maxFlux if true and will return placeholders for `fvamin`, `fvamax`, `statussolmin`, or `statussolmax` (applicable for quick checks of large models, default: false)
 
 # OUTPUTS
 
@@ -327,13 +328,20 @@ See also: `distributeFBA()`, `MathProgBase.HighLevelInterface`
 
 """
 
-function loopFBA(m, rxnsList, nRxns::Int, rxnsOptMode = 2 + zeros(Int, length(rxnsList)), iRound::Int = 0, pid::Int = 1, resultsDir::String = "$(dirname(@__FILE__))/../results", logFiles::Bool = false)
+function loopFBA(m, rxnsList, nRxns::Int, rxnsOptMode = 2 + zeros(Int, length(rxnsList)), iRound::Int = 0, pid::Int = 1,
+                 resultsDir::String = "$(dirname(@__FILE__))/../results", logFiles::Bool = false, onlyFluxes::Bool = false)
 
     # initialize vectors and counters
     retObj = zeros(nRxns)
     retStat = -1 + zeros(Int, nRxns)
-    retFlux = 0.0/0.0 * ones(nRxns, length(rxnsList))
     j = 1
+
+    # declare the return flux matrix
+    if !onlyFluxes
+        retFlux = 0.0/0.0 * ones(nRxns, length(rxnsList)) # initialize with NaN
+    else
+        retFlux = zeros(1, 1)
+    end
 
     # loop over all the reactions
     for k = 1:length(rxnsList)
@@ -383,7 +391,9 @@ function loopFBA(m, rxnsList, nRxns::Int, rxnsOptMode = 2 + zeros(Int, length(rx
                 retObj[rxnsList[k]] = solutionLP.objval / 1000.0 #solutionLP.sol[rxnsList[k]]
 
                 # retrieve the solution vector
-                retFlux[:, k] = solutionLP.sol
+                if !onlyFluxes
+                    retFlux[:, k] = solutionLP.sol
+                end
 
                 # return the solution status
                 retStat[rxnsList[k]] = 1 # LP problem is optimal
@@ -443,24 +453,25 @@ initialized using the `createPool` function (or similar).
     - 0: only minimization
     - 1: only maximization
     - 2: minimization & maximization
-      [default: all reactions are minimized and maximized, i.e. 2+zeros(Int,length(model.rxns))]
+      [default: all reactions are minimized and maximized, i.e. `2+zeros(Int,length(model.rxns))]`
 - `preFBA`:         Solve the original FBA and add a percentage condition (Boolean variable, default: true for flux variability analysis FVA)
-- `saveChunks`:     Save the fluxes of the minimizations and maximizations in individual files on each worker (applicable for large models)
+- `saveChunks`:     Save the fluxes of the minimizations and maximizations in individual files on each worker (applicable for large models, default: false)
 - `resultsDir`:     Path to results folder (default is a `results` folder in the Julia package directory)
 - `logFiles`:       Boolean to write a solver logfile of each optimization (default: false)
+- `onlyFluxes`:     Save only minFlux and maxFlux if true and will return placeholders for `fvamin`, `fvamax`, `statussolmin`, or `statussolmax` (applicable for quick checks of large models, default: false)
 
 # OUTPUTS
 
 - `minFlux`:        Minimum flux for each reaction
 - `maxFlux`:        Maximum flux for each reaction
-- `optSol`:         Optimal solution of the initial FBA
-- `fbaSol`:         Solution vector of the initial FBA
-- `fvamin`:         Array with flux values for the considered reactions (minimization)
+- `optSol`:         Optimal solution of the initial FBA (if `preFBA` set to `true`)
+- `fbaSol`:         Solution vector of the initial FBA (if `preFBA` set to `true`)
+- `fvamin`:         Array with flux values for the considered reactions (minimization) (if `onlyFluxes` set to `false`)
       Note: `fvamin` is saved in individual `.mat` files when `saveChunks` is `true`.
-- `fvamax`:         Array with flux values for the considered reactions (maximization)
+- `fvamax`:         Array with flux values for the considered reactions (maximization) (if `onlyFluxes` set to `false`)
       Note: `fvamax` is saved in individual `.mat` files when `saveChunks` is `true`.
-- `statussolmin`:   Vector of solution status for each reaction (minimization)
-- `statussolmax`:   Vector of solution status for each reaction (maximization)
+- `statussolmin`:   Vector of solution status for each reaction (minimization) (if `onlyFluxes` set to `false`)
+- `statussolmax`:   Vector of solution status for each reaction (maximization) (if `onlyFluxes` set to `false`)
 
 # EXAMPLES
 
@@ -471,16 +482,26 @@ julia> minFlux, maxFlux = distributedFBA(model, solver)
 
 - Full input/output example
 ```julia
-julia> minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, optPercentage, objective, rxnsList, strategy, rxnsOptMode, true)
+julia> minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, optPercentage, objective, rxnsList, strategy, rxnsOptMode, true, true, true)
+```
+
+- Save only the fluxes
+```julia
+julia> minFlux, maxFlux = distributedFBA(model, solver, optPercentage, objective, rxnsList, strategy, rxnsOptMode, true, false, true)
+```
+
+- Save flux vectors in files
+```julia
+julia> minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, optPercentage, objective, rxnsList, strategy, rxnsOptMode, true, true)
 ```
 
 See also: `preFBA!()`, `splitRange()`, `buildCobraLP()`, `loopFBA()`, or `fetch()`
 """
 
 function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64 = 100.0, objective::String = "max",
-                        rxnsList = 1:length(model.rxns), strategy::Int = 0,
-                        rxnsOptMode = 2 + zeros(Int,length(model.rxns)), preFBA::Bool = true,
-                        saveChunks::Bool = false, resultsDir::String = "$(dirname(@__FILE__))/../results", logFiles::Bool = false)
+                        rxnsList = 1:length(model.rxns), strategy::Int = 0, rxnsOptMode = 2 + zeros(Int,length(model.rxns)),
+                        preFBA::Bool = true, saveChunks::Bool = false, resultsDir::String = "$(dirname(@__FILE__))/../results",
+                        logFiles::Bool = false, onlyFluxes::Bool = false)
 
     # calculate a default FBA solution
     if preFBA
@@ -505,46 +526,56 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
     maxFlux = zeros(nRxns)
 
     # sanity check for very large models
-    if nRxns > 80000 && !saveChunks
+    if nRxns > 60000 && !saveChunks && !onlyFluxes
         saveChunks = true
         info("Trying to solve a model of $nRxns reactions. `saveChunks` has been set to `true`.")
     end
 
     # initialilze the flux matrices
-    if !saveChunks
-        fvamax = zeros(nRxns, nRxns)
-        fvamin = zeros(nRxns, nRxns)
-    else
-        # create a folder for storing the results
-        if !isdir("$resultsDir")
-            mkdir("$resultsDir")
-            print_with_color(:green, "Directory `$resultsDir` created.\n\n")
+    if !onlyFluxes
+        if !saveChunks
+            fvamax = zeros(nRxns, nRxns)
+            fvamin = zeros(nRxns, nRxns)
         else
-            print_with_color(:cyan, "Directory `$resultsDir` already exists.\n\n")
-        end
+            # create a folder for storing the results
+            if !isdir("$resultsDir")
+                mkdir("$resultsDir")
+                print_with_color(:green, "Directory `$resultsDir` created.\n\n")
+            else
+                print_with_color(:cyan, "Directory `$resultsDir` already exists.\n\n")
+            end
 
-        # create a folder for storing the chunks of the fluxes of each minimization
-        if !isdir("$resultsDir/fvamin")
-            mkdir("$resultsDir/fvamin")
-        end
+            # create a folder for storing the chunks of the fluxes of each minimization
+            if !isdir("$resultsDir/fvamin")
+                mkdir("$resultsDir/fvamin")
+            end
 
-        # create a folder for storing the chunks of the fluxes of each maximization
-        if !isdir("$resultsDir/fvamax")
-            mkdir("$resultsDir/fvamax")
-        end
+            # create a folder for storing the chunks of the fluxes of each maximization
+            if !isdir("$resultsDir/fvamax")
+                mkdir("$resultsDir/fvamax")
+            end
 
-        # create a folder for log files
-        if logFiles && !isdir("$resultsDir/logs")
-            mkdir("$resultsDir/logs")
-        end
+            # create a folder for log files
+            if logFiles && !isdir("$resultsDir/logs")
+                mkdir("$resultsDir/logs")
+            end
 
+            fvamin = zeros(2, 2)
+            fvamax = zeros(2, 2)
+        end
+    else
         fvamin = zeros(2, 2)
         fvamax = zeros(2, 2)
     end
 
     # initialize the vectors to report the solution status
-    statussolmin = zeros(Int, nRxns)
-    statussolmax = zeros(Int, nRxns)
+    if !onlyFluxes
+        statussolmin = zeros(Int, nRxns)
+        statussolmax = zeros(Int, nRxns)
+    else
+        statussolmin = zeros(Int, 1)
+        statussolmax = zeros(Int, 1)
+    end
 
     # perform sanity checks
     if nRxnsList > nRxns
@@ -589,7 +620,7 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
                     autoTuneSolver(m, nMets, nRxns, solver, pid)
 
                     # start the loop of FBA
-                    loopFBA(m, rxnsList[rxnsKey[p]], nRxns, rxnsOptMode[rxnsKey[p]], iRound, pid, resultsDir, logFiles)
+                    loopFBA(m, rxnsList[rxnsKey[p]], nRxns, rxnsOptMode[rxnsKey[p]], iRound, pid, resultsDir, logFiles, onlyFluxes)
                 end
             end
         end
@@ -602,41 +633,42 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
             maxFlux[rxnsList[rxnsKey[p]]] = fetch(R[p, 2])[1][rxnsList[rxnsKey[p]]]
 
             # save the fluxes of each reaction
-            if saveChunks
+            if !onlyFluxes
+                if saveChunks
+                    if p == 1 println() end
+                    print(" Saving the minimum and maximum fluxes for reactions $(rxnsList[rxnsKey[p]]) from worker $p ... ")
 
-                if p == 1 println() end
-                print(" Saving the minimum and maximum fluxes for reactions $(rxnsList[rxnsKey[p]]) from worker $p ... ")
+                    # open 2 file streams
+                    filemin = matopen("$resultsDir/fvamin/fvamin_$p.mat", "w")
+                    filemax = matopen("$resultsDir/fvamax/fvamax_$p.mat", "w")
 
-                # open 2 file streams
-                filemin = matopen("$resultsDir/fvamin/fvamin_$p.mat", "w")
-                filemax = matopen("$resultsDir/fvamax/fvamax_$p.mat", "w")
+                    # saving the rxnsList and rxnsOptMode temporarily
+                    tmpRxnsList = convertUnitRange(rxnsList[rxnsKey[p]])
+                    tmpRxnsOptMode = convertUnitRange(rxnsOptMode[rxnsKey[p]])
 
-                # saving the rxnsList and rxnsOptMode temporarily
-                tmpRxnsList = convertUnitRange(rxnsList[rxnsKey[p]])
-                tmpRxnsOptMode = convertUnitRange(rxnsOptMode[rxnsKey[p]])
+                    # save the reaction key for each worker into each file (filemin)
+                    write(filemin, "fvamin", fetch(R[p, 1])[2][:, :])
+                    write(filemin, "rxnsList", tmpRxnsList)
+                    write(filemin, "rxnsOptMode", tmpRxnsOptMode)
 
-                # save the reaction key for each worker into each file (filemin)
-                write(filemin, "fvamin", fetch(R[p, 1])[2][:, :])
-                write(filemin, "rxnsList", tmpRxnsList)
-                write(filemin, "rxnsOptMode", tmpRxnsOptMode)
+                    # save the reaction key for each worker into each file (filemax)
+                    write(filemax, "fvamax", fetch(R[p, 2])[2][:, :])
+                    write(filemax, "rxnsList", tmpRxnsList)
+                    write(filemax, "rxnsOptMode", tmpRxnsOptMode)
 
-                # save the reaction key for each worker into each file (filemax)
-                write(filemax, "fvamax", fetch(R[p, 2])[2][:, :])
-                write(filemax, "rxnsList", tmpRxnsList)
-                write(filemax, "rxnsOptMode", tmpRxnsOptMode)
+                    # close the 2 file streams
+                    close(filemin)
+                    close(filemax)
+                    print_with_color(:green, "Done.\n")
+                else
+                    fvamin[:, rxnsList[rxnsKey[p]]] = fetch(R[p, 1])[2][:, :]
+                    fvamax[:, rxnsList[rxnsKey[p]]] = fetch(R[p, 2])[2][:, :]
+                end
 
-                # close the 2 file streams
-                close(filemin)
-                close(filemax)
-                print_with_color(:green, "Done.\n")
-            else
-                fvamin[:, rxnsList[rxnsKey[p]]] = fetch(R[p, 1])[2][:, :]
-                fvamax[:, rxnsList[rxnsKey[p]]] = fetch(R[p, 2])[2][:, :]
+                # save the solver status for each reaction
+                statussolmin[rxnsList[rxnsKey[p]]] = fetch(R[p, 1])[3][rxnsList[rxnsKey[p]]]
+                statussolmax[rxnsList[rxnsKey[p]]] = fetch(R[p, 2])[3][rxnsList[rxnsKey[p]]]
             end
-
-            # save the solver status for each reaction
-            statussolmin[rxnsList[rxnsKey[p]]] = fetch(R[p, 1])[3][rxnsList[rxnsKey[p]]]
-            statussolmax[rxnsList[rxnsKey[p]]] = fetch(R[p, 2])[3][rxnsList[rxnsKey[p]]]
         end
 
     # perform maximizations and minimizations sequentially

@@ -30,7 +30,7 @@ if includeCOBRA
 
     using COBRA
     using Requests
-    
+
     include("getTestModel.jl")
 end
 
@@ -340,3 +340,13 @@ minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = d
 
 # print a solution summary with full output
 printSolSummary(testFile, optSol, maxFlux, minFlux, solTime, nWorkers, solverName, strategy, saveChunks)
+
+# output only the fluxes
+minFlux, maxFlux = distributedFBA(model, solver, nWorkers, optPercentage, objective, rxnsList, strategy, rxnsOptMode, true, false,  "$(dirname(@__FILE__))/../results", false, true)
+
+minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers, optPercentage, objective, rxnsList, strategy, rxnsOptMode, true, false, "$(dirname(@__FILE__))/../results", false, true)
+
+@test fvamin == zeros(2, 2)
+@test fvamax == zeros(2, 2)
+@test statussolmin == zeros(Int, 1)
+@test statussolmax == zeros(Int, 1)
