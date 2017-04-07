@@ -738,17 +738,18 @@ end
 
 #------------------------------------------------------------------------------------------
 """
-    saveDistributedFBA(fileName::String)
+    saveDistributedFBA(fileName::String, vars)
 
 Output a file with all the output variables of `distributedFBA()` and `rxnsList`
 
 # INPUTS
 
 - `fileName`:         Filename of the output
+- `vars`:             List of variables (default: ["minFlux", "maxFlux", "optSol", "fbaSol", "fvamin", "fvamax", "statussolmin", "statussolmax", "rxnsList"])
 
 # OUTPUTS
 
-- `.mat` file with all output variables of `distributedFBA()`
+- `.mat` file with the specified output variables
 
 # EXAMPLES
 
@@ -767,16 +768,19 @@ julia> saveDistributedFBA("myDirectory/myResults.mat")
 julia> saveDistributedFBA(ENV["HOME"]*"/myResults.mat")
 ```
 
+- Save minFlux and maxFlux variables
+```julia
+julia> saveDistributedFBA(ENV["HOME"]*"/myResults.mat", ["minFlux", "maxFlux"])
+```
+
 """
 
-function saveDistributedFBA(fileName::String)
+function saveDistributedFBA(fileName::String, vars = ["minFlux", "maxFlux", "optSol", "fbaSol", "fvamin", "fvamax", "statussolmin", "statussolmax", "rxnsList"])
 
     # open a file with a give filename
     file = matopen(fileName, "w")
 
-    # set the list of variables
-    vars = ["minFlux", "maxFlux", "optSol", "fbaSol", "fvamin", "fvamax", "statussolmin", "statussolmax", "rxnsList"]
-
+    # initialize the counter for the variables
     countSavedVars = 0
 
     # loop through the list of variables

@@ -350,3 +350,8 @@ minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = d
 @test fvamax == zeros(2, 2)
 @test statussolmin == zeros(Int, 1)
 @test statussolmax == zeros(Int, 1)
+
+saveDistributedFBA("testFile.mat", ["minFlux", "maxFlux"])
+
+# remove the file to clean up
+run(`rm testFile.mat`)
