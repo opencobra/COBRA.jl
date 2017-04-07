@@ -775,7 +775,7 @@ julia> saveDistributedFBA(ENV["HOME"]*"/myResults.mat", ["minFlux", "maxFlux"])
 
 """
 
-function saveDistributedFBA(fileName::String, vars = ["minFlux", "maxFlux", "optSol", "fbaSol", "fvamin", "fvamax", "statussolmin", "statussolmax", "rxnsList"])
+function saveDistributedFBA(fileName::String, vars::Array{String,1} = ["minFlux", "maxFlux", "optSol", "fbaSol", "fvamin", "fvamax", "statussolmin", "statussolmax", "rxnsList"])
 
     # open a file with a give filename
     file = matopen(fileName, "w")
@@ -788,6 +788,7 @@ function saveDistributedFBA(fileName::String, vars = ["minFlux", "maxFlux", "opt
         if isdefined(Main, Symbol(vars[i]))
             print("Saving $(vars[i]) (T:> $(typeof(eval(Main, Symbol(vars[i]))))) ...")
 
+            # write the variable to the file
             write(file, "$(vars[i])", convertUnitRange( eval(Main, Symbol(vars[i])) ))
 
             # increment the counter
