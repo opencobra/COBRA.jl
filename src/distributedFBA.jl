@@ -275,7 +275,7 @@ end
 
 #-------------------------------------------------------------------------------------------
 """
-    loopFBA(m, rxnsList, nRxns, pid, iRound, rxnsOptMode)
+    loopFBA(m, rxnsList, nRxns, rxnsOptMode, iRound, pid, resultsDir, logFiles, onlyFluxes)
 
 Function used to perform a loop of a series of FBA problems using the CPLEX solver
 Generally, `loopFBA` is called in a loop over multiple workers and makes use of the
@@ -428,7 +428,7 @@ end
 
 # ------------------------------------------------------------------------------------------
 """
-    distributedFBA(model, solver, nWorkers, optPercentage, objective, rxnsList, strategy, rxnsOptMode, preFBA, saveChunks, resultsDir, logFiles)
+    distributedFBA(model, solver, nWorkers, optPercentage, objective, rxnsList, strategy, rxnsOptMode, preFBA, saveChunks, resultsDir, logFiles, onlyFluxes)
 
 Function to distribute a series of FBA problems across one or more workers that have been
 initialized using the `createPool` function (or similar).
