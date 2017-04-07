@@ -300,7 +300,7 @@ Generally, `loopFBA` is called in a loop over multiple workers and makes use of 
     - 1: maximization
 - `pid`:            Julia ID of launched process
 - `resultsDir`:     Path to results folder (default is a `results` folder in the Julia package directory)
-- `logFiles`:       Boolean to write a solver logfile of each optimization (default: false)
+- `logFiles`:       (only available for CPLEX) Boolean to write a solver logfile of each optimization (default: false)
 
 # OUTPUTS
 
@@ -308,12 +308,13 @@ Generally, `loopFBA` is called in a loop over multiple workers and makes use of 
 - `retFlux`:        Array of solution vectors corresponding to the vector with the optimal objective values
                     (either `min` or `max`)
 - `retStat`:        Vector with the status of the solver of each FBA (default: initialized with `-1`)
-    - 0: LP problem is infeasible
-    - 1: LP problem is optimal
-    - 2: LP problem is unbounded
-    - 3: Solver for the LP problem has hit a user limit
-    - 4: LP problem is infeasible or unbounded
-    - 5: LP problem has a non-documented solution status
+    - 0:   LP problem is infeasible
+    - 1:   LP problem is optimal
+    - 2:   LP problem is unbounded
+    - 3:   Solver for the LP problem has hit a user limit
+    - 4:   LP problem is infeasible or unbounded
+    - 5:   LP problem has a non-documented solution status
+    - 10+: `retStat - 10` = returned solution status of CPLEX
 
 # EXAMPLES
 
@@ -379,7 +380,7 @@ function loopFBA(m, rxnsList, nRxns::Int, rxnsOptMode = 2 + zeros(Int, length(rx
             # output the solution, save the minimum and maximum fluxes
             if statLP == :Optimal
                 # retrieve the objective value
-                retObj[rxnsList[k]] = solutionLP.sol[rxnsList[k]] #solutionLP.objval / 1000.0
+                retObj[rxnsList[k]] = solutionLP.objval / 1000.0 #solutionLP.sol[rxnsList[k]]
 
                 # retrieve the solution vector
                 retFlux[:, k] = solutionLP.sol
@@ -504,7 +505,7 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
     maxFlux = zeros(nRxns)
 
     # sanity check for very large models
-    if nRxns > 100000 && !saveChunks
+    if nRxns > 80000 && !saveChunks
         saveChunks = true
         info("Trying to solve a model of $nRxns reactions. `saveChunks` has been set to `true`.")
     end
