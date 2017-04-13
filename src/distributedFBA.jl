@@ -566,16 +566,12 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
     else
         fvamin = zeros(2, 2)
         fvamax = zeros(2, 2)
+        info(" >> Only the minFlux and maxFlux vectors will be calculated. The solution status of the solver is available in statussolmin and statussolmax.\n")
     end
 
     # initialize the vectors to report the solution status
-    if !onlyFluxes
-        statussolmin = zeros(Int, nRxns)
-        statussolmax = zeros(Int, nRxns)
-    else
-        statussolmin = zeros(Int, 1)
-        statussolmax = zeros(Int, 1)
-    end
+    statussolmin = zeros(Int, nRxns)
+    statussolmax = zeros(Int, nRxns)
 
     # perform sanity checks
     if nRxnsList > nRxns
@@ -664,11 +660,11 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
                     fvamin[:, rxnsList[rxnsKey[p]]] = fetch(R[p, 1])[2][:, :]
                     fvamax[:, rxnsList[rxnsKey[p]]] = fetch(R[p, 2])[2][:, :]
                 end
-
-                # save the solver status for each reaction
-                statussolmin[rxnsList[rxnsKey[p]]] = fetch(R[p, 1])[3][rxnsList[rxnsKey[p]]]
-                statussolmax[rxnsList[rxnsKey[p]]] = fetch(R[p, 2])[3][rxnsList[rxnsKey[p]]]
             end
+
+            # save the solver status for each reaction
+            statussolmin[rxnsList[rxnsKey[p]]] = fetch(R[p, 1])[3][rxnsList[rxnsKey[p]]]
+            statussolmax[rxnsList[rxnsKey[p]]] = fetch(R[p, 2])[3][rxnsList[rxnsKey[p]]]
         end
 
     # perform maximizations and minimizations sequentially

@@ -208,7 +208,7 @@ end
 """
     autoTuneSolver(m, nMets, nRxns, solver)
 
-Function to auto-tune the parameter of a solver based on model size
+Function to auto-tune the parameter of a solver based on model size (only CPLEX)
 
 # INPUTS
 
@@ -234,20 +234,9 @@ See also: `MathProgBase.linprog()`
 function autoTuneSolver(m, nMets, nRxns, solver, pid::Int = 1)
 
     # turn scaling off in CPLEX when solving coupled models or models with more metabolites that reactions in the stoichiometric matrix
-    if nMets >= nRxns && nRxns >= 50000 && solver.name == "CPLEX"
-
-        # set the scaling parameter
-        CPLEX.set_param!(m.inner.env, "CPX_PARAM_SCAIND", -1)
-
-        # verify that the scaling parameter has been set properly
-        if CPLEX.get_param(m.inner.env, "CPX_PARAM_SCAIND") == -1
-            print_with_color(:yellow, "The CPX_PARAM_SCAIND parameter has been set to -1 (CPLEX scaling turned off).\n")
-        else
-            error("The CPX_PARAM_SCAIND parameter could not be set.")
-        end
-
+    if (nMets >= nRxns || nRxns >= 50000) && solver.name == "CPLEX"
+        CPLEX.set_param!(m.inner.env, "CPX_PARAM_SCAIND", -1) # set the scaling parameter
     end
-
 end
 
 export buildCobraLP, changeCobraSolver, solveCobraLP, autoTuneSolver

@@ -348,8 +348,8 @@ minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = d
 
 @test fvamin == zeros(2, 2)
 @test fvamax == zeros(2, 2)
-@test statussolmin == zeros(Int, 1)
-@test statussolmax == zeros(Int, 1)
+@test statussolmin == ones(Int, length(rxnsList))
+@test statussolmax == ones(Int, length(rxnsList))
 
 saveDistributedFBA("testFile.mat", ["minFlux", "maxFlux"])
 
