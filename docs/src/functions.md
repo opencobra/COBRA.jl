@@ -36,3 +36,9 @@ buildCobraLP
 changeCobraSolver
 solveCobraLP
 ```
+
+## tools.jl
+```@docs
+findRxnIDS
+convertUnitRange
+```

@@ -18,6 +18,7 @@ if includeCOBRA
     include("../src/distributedFBA.jl")
     include("../src/connect.jl")
     include("../src/checkSetup.jl")
+    include("../src/tools.jl")
 end
 
 makedocs(format = :html,

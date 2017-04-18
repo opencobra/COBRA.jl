@@ -482,7 +482,7 @@ julia> minFlux, maxFlux = distributedFBA(model, solver)
 
 - Full input/output example
 ```julia
-julia> minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers, optPercentage, objective, rxnsList, strategy, rxnsOptMode, true, true)
+julia> minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers=nWorkers, logFiles=true)
 ```
 
 - Save only the fluxes
