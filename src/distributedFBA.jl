@@ -315,7 +315,7 @@ Generally, `loopFBA` is called in a loop over multiple workers and makes use of 
     - 3:   Solver for the LP problem has hit a user limit
     - 4:   LP problem is infeasible or unbounded
     - 5:   LP problem has a non-documented solution status
-    - 10+: `retStat - 10` = returned solution status of CPLEX
+    - < 0: returned original solution status of solver (only CPLEX supported)
 
 # EXAMPLES
 
@@ -333,14 +333,14 @@ function loopFBA(m, rxnsList, nRxns::Int, rxnsOptMode = 2 + zeros(Int, length(rx
 
     # initialize vectors and counters
     retObj = zeros(nRxns)
-    retStat = -1 + zeros(Int, nRxns)
+    retStat = NaN * zeros(Int, nRxns)
     j = 1
 
     # declare the return flux matrix
     if !onlyFluxes
-        retFlux = 0.0/0.0 * ones(nRxns, length(rxnsList)) # initialize with NaN
+        retFlux = NaN * ones(nRxns, length(rxnsList))
     else
-        retFlux = zeros(1, 1)
+        retFlux = NaN * ones(1, 1)
     end
 
     # loop over all the reactions
@@ -388,15 +388,15 @@ function loopFBA(m, rxnsList, nRxns::Int, rxnsOptMode = 2 + zeros(Int, length(rx
             # output the solution, save the minimum and maximum fluxes
             if statLP == :Optimal
                 # retrieve the objective value
-                retObj[rxnsList[k]] = solutionLP.objval / 1000.0 #solutionLP.sol[rxnsList[k]]
+                retObj[rxnsList[k]] = solutionLP.objval / 1000.0  # solutionLP.sol[rxnsList[k]]
 
                 # retrieve the solution vector
                 if !onlyFluxes
                     retFlux[:, k] = solutionLP.sol
-                end
 
-                # return the solution status
-                retStat[rxnsList[k]] = 1 # LP problem is optimal
+                    # return the solution status
+                    retStat[rxnsList[k]] = 1 # LP problem is optimal
+                end
 
             elseif statLP == :Infeasible
                 retStat[rxnsList[k]] = 0 # LP problem is infeasible
@@ -412,7 +412,7 @@ function loopFBA(m, rxnsList, nRxns::Int, rxnsOptMode = 2 + zeros(Int, length(rx
 
             else
                 if string(typeof(m.inner)) == "CPLEX.Model"
-                    retStat[rxnsList[k]] = 10 + CPLEX.get_status_code(m.inner)
+                    retStat[rxnsList[k]] = - CPLEX.get_status_code(m.inner)
                 else
                     retStat[rxnsList[k]] = 5 # LP problem has a non-documented solution status
                 end
@@ -482,23 +482,23 @@ julia> minFlux, maxFlux = distributedFBA(model, solver)
 
 - Full input/output example
 ```julia
-julia> minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, optPercentage, objective, rxnsList, strategy, rxnsOptMode, true, true, true)
+julia> minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers, optPercentage, objective, rxnsList, strategy, rxnsOptMode, true, true)
 ```
 
 - Save only the fluxes
 ```julia
-julia> minFlux, maxFlux = distributedFBA(model, solver, optPercentage, objective, rxnsList, strategy, rxnsOptMode, true, false, true)
+julia> minFlux, maxFlux = distributedFBA(model, solver, preFBA=true, saveChunks=false, onlyFluxes=true)
 ```
 
 - Save flux vectors in files
 ```julia
-julia> minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, optPercentage, objective, rxnsList, strategy, rxnsOptMode, true, true)
+julia> minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver)
 ```
 
 See also: `preFBA!()`, `splitRange()`, `buildCobraLP()`, `loopFBA()`, or `fetch()`
 """
 
-function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64 = 100.0, objective::String = "max",
+function distributedFBA(model, solver; nWorkers::Int = 1, optPercentage::Float64 = 100.0, objective::String = "max",
                         rxnsList = 1:length(model.rxns), strategy::Int = 0, rxnsOptMode = 2 + zeros(Int,length(model.rxns)),
                         preFBA::Bool = true, saveChunks::Bool = false, resultsDir::String = "$(dirname(@__FILE__))/../results",
                         logFiles::Bool = false, onlyFluxes::Bool = false)
@@ -510,8 +510,8 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
         solTime = time() - startTime
         print_with_color(:green, "Original FBA solved. Solution time: $solTime s.\n\n")
     else
-        optSol = 0.0
-        fbaSol = zeros(length(model.rxns))
+        optSol = NaN
+        fbaSol = NaN * zeros(length(model.rxns))
         print_with_color(:blue, "Original FBA. No additional constraints have been added.\n")
     end
 
@@ -522,8 +522,8 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
     nRxnsList = length(rxnsList)
 
     # intialize the flux vectors
-    minFlux = zeros(nRxns)
-    maxFlux = zeros(nRxns)
+    minFlux = NaN * zeros(nRxns)
+    maxFlux = NaN * zeros(nRxns)
 
     # sanity check for very large models
     if nRxns > 60000 && !saveChunks && !onlyFluxes
@@ -534,8 +534,8 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
     # initialilze the flux matrices
     if !onlyFluxes
         if !saveChunks
-            fvamax = zeros(nRxns, nRxns)
-            fvamin = zeros(nRxns, nRxns)
+            fvamax = NaN * zeros(nRxns, nRxns)
+            fvamin = NaN * zeros(nRxns, nRxns)
         else
             # create a folder for storing the results
             if !isdir("$resultsDir")
@@ -560,18 +560,18 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
                 mkdir("$resultsDir/logs")
             end
 
-            fvamin = zeros(2, 2)
-            fvamax = zeros(2, 2)
+            fvamin = NaN * zeros(1, 1)
+            fvamax = NaN * zeros(1, 1)
         end
     else
-        fvamin = zeros(2, 2)
-        fvamax = zeros(2, 2)
-        info(" >> Only the minFlux and maxFlux vectors will be calculated. The solution status of the solver is available in statussolmin and statussolmax.\n")
+        fvamin = NaN * zeros(1, 1)
+        fvamax = NaN * zeros(1, 1)
+        print_with_color(:cyan, "Only the minFlux and maxFlux vectors will be calculated. The solution status of the solver is available in statussolmin and statussolmax.\n")
     end
 
     # initialize the vectors to report the solution status
-    statussolmin = zeros(Int, nRxns)
-    statussolmax = zeros(Int, nRxns)
+    statussolmin = NaN * zeros(Int, nRxns)
+    statussolmax = NaN * zeros(Int, nRxns)
 
     # perform sanity checks
     if nRxnsList > nRxns
@@ -674,8 +674,8 @@ function distributedFBA(model, solver, nWorkers::Int = 1, optPercentage::Float64
         # adjust the solver parameters based on the model
         autoTuneSolver(m, nMets, nRxns, solver)
 
-        minFlux, fvamin, statussolmin = loopFBA(m, rxnsList, nRxns, rxnsOptMode, 0)
-        maxFlux, fvamax, statussolmax = loopFBA(m, rxnsList, nRxns, rxnsOptMode, 1)
+        minFlux, fvamin, statussolmin = loopFBA(m, rxnsList, nRxns, rxnsOptMode, 0, 1, resultsDir, logFiles, onlyFluxes)
+        maxFlux, fvamax, statussolmax = loopFBA(m, rxnsList, nRxns, rxnsOptMode, 1, 1, resultsDir, logFiles, onlyFluxes)
     end
 
     return minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax

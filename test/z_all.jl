@@ -83,9 +83,8 @@ print_with_color(:yellow, "\n>> The following tests throw warning messages for t
 model = loadModel("$(dirname(@__FILE__))/ecoli_core_model.mat")
 
 # run a model with more reactions on the reaction list than in the model
-nWorkers = 1
 rxnsList = 1:length(model.rxns) + 1
-minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers, 90.0, "min", rxnsList)
+minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers=1, optPercentage=90.0, objective="min", rxnsList=rxnsList)
 
 # test preFBA! with min
 optSol, fbaSol = preFBA!(model, solver, 90.0, "min")
@@ -129,9 +128,9 @@ end
 m = MathProgBase.HighLevelInterface.buildlp([0.0, -1.0], [-1.0 2.0], '<', [0.0], solver.handle)
 retObj, retFlux, retStat = loopFBA(m, 1, 2, 2, 1)
 if solver.name == "Clp" || solver.name == "Gurobi" || solver.name == "GLPK" || solver.name == "Mosek"
-    @test retStat == [2, -1] # unbounded and not solved
+    @test isequal(retStat, [2, NaN]) # unbounded and not solved
 elseif solver.name == "CPLEX"
-    @test retStat == [4, -1] # unbounded and not solved
+    @test isequal(retStat, [4, NaN]) # unbounded and not solved
 end
 
 print_with_color(:yellow, "\n >> Note: Warnings above are thrown for testing purposes and can be safely ignored.\n")

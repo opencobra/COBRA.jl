@@ -249,7 +249,7 @@ for s = 0:2
 
     # launch the distributedFBA process
     startTime = time()
-    minFlux, maxFlux, optSol = distributedFBA(model, solver, nWorkers, optPercentage, "max", rxnsList, s)
+    minFlux, maxFlux, optSol = distributedFBA(model, solver, nWorkers=nWorkers, optPercentage=optPercentage, objective="max", rxnsList=rxnsList, strategy=s)
     solTime = time() - startTime
 
     # Test numerical values - test on floor as different numerical precision with different solvers
@@ -273,7 +273,7 @@ end
 
 # launch the distributedFBA process
 startTime = time()
-minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax = distributedFBA(model, solver, nWorkers)
+minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax = distributedFBA(model, solver, nWorkers=nWorkers)
 solTime = time() - startTime
 
 # Test numerical values - test on floor as different numerical precision with different solvers
@@ -310,7 +310,7 @@ rxnsList = 1:length(model.rxns)
 # select the reaction optimization mode
 rxnsOptMode = 2 + zeros(Int64, length(rxnsList))
 
-minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers, optPercentage, objective, rxnsList, strategy, rxnsOptMode, true, saveChunks)
+minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers=nWorkers, optPercentage=optPercentage, strategy=strategy, preFBA=true, saveChunks=saveChunks)
 
 # print a solution summary with full output
 printSolSummary(testFile, optSol, maxFlux, minFlux, solTime, nWorkers, solverName, strategy, saveChunks)
@@ -336,20 +336,29 @@ else
     print_with_color(:cyan, "Directory `results` already exists.\n\n")
 end
 
-minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers, optPercentage, objective, rxnsList, strategy, rxnsOptMode, true, saveChunks)
+minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, preFBA=true, saveChunks=true)
 
 # print a solution summary with full output
 printSolSummary(testFile, optSol, maxFlux, minFlux, solTime, nWorkers, solverName, strategy, saveChunks)
 
 # output only the fluxes
-minFlux, maxFlux = distributedFBA(model, solver, nWorkers, optPercentage, objective, rxnsList, strategy, rxnsOptMode, true, false,  "$(dirname(@__FILE__))/../results", false, true)
+minFlux, maxFlux = distributedFBA(model, solver, onlyFluxes=true)
 
-minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers, optPercentage, objective, rxnsList, strategy, rxnsOptMode, true, false, "$(dirname(@__FILE__))/../results", false, true)
+#minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers, optPercentage, objective, rxnsList, strategy, rxnsOptMode, true, false, "$(dirname(@__FILE__))/../results", false, true)
 
-@test fvamin == zeros(2, 2)
-@test fvamax == zeros(2, 2)
-@test statussolmin == ones(Int, length(rxnsList))
-@test statussolmax == ones(Int, length(rxnsList))
+minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, onlyFluxes=true)
+
+@test isequal(fvamin, NaN * zeros(1, 1))
+@test isequal(fvamax, NaN * zeros(1, 1))
+@test isequal(statussolmin, NaN * zeros(Int, length(rxnsList)))
+@test isequal(statussolmax, NaN * zeros(Int, length(rxnsList)))
+
+minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers=nWorkers, onlyFluxes=true)
+
+@test isequal(fvamin, NaN * zeros(1, 1))
+@test isequal(fvamax, NaN * zeros(1, 1))
+@test isequal(statussolmin, NaN * zeros(Int, length(rxnsList)))
+@test isequal(statussolmax, NaN * zeros(Int, length(rxnsList)))
 
 saveDistributedFBA("testFile.mat", ["minFlux", "maxFlux"])
 
