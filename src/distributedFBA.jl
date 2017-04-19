@@ -393,10 +393,10 @@ function loopFBA(m, rxnsList, nRxns::Int, rxnsOptMode = 2 + zeros(Int, length(rx
                 # retrieve the solution vector
                 if !onlyFluxes
                     retFlux[:, k] = solutionLP.sol
-
-                    # return the solution status
-                    retStat[rxnsList[k]] = 1 # LP problem is optimal
                 end
+
+                # return the solution status
+                retStat[rxnsList[k]] = 1 # LP problem is optimal
 
             elseif statLP == :Infeasible
                 retStat[rxnsList[k]] = 0 # LP problem is infeasible

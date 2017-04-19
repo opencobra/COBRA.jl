@@ -350,15 +350,15 @@ minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = d
 
 @test isequal(fvamin, NaN * zeros(1, 1))
 @test isequal(fvamax, NaN * zeros(1, 1))
-@test isequal(statussolmin, NaN * zeros(Int, length(rxnsList)))
-@test isequal(statussolmax, NaN * zeros(Int, length(rxnsList)))
+@test isequal(statussolmin, ones(Int, length(rxnsList)))
+@test isequal(statussolmax, ones(Int, length(rxnsList)))
 
 minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers=nWorkers, onlyFluxes=true)
 
 @test isequal(fvamin, NaN * zeros(1, 1))
 @test isequal(fvamax, NaN * zeros(1, 1))
-@test isequal(statussolmin, NaN * zeros(Int, length(rxnsList)))
-@test isequal(statussolmax, NaN * zeros(Int, length(rxnsList)))
+@test isequal(statussolmin, ones(Int, length(rxnsList)))
+@test isequal(statussolmax, ones(Int, length(rxnsList)))
 
 saveDistributedFBA("testFile.mat", ["minFlux", "maxFlux"])
 
