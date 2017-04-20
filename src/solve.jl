@@ -194,7 +194,9 @@ function solveCobraLP(model, solver)
         solutionLP = MathProgBase.HighLevelInterface.solvelp(m)
 
         # adapt the objective value
-        solutionLP.objval = model.osense * solutionLP.objval
+        if solutionLP.status == :Optimal
+            solutionLP.objval = model.osense * solutionLP.objval
+        end
 
         return solutionLP
 
