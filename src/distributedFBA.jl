@@ -722,13 +722,27 @@ function printSolSummary(testFile::String, optSol, maxFlux, minFlux, solTime, nW
     # print a solution summary
     println("\n-- Solution summary --\n")
     print_with_color(:blue, "$testFile\n")
-    println(" Original FBA obj.val         ", optSol)
-    println(" Maximum of maxFlux:          ", maximum(maxFlux))
-    println(" Minimum of maxFlux:          ", minimum(maxFlux))
-    println(" Maximum of minFlux:          ", maximum(minFlux))
-    println(" Minimum of minFlux:          ", minimum(minFlux))
-    println(" Norm of maxFlux:             ", norm(maxFlux))
-    println(" Norm of minFlux:             ", norm(minFlux))
+
+    if !isnan(optSol)  println(" Original FBA obj.val         ", optSol)  end
+
+    tmp = maximum(maxFlux)
+    if !isnan(tmp)  println(" Maximum of maxFlux:          ", tmp)  end
+
+    tmp = minimum(maxFlux)
+    if !isnan(tmp)  println(" Minimum of maxFlux:          ", tmp)  end
+
+    tmp = maximum(minFlux)
+    if !isnan(tmp)  println(" Maximum of minFlux:          ", tmp)  end
+
+    tmp = minimum(minFlux)
+    if !isnan(tmp)  println(" Minimum of minFlux:          ", tmp)  end
+
+    tmp = norm(maxFlux)
+    if !isnan(tmp)  println(" Norm of maxFlux:             ", tmp)  end
+
+    tmp = norm(minFlux)
+    if !isnan(tmp)  println(" Norm of minFlux:             ", tmp)  end
+
     println(" Solution time [s]:           ", solTime)
     println(" Number of workers:           ", nWorkers)
     println(" Solver:                      ", solverName)
