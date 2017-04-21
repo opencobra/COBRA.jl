@@ -362,5 +362,43 @@ minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = d
 
 saveDistributedFBA("testFile.mat", ["minFlux", "maxFlux"])
 
+# call saveDistributedFBA with no variables
+saveDistributedFBA("testFile.mat", [""])
+
 # remove the file to clean up
 run(`rm testFile.mat`)
+
+# remove the results folder to clean up
+run(`rm -rf $(dirname(@__FILE__))/../results`)
+
+# create the logs folder
+resultsDir = "$(dirname(@__FILE__))/../results"
+
+if isdir("$resultsDir/logs")
+    rmdir("$resultsDir/logs")
+    print_with_color(:green, "$resultsDir/logs folder created")
+end
+
+# call to create a log files directory
+minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, resultsDir=resultsDir, nWorkers=nWorkers, saveChunks=true, logFiles=true, rxnsList=1:10)
+
+# test if the /logs folder has been created
+@test isdir("$resultsDir/logs")
+
+# remove the results folder to clean up
+run(`rm -rf $(dirname(@__FILE__))/../results`)
+
+# call to create a log files directory (throws a warning message)
+minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers=nWorkers, saveChunks=true, onlyFluxes=true, rxnsList=1:10)
+
+# call to throw a warning message when nRxnsList < nWorkers (throws a warning message)
+minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers=nWorkers, rxnsList=1:2)
+
+# call to write logFiles with onlyFluxes
+minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers=nWorkers, onlyFluxes=true, rxnsList=1:10, logFiles=true)
+
+# test if the /logs folder has been created
+@test isdir("$resultsDir/logs")
+
+# remove the results folder to clean up
+run(`rm -rf $(dirname(@__FILE__))/../results`)

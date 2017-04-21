@@ -457,7 +457,7 @@ initialized using the `createPool` function (or similar).
 - `preFBA`:         Solve the original FBA and add a percentage condition (Boolean variable, default: true for flux variability analysis FVA)
 - `saveChunks`:     Save the fluxes of the minimizations and maximizations in individual files on each worker (applicable for large models, default: false)
 - `resultsDir`:     Path to results folder (default is a `results` folder in the Julia package directory)
-- `logFiles`:       Boolean to write a solver logfile of each optimization (default: false)
+- `logFiles`:       Boolean to write a solver logfile of each optimization (folder `resultsDir/logs` is automatically created. default: false)
 - `onlyFluxes`:     Save only minFlux and maxFlux if true and will return placeholders for `fvamin`, `fvamax`, `statussolmin`, or `statussolmax` (applicable for quick checks of large models, default: false)
 
 # OUTPUTS
@@ -531,33 +531,39 @@ function distributedFBA(model, solver; nWorkers::Int = 1, optPercentage::Float64
         info("Trying to solve a model of $nRxns reactions. `saveChunks` has been set to `true`.")
     end
 
+    # set saveChunks to false when only the maxFlux and minFlux arguments are requested
+    if saveChunks && onlyFluxes
+        saveChunks = false;
+        warn("`saveChunks` has been set to `false`.\n")
+    end
+
+    if saveChunks || logFiles
+        # create a folder for storing the results
+        if !isdir("$resultsDir")
+            mkdir("$resultsDir")
+            print_with_color(:green, "Directory `$resultsDir` created.\n")
+        else
+            print_with_color(:cyan, "Directory `$resultsDir` already exists.\n")
+        end
+    end
+
+    # create a folder for log files
+    if logFiles && !isdir("$resultsDir/logs")
+        mkdir("$resultsDir/logs")
+        print_with_color(:green, "Directory `$resultsDir/logs` created.\n")
+    end
+
     # initialilze the flux matrices
     if !onlyFluxes
         if !saveChunks
             fvamax = NaN * zeros(nRxns, nRxns)
             fvamin = NaN * zeros(nRxns, nRxns)
         else
-            # create a folder for storing the results
-            if !isdir("$resultsDir")
-                mkdir("$resultsDir")
-                print_with_color(:green, "Directory `$resultsDir` created.\n\n")
-            else
-                print_with_color(:cyan, "Directory `$resultsDir` already exists.\n\n")
-            end
-
-            # create a folder for storing the chunks of the fluxes of each minimization
-            if !isdir("$resultsDir/fvamin")
-                mkdir("$resultsDir/fvamin")
-            end
-
-            # create a folder for storing the chunks of the fluxes of each maximization
-            if !isdir("$resultsDir/fvamax")
-                mkdir("$resultsDir/fvamax")
-            end
-
-            # create a folder for log files
-            if logFiles && !isdir("$resultsDir/logs")
-                mkdir("$resultsDir/logs")
+            # create a folder for storing the chunks of the fluxes of each minimization/maximization
+            for folder = ["min", "max"]
+                if !isdir("$resultsDir/fva$folder")
+                    mkdir("$resultsDir/fva$folder")
+                end
             end
 
             fvamin = NaN * zeros(1, 1)
@@ -566,7 +572,7 @@ function distributedFBA(model, solver; nWorkers::Int = 1, optPercentage::Float64
     else
         fvamin = NaN * zeros(1, 1)
         fvamax = NaN * zeros(1, 1)
-        print_with_color(:cyan, "Only the minFlux and maxFlux vectors will be calculated. The solution status of the solver is available in statussolmin and statussolmax.\n")
+        info("Only the `minFlux` and `maxFlux` vectors will be calculated (solver solution status available in `statussolmin` and `statussolmax`).\n")
     end
 
     # initialize the vectors to report the solution status
