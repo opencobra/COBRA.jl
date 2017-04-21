@@ -258,7 +258,7 @@ solTime = time() - startTime
 @test floor(minimum(minFlux)) == -33.0
 @test floor(norm(maxFlux))    == 1427.0
 @test floor(norm(minFlux))    == 93.0
-@test abs((model.c'*minFlux)[1] - optPercentage / 100.0 * optSol) < 1e-6
+@test abs((model.c' * minFlux)[1] - optPercentage / 100.0 * optSol) < 1e-6
 
 # test each element of the minimum and maximum flux vectors
 for i = 1:length(minFlux)

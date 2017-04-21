@@ -7,19 +7,19 @@
 
 #-------------------------------------------------------------------------------------------
 """
-    checkPackage(pkgname)
+    checkPackage(pkgName)
 
 Function checks whether a package is installed properly or not and returns a boolean value.
 
 # INPUTS
 
-- `pkgname`:        A string that contains the name of the package to be checked
+- `pkgName`:        A string that contains the name of the package to be checked
 
 # OPTIONAL INPUTS
 
 - `verbose`:        Verbose mode:
-                    - 0: off (quiet)
-                    - 1: on (default)
+    - 0: off (quiet)
+    - 1: on (default)
 
 # OUTPUTS
 
@@ -29,15 +29,15 @@ See also: `using`, `isdir()`
 
 """
 
-function checkPackage(pkgname, verbose = 1)
+function checkPackage(pkgName, verbose = 1)
 
     try
-        eval(Expr(:using, pkgname))
+        eval(Expr(:using, pkgName))
         return true
     catch
         if verbose == 1
-            print_with_color(:yellow, "Package ",string(pkgname), " is not installed. ",
-                             "In order to use $pkgname, you must first run `Pkg.add(\"$pkgname\")`\n")
+            print_with_color(:yellow, "Package ",string(pkgName), " is not installed. ",
+                             "In order to use $pkgName, you must first run `Pkg.add(\"$pkgName\")`\n")
         end
         return false
     end
@@ -54,8 +54,8 @@ returns a list of these packages. `MathProgBase.jl` must be installed.
 # OPTIONAL INPUTS
 
 - `verbose`:        Verbose mode:
-                    - 0: off (quiet)
-                    - 1: on (default)
+    - 0: off (quiet)
+    - 1: on (default)
 
 # OUTPUTS
 
@@ -81,17 +81,17 @@ function checkSysConfig(verbose = 1)
 
         # loop through all implemented interfaces
         for s in 1:length(LPsolvers)
-            pkgname = LPsolvers[s]
+            pkgName = LPsolvers[s]
 
-            if checkPackage(pkgname, verbose)
+            if checkPackage(pkgName, verbose)
                 if verbose == 1
-                    print_with_color(:green, string(pkgname), " is installed.\n")
+                    print_with_color(:green, string(pkgName), " is installed.\n")
                 end
-                push!(packages, pkgname)
+                push!(packages, pkgName)
             end
 
             # load an additional package for GLPK
-            if string(pkgname) == "GLPKMathProgInterface"
+            if string(pkgName) == "GLPKMathProgInterface"
                 checkPackage(:GLPK, verbose)
             end
         end

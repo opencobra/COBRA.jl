@@ -67,7 +67,7 @@ solTime = time() - startTime
 @test floor(minimum(minFlux)) == -27.0
 @test floor(norm(maxFlux[rxnsList])) == 94.0
 @test floor(norm(minFlux[rxnsList])) == 61.0
-@test abs((model.c[rxnsList]'*minFlux[rxnsList])[1] - optPercentage / 100.0 * optSol) < 1e-6
+@test abs((model.c[rxnsList]' * minFlux[rxnsList])[1] - optPercentage / 100.0 * optSol) < 1e-6
 
 # save the variables to the current directory
 saveDistributedFBA("testFile.mat")

@@ -44,7 +44,7 @@ See also: `workers()`, `nprocs()`, `addprocs()`, `gethostname()`
 
 """
 
-function createPool(localWorkers::Int, connectSSH::Bool = false, connectionFile::String = "$(dirname(@__FILE__))/../config/sshCfg.jl")
+function createPool(localWorkers::Int, connectSSH::Bool=false, connectionFile::String="$(dirname(@__FILE__))/../config/sshCfg.jl")
 
     # load cores on remote nodes
     if connectSSH

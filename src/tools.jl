@@ -46,7 +46,7 @@ See also: `loadModel()`, `distributedFBA()`
 
 """
 
-function findRxnIDS(model, rxnsList = model.rxns)
+function findRxnIDS(model, rxnsList=model.rxns)
 
     rxnIDs = [] # reaction names that exist in the model
     rxnIDsNE = [] # reaction names that do not exist

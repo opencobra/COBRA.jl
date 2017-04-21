@@ -76,7 +76,7 @@ julia> model = loadModel("myModel.mat", "A", "myModelName", ["ub","lb","osense",
 See also: `MAT.jl`, `matopen()`, `matread()`
 """
 
-function loadModel(fileName::String, matrixAS::String = "S", modelName::String = "model", modelFields::Array{String,1} = ["ub", "lb", "osense", "c", "b", "csense", "rxns", "mets"])
+function loadModel(fileName::String, matrixAS::String="S", modelName::String="model", modelFields::Array{String,1}=["ub", "lb", "osense", "c", "b", "csense", "rxns", "mets"])
 
     file = matopen(fileName)
     vars = matread(fileName)

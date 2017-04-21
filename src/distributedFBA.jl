@@ -45,15 +45,15 @@ See also: `solveCobraLP()`, `distributedFBA()`
 
 """
 
-function preFBA!(model, solver, optPercentage::Float64 = 100.0, osenseStr::String = "max",
-                        rxnsList::Array{Int, 1} = ones(Int, length(model.rxns)))
+function preFBA!(model, solver, optPercentage::Float64=100.0, osenseStr::String="max",
+                 rxnsList::Array{Int, 1}=ones(Int, length(model.rxns)))
 
     # constants
     OPT_PERCENTAGE = 90.0
     tol = 1e-6
 
     # determine the size of the stoichiometric matrix
-    (nMets,nRxns) = size(model.S)
+    (nMets, nRxns) = size(model.S)
     println("\n >> Size of stoichiometric matrix: ($nMets, $nRxns)\n")
 
     # determine the number of reactions that shall be considered
@@ -87,7 +87,7 @@ function preFBA!(model, solver, optPercentage::Float64 = 100.0, osenseStr::Strin
         end
     else
         hasObjective = false
-        fbaSol = 0.0
+        fbaSol = NaN
     end
 
     # add a condition if the LP has an extra condition based on the FBA solution
@@ -156,7 +156,7 @@ See also: `distributeFBA()`
 
 """
 
-function splitRange(model, rxnsList, nWorkers::Int = 1, strategy::Int = 0)
+function splitRange(model, rxnsList, nWorkers::Int=1, strategy::Int=0)
 
     # determine number of reactions for each worker
     pRxnsWorker = convert(Int, ceil(length(rxnsList) / nWorkers))
@@ -328,8 +328,8 @@ See also: `distributeFBA()`, `MathProgBase.HighLevelInterface`
 
 """
 
-function loopFBA(m, rxnsList, nRxns::Int, rxnsOptMode = 2 + zeros(Int, length(rxnsList)), iRound::Int = 0, pid::Int = 1,
-                 resultsDir::String = "$(dirname(@__FILE__))/../results", logFiles::Bool = false, onlyFluxes::Bool = false)
+function loopFBA(m, rxnsList, nRxns::Int, rxnsOptMode=2 + zeros(Int, length(rxnsList)), iRound::Int=0, pid::Int=1,
+                 resultsDir::String="$(dirname(@__FILE__))/../results", logFiles::Bool=false, onlyFluxes::Bool=false)
 
     # initialize vectors and counters
     retObj = zeros(nRxns)
@@ -498,10 +498,10 @@ julia> minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussol
 See also: `preFBA!()`, `splitRange()`, `buildCobraLP()`, `loopFBA()`, or `fetch()`
 """
 
-function distributedFBA(model, solver; nWorkers::Int = 1, optPercentage::Float64 = 100.0, objective::String = "max",
-                        rxnsList = 1:length(model.rxns), strategy::Int = 0, rxnsOptMode = 2 + zeros(Int,length(model.rxns)),
-                        preFBA::Bool = true, saveChunks::Bool = false, resultsDir::String = "$(dirname(@__FILE__))/../results",
-                        logFiles::Bool = false, onlyFluxes::Bool = false)
+function distributedFBA(model, solver; nWorkers::Int=1, optPercentage::Float64=100.0, objective::String="max",
+                        rxnsList=1:length(model.rxns), strategy::Int=0, rxnsOptMode=2 + zeros(Int, length(model.rxns)),
+                        preFBA::Bool=true, saveChunks::Bool=false, resultsDir::String="$(dirname(@__FILE__))/../results",
+                        logFiles::Bool=false, onlyFluxes::Bool=false)
 
     # calculate a default FBA solution
     if preFBA
@@ -717,7 +717,7 @@ See also: `norm()`, `maximum()`, `minimum()`
 
 """
 
-function printSolSummary(testFile::String, optSol, maxFlux, minFlux, solTime, nWorkers, solverName, strategy = 0, saveChunks = false)
+function printSolSummary(testFile::String, optSol, maxFlux, minFlux, solTime, nWorkers, solverName, strategy=0, saveChunks=false)
 
     # print a solution summary
     println("\n-- Solution summary --\n")
