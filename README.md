@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/opencobra/COBRA.jl/develop/docs/src/assets/logo.png" height="160px"/>
+</p>
+
 COBRA.jl - COnstraint-Based Reconstruction and Analysis
 =======================================================
 
@@ -22,6 +26,10 @@ Should you not have any prior experience with Julia and/or Linux, **read careful
 Installation of COBRA
 ---------------------
 
+>
+If you are new to Julia, you may find the [Beginner's Guide](http://opencobra.github.io/COBRA.jl/stable/cbg.html) interesting. A working installation of Julia is required.
+>
+
 At the Julia prompt, add the `COBRA` package:
 ```Julia
 julia> Pkg.add("COBRA")
@@ -31,6 +39,8 @@ Use the `COBRA.jl` module by running:
 ```Julia
 julia> using COBRA
 ```
+
+`COBRA.jl` has been tested on `Julia v0.5+` on *Ubuntu Linux 14.04+*, *MacOS 10.7+*, and *Windows 7 (64-bit)*. All solvers supported by [`MathProgBase.jl`](https://github.com/JuliaOpt/MathProgBase.jl) are supported by `COBRA.jl`, but must be installed **separately**. A COBRA model saved as a `.mat` file can be read in using [`MAT.jl`](https://github.com/simonster/MAT.jl). `MathProgBase.jl` and `MAT.jl` are automatically installed during the installation of the `COBRA.jl` package.
 
 Tutorial, documentation and FAQ
 -------------------------------
@@ -44,15 +54,6 @@ For each function, you may display a description. For instance, you may request 
 julia> ? distributedFBA
 ```
 Should you encounter any errors or unusual behavior, please refer to the [FAQ section](http://opencobra.github.io/COBRA.jl/stable/faq.html).
-
-Requirements and compatibility
-------------------------------
-
->
-If you are new to Julia, you may find the [Beginner's Guide](http://opencobra.github.io/COBRA.jl/stable/cbg.html) interesting. A working installation of Julia is required.
->
-
-`COBRA.jl` has been tested with `Julia v0.5+` on *Ubuntu Linux 14.04+*, *MacOS 10.7+*, and *Windows 7 (64-bit)*. All solvers supported by [`MathProgBase.jl`](https://github.com/JuliaOpt/MathProgBase.jl) are supported by `COBRA.jl`, but must be installed **separately**. In order to load a COBRA model from a `.mat` file, [`MAT.jl`](https://github.com/simonster/MAT.jl) is required.
 
 Testing and benchmarking
 ------------------------
