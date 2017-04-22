@@ -17,73 +17,51 @@ Layout
 Beginner's Guide
 --------------------------
 
-Should you not have any prior experience with Julia and/or Linux, please **read carefully** the [Beginner's Guide](http://opencobra.github.io/COBRA.jl/stable/cbg.html). If you however feel that you are set to proceed with this tutorial, please consider the [Beginner's Guide](http://opencobra.github.io/COBRA.jl/stable/cbg.html) as a go-to reference in case you are running into any issues.
-
-Requirements and compatibility
-------------------------------
-
->
-If you are new to Julia, you may find the [Beginner's Guide](http://opencobra.github.io/COBRA.jl/stable/cbg.html) interesting. In this manual, a working installation of Julia is assumed.
->
-
-`COBRA.jl` has been tested on *Ubuntu Linux 14.04+*, *MacOS 10.7+*, and *Windows 7 (64-bit)*. Currently, all solvers that are [supported](https://github.com/JuliaOpt/MathProgBase.jl/blob/master/src/defaultsolvers.jl) by `MathProgBase.jl` are supported by `COBRA.jl`, but must be installed **separately**. The `COBRA.jl` package has been tested with `Julia v0.5+`, and requires a working installation of the latest [`MathProgBase.jl`](https://github.com/JuliaOpt/MathProgBase.jl). In order to load the COBRA model from a `.mat` file, the module [`MAT.jl`](https://github.com/simonster/MAT.jl) is required.
+Should you not have any prior experience with Julia and/or Linux, **read carefully** the [Beginner's Guide](http://opencobra.github.io/COBRA.jl/stable/cbg.html).
 
 Installation of COBRA
 ---------------------
 
 At the Julia prompt, add the `COBRA` package:
 ```Julia
-Pkg.add("COBRA")
-```
-Please make sure that all your packages are updated:
-```Julia
-Pkg.update()
+julia> Pkg.add("COBRA")
 ```
 
 Use the `COBRA.jl` module by running:
 ```Julia
-using COBRA
+julia> using COBRA
 ```
 
-If you want to enjoy the latest untagged (but eventually unstable) features of `COBRA.jl`, do the following from `Julia`:
+Tutorial, documentation and FAQ
+-------------------------------
+
+**Tutorial** A comprehensive tutorial is [here](https://github.com/opencobra/COBRA.jl/blob/master/docs/src/cobratutorial.md). The interactive Jupyter notebook tutorial can be downloaded from [here](https://github.com/opencobra/COBRA.jl/tree/master/docs/tutorial).
+
+**Documentation** The full documentation is [here](http://opencobra.github.io/COBRA.jl).
+
+For each function, you may display a description. For instance, you may request more information on `distributedFBA` by typing at the Julia REPL:
 ```Julia
-if isdir(Pkg.dir("COBRA"))
-    run(`rm -rf $(Pkg.dir("COBRA"))`)
-end
-Pkg.clone("https://github.com/opencobra/COBRA.jl.git")
+julia> ? distributedFBA
 ```
-Please make sure to not run `Pkg.update()` after having fetched the latest version. You may confirm that you have the latest version by typing:
-```Julia
-Pkg.status("COBRA")
-```
+Should you encounter any errors or unusual behavior, please refer to the [FAQ section](http://opencobra.github.io/COBRA.jl/stable/faq.html).
+
+Requirements and compatibility
+------------------------------
+
+>
+If you are new to Julia, you may find the [Beginner's Guide](http://opencobra.github.io/COBRA.jl/stable/cbg.html) interesting. A working installation of Julia is required.
+>
+
+`COBRA.jl` has been tested with `Julia v0.5+` on *Ubuntu Linux 14.04+*, *MacOS 10.7+*, and *Windows 7 (64-bit)*. All solvers supported by [`MathProgBase.jl`](https://github.com/JuliaOpt/MathProgBase.jl) are supported by `COBRA.jl`, but must be installed **separately**. In order to load a COBRA model from a `.mat` file, [`MAT.jl`](https://github.com/simonster/MAT.jl) is required.
 
 Testing and benchmarking
 ------------------------
 
 You can test the package using:
 ```Julia
-Pkg.test("COBRA")
+julia> Pkg.test("COBRA")
 ```
-Shall no solvers be detected on your system, you may experience error messages when testing the `COBRA.jl` package. Please make sure that you have installed at least one solver.
-
-The code has been benchmarked against the `fastFVA` implementation [[3](#References-1)]. A test model `ecoli_core_model.mat` [[4](#References-1)] can be used to pre-compile the code and is available in the `/test` folder. The modules and solvers are correctly installed when all tests pass without errors (warnings may appear of third party packages).
-
-How can I generate the documentation?
--------------------------------------
-
-You can generate the documentation using [`Documenter.jl`](https://github.com/JuliaDocs/Documenter.jl) by typing in `/docs`:
-```sh
-julia --color=yes makeDoc.jl
-```
-
-Tutorial, Documentation and FAQ
--------------------------------
-
-You may follow [this](https://github.com/opencobra/COBRA.jl/tree/master/docs/tutorial) interactive Jupyter notebook. The complete documentation can be read [here](http://opencobra.github.io/COBRA.jl). For each function, you may display a description. For instance, you may request more information on `distributedFBA` by typing at the Julia REPL:
-```Julia
-? distributedFBA
-```
-Should you encounter any errors or unusual behavior, please refer to the [FAQ section](http://opencobra.github.io/COBRA.jl/stable/faq.html).
+Shall no solvers be detected on your system, you may receive error messages when testing the `COBRA.jl` package. Please make sure that you have installed at least one solver. The code has been benchmarked against the `fastFVA` implementation [[3](#References-1)]. A test model `ecoli_core_model.mat` [[4](#References-1)] can be used to pre-compile the code and can be downloaded using `./test/getTestModel.jl`.
 
 How to cite `distributedFBA.jl`?
 -----------------------------------------------
@@ -91,6 +69,20 @@ How to cite `distributedFBA.jl`?
 The corresponding paper can be downloaded from [here](https://academic.oup.com/bioinformatics/article-lookup/doi/10.1093/bioinformatics/btw838). You may cite `distributedFBA.jl` as follows:
 
 > Laurent Heirendt, Ines Thiele, Ronan M. T. Fleming; DistributedFBA.jl: high-level, high-performance flux balance analysis in Julia. Bioinformatics 2017 btw838. doi: 10.1093/bioinformatics/btw838
+
+Latest version of `COBRA.jl`
+---------------------------
+
+If you want to enjoy the latest untagged (but eventually unstable) features of `COBRA.jl`, do the following from `Julia`:
+```Julia
+julia> Pkg.update()  # make sure that all your packages are updated
+julia> if isdir(Pkg.dir("COBRA"))  run(`rm -rf $(Pkg.dir("COBRA"))`)  end
+julia> Pkg.clone("https://github.com/opencobra/COBRA.jl.git")
+```
+Please make sure to not run `Pkg.update()` after having fetched the latest version. You may confirm that you have the latest version by typing:
+```Julia
+julia> Pkg.status("COBRA")
+```
 
 Limitations
 -----------

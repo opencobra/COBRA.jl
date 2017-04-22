@@ -11,10 +11,6 @@
 include("$(dirname(@__FILE__))/../src/checkSetup.jl")
 packages = checkSysConfig()
 
-# clear all modules that have been loaded for testing purposes
-workspace() # generates LastMain module
-packages = LastMain.packages
-
 # configure for runnint the tests in batch
 solverName = :GLPKMathProgInterface #:CPLEX
 nWorkers = 4

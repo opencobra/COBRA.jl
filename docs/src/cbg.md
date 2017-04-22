@@ -5,37 +5,29 @@ What is Julia?
 
 "*Julia is a high-level, high-performance dynamic programming language […]*". You may read more about Julia [here](http://julialang.org).
 
-
 How do I get Julia?
 -------------------
 
-You may install Julia as explained [here](http://julialang.org/downloads/). Please read through the
+You may download Julia as explained [here](http://julialang.org/downloads/). Please read through the
 [Julia documentation](http://docs.julialang.org/en/release-0.5/) if this is your first time trying out Julia.
-
-For Linux users (you must have `sudo` rights for this), you may install Julia as follows:
-```sh
-sudo add-apt-repository ppa:staticfloat/juliareleases
-sudo add-apt-repository ppa:staticfloat/julia-deps
-sudo apt-get update
-sudo apt-get install julia
-```
-
-For `macOS` and `Windows`, you may download the Julia binaries [here](http://julialang.org/downloads/).
 
 How do I use Julia?
 -------------------
 
-You may launch Julia on `Linux` or `macOS` by in a terminal window:
+On `Windows`, click on the executable `.exe` to start Julia. You may launch Julia on `Linux` or `macOS` by in a terminal window:
 ```sh
 julia
 ```
 
-On `Windows` systems, you may click on the executable `.exe` to start Julia. In both cases, you should see the prompt of Julia:
+You should then see the prompt of Julia:
 ```Julia
 julia>
 ```
-You are now in the so-called `REPL`. Here, you can type all Julia-commands.
-
+You are now in the so-called `REPL`. Here, you can type all Julia-commands. You can quit Julia by typing
+```Julia
+julia> quit()
+```
+or hitting `CTRL-d`.
 
 What if I need help?
 --------------------
@@ -53,7 +45,7 @@ Please make sure that you have ***at least one*** of the supported solvers insta
 
 In order to get you started, you may install the `Clp` solver using:
 ```Julia
-Pkg.add("Clp")
+julia> Pkg.add("Clp")
 ```
 This might take a while, as the `Clp` solver is downloaded to your system and then installed.
 
@@ -102,4 +94,4 @@ Now, you can start the Jupyter notebook. On Linux, you may start Jupyter with:
 ```sh
 jupyter notebook
 ```
-You are all set. You can run the tutorial.
+You are all set and can run the tutorial.
