@@ -16,7 +16,9 @@ FBA and FVA rely on the solution of LP problems. The package can be used with ea
 Layout
 -------
 
-![Code Layout](https://raw.githubusercontent.com/opencobra/COBRA.jl/master/docs/src/assets/codeLayout.jpg)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/opencobra/COBRA.jl/master/docs/src/assets/codeLayout.jpg"/>
+</p>
 
 Beginner's Guide
 --------------------------
