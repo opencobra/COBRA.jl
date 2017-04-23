@@ -61,10 +61,10 @@ minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax = distributedFBA(model, solver,
 solTime = time() - startTime
 
 # Test numerical values - test on floor as different numerical precision with different solvers
-@test floor(maximum(maxFlux)) == 59.0
-@test floor(minimum(maxFlux)) == -16.0
-@test floor(maximum(minFlux)) == 35.0
-@test floor(minimum(minFlux)) == -27.0
+@test floor(maximum(maxFlux[rxnsList])) == 59.0
+@test floor(minimum(maxFlux[rxnsList])) == -16.0
+@test floor(maximum(minFlux[rxnsList])) == 35.0
+@test floor(minimum(minFlux[rxnsList])) == -27.0
 @test floor(norm(maxFlux[rxnsList])) == 94.0
 @test floor(norm(minFlux[rxnsList])) == 61.0
 @test abs((model.c[rxnsList]' * minFlux[rxnsList])[1] - optPercentage / 100.0 * optSol) < 1e-6
