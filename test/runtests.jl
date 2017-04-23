@@ -11,10 +11,6 @@
 include("$(dirname(@__FILE__))/../src/checkSetup.jl")
 packages = checkSysConfig()
 
-# clear all modules that have been loaded for testing purposes
-workspace() # generates LastMain module
-packages = LastMain.packages
-
 # configure for runnint the tests in batch
 solverName = :GLPKMathProgInterface #:CPLEX
 nWorkers = 4
@@ -29,6 +25,11 @@ end
 # use the module COBRA and Base.Test modules on all workers
 using COBRA
 using Base.Test
+using Requests
+
+# download the ecoli_core_model
+include("getTestModel.jl")
+getTestModel()
 
 # list all currently supported solvers
 supportedSolvers = [:Clp, :GLPKMathProgInterface, :CPLEX, :Gurobi, :Mosek]
@@ -64,6 +65,11 @@ end
 
 # remove the results folder to clean up
 run(`rm -rf $(dirname(@__FILE__))/../results`)
+
+# remove the ecoli_core_model.mat file
+if isfile("ecoli_core_model.mat")
+    rm("ecoli_core_model.mat")
+end
 
 # print a status line
 print_with_color(:green, "\n -- All tests passed. -- \n\n")

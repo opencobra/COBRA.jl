@@ -18,7 +18,7 @@ Definition of a common solver type, which inclues the name of the solver and oth
 
 type SolverConfig
     name      ::String
-    handle    ::Union{Int64, MathProgBase.SolverInterface.AbstractMathProgSolver}
+    handle
 end
 
 #-------------------------------------------------------------------------------------------
@@ -91,7 +91,7 @@ julia> changeCobraSolver("CPLEX", cpxControl)
 See also: `MathProgBase.jl`
 """
 
-function changeCobraSolver(name, params = [])
+function changeCobraSolver(name, params=[])
 
     # convert type of name
     if typeof(name) != :String
@@ -99,12 +99,11 @@ function changeCobraSolver(name, params = [])
     end
 
     # define empty solver object
-    solver = SolverConfig(name,0)
+    solver = SolverConfig(name, 0)
 
     # define the solver handle
     if name == "CPLEX"
         try
-            eval(Expr(:using, :CPLEX))
             solver.handle = CplexSolver(params)
         catch
             error("The solver `CPLEX` cannot be set using `changeCobraSolver()`.")
@@ -112,8 +111,6 @@ function changeCobraSolver(name, params = [])
 
     elseif name == "GLPKMathProgInterface" || name == "GLPK"
         try
-            eval(Expr(:using, :GLPKMathProgInterface))
-            eval(Expr(:using, :GLPK))
             if length(params) > 1
                 solver.handle = GLPKSolverLP(method=params[1], presolve=params[2])
             else
@@ -125,9 +122,8 @@ function changeCobraSolver(name, params = [])
 
     elseif name == "Gurobi"
         try
-            eval(Expr(:using, :Gurobi))
             if length(params) > 1
-                solver.handle = GurobiSolver(Method=params[1],OutputFlag=params[2])
+                solver.handle = GurobiSolver(Method=params[1], OutputFlag=params[2])
             else
                 solver.handle = GurobiSolver()
             end
@@ -137,7 +133,6 @@ function changeCobraSolver(name, params = [])
 
     elseif name == "Clp"
         try
-            eval(Expr(:using, :Clp))
             solver.handle = ClpSolver()
         catch
             error("The solver `Clp` cannot be set using `changeCobraSolver()`.")
@@ -145,7 +140,6 @@ function changeCobraSolver(name, params = [])
 
     elseif name == "Mosek"
         try
-            eval(Expr(:using, :Mosek))
             solver.handle = MosekSolver()
         catch
           error("The solver `Mosek` cannot be set using `changeCobraSolver()`.")
@@ -200,7 +194,9 @@ function solveCobraLP(model, solver)
         solutionLP = MathProgBase.HighLevelInterface.solvelp(m)
 
         # adapt the objective value
-        solutionLP.objval = model.osense * solutionLP.objval
+        if solutionLP.status == :Optimal
+            solutionLP.objval = model.osense * solutionLP.objval
+        end
 
         return solutionLP
 
@@ -210,5 +206,41 @@ function solveCobraLP(model, solver)
 
 end
 
-export buildCobraLP, changeCobraSolver, solveCobraLP
+#-------------------------------------------------------------------------------------------
+"""
+    autoTuneSolver(m, nMets, nRxns, solver)
+
+Function to auto-tune the parameter of a solver based on model size (only CPLEX)
+
+# INPUTS
+
+- `m`:              A MathProgBase.LinearQuadraticModel object with `inner` field
+- `nMets`:          Total number of metabolites in the model `m.inner`
+- `nRxns`:          Total number of reaction in the model `m.inner`
+- `solver`:         A `::SolverConfig` object that contains a valid `handle`to the solver
+
+# OUTPUT
+
+Sets the solver parameters in the environment `env`
+
+# EXAMPLES
+
+Minimum working example
+```julia
+julia> autoTuneSolver(env, nMets, nRxns, solver)
+```
+
+See also: `MathProgBase.linprog()`
+"""
+
+function autoTuneSolver(m, nMets, nRxns, solver, pid::Int = 1)
+
+    # turn scaling off in CPLEX when solving coupled models or models with more metabolites that reactions in the stoichiometric matrix
+    if (nMets >= nRxns || nRxns >= 50000) && solver.name == "CPLEX"
+        CPLEX.set_param!(m.inner.env, "CPX_PARAM_SCAIND", -1) # set the scaling parameter
+    end
+end
+
+export buildCobraLP, changeCobraSolver, solveCobraLP, autoTuneSolver
+
 #-------------------------------------------------------------------------------------------

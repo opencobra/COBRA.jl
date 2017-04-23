@@ -29,7 +29,13 @@ if includeCOBRA
     end
 
     using COBRA
+    using Requests
+
+    include("getTestModel.jl")
 end
+
+# download the ecoli_core_model
+getTestModel()
 
 # include a common deck for running tests
 include("$(dirname(@__FILE__))/../config/solverCfg.jl")
@@ -243,7 +249,7 @@ for s = 0:2
 
     # launch the distributedFBA process
     startTime = time()
-    minFlux, maxFlux, optSol = distributedFBA(model, solver, nWorkers, optPercentage, "max", rxnsList, s)
+    minFlux, maxFlux, optSol = distributedFBA(model, solver, nWorkers=nWorkers, optPercentage=optPercentage, objective="max", rxnsList=rxnsList, strategy=s)
     solTime = time() - startTime
 
     # Test numerical values - test on floor as different numerical precision with different solvers
@@ -267,7 +273,7 @@ end
 
 # launch the distributedFBA process
 startTime = time()
-minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax = distributedFBA(model, solver, nWorkers)
+minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax = distributedFBA(model, solver, nWorkers=nWorkers)
 solTime = time() - startTime
 
 # Test numerical values - test on floor as different numerical precision with different solvers
@@ -304,7 +310,7 @@ rxnsList = 1:length(model.rxns)
 # select the reaction optimization mode
 rxnsOptMode = 2 + zeros(Int64, length(rxnsList))
 
-minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers, optPercentage, objective, rxnsList, strategy, rxnsOptMode, true, saveChunks)
+minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers=nWorkers, optPercentage=optPercentage, strategy=strategy, preFBA=true, saveChunks=saveChunks)
 
 # print a solution summary with full output
 printSolSummary(testFile, optSol, maxFlux, minFlux, solTime, nWorkers, solverName, strategy, saveChunks)
@@ -330,7 +336,69 @@ else
     print_with_color(:cyan, "Directory `results` already exists.\n\n")
 end
 
-minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers, optPercentage, objective, rxnsList, strategy, rxnsOptMode, true, saveChunks)
+minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, preFBA=true, saveChunks=true)
 
 # print a solution summary with full output
 printSolSummary(testFile, optSol, maxFlux, minFlux, solTime, nWorkers, solverName, strategy, saveChunks)
+
+# output only the fluxes
+minFlux, maxFlux = distributedFBA(model, solver, onlyFluxes=true)
+
+#minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers, optPercentage, objective, rxnsList, strategy, rxnsOptMode, true, false, "$(dirname(@__FILE__))/../results", false, true)
+
+minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, onlyFluxes=true)
+
+@test isequal(fvamin, NaN * zeros(1, 1))
+@test isequal(fvamax, NaN * zeros(1, 1))
+@test isequal(statussolmin, ones(Int, length(rxnsList)))
+@test isequal(statussolmax, ones(Int, length(rxnsList)))
+
+minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers=nWorkers, onlyFluxes=true)
+
+@test isequal(fvamin, NaN * zeros(1, 1))
+@test isequal(fvamax, NaN * zeros(1, 1))
+@test isequal(statussolmin, ones(Int, length(rxnsList)))
+@test isequal(statussolmax, ones(Int, length(rxnsList)))
+
+saveDistributedFBA("testFile.mat", ["minFlux", "maxFlux"])
+
+# call saveDistributedFBA with no variables
+saveDistributedFBA("testFile.mat", [""])
+
+# remove the file to clean up
+run(`rm testFile.mat`)
+
+# remove the results folder to clean up
+run(`rm -rf $(dirname(@__FILE__))/../results`)
+
+# create the logs folder
+resultsDir = "$(dirname(@__FILE__))/../results"
+
+if isdir("$resultsDir/logs")
+    rmdir("$resultsDir/logs")
+    print_with_color(:green, "$resultsDir/logs folder created")
+end
+
+# call to create a log files directory
+minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, resultsDir=resultsDir, nWorkers=nWorkers, saveChunks=true, logFiles=true, rxnsList=1:10)
+
+# test if the /logs folder has been created
+@test isdir("$resultsDir/logs")
+
+# remove the results folder to clean up
+run(`rm -rf $(dirname(@__FILE__))/../results`)
+
+# call to create a log files directory (throws a warning message)
+minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers=nWorkers, saveChunks=true, onlyFluxes=true, rxnsList=1:10)
+
+# call to throw a warning message when nRxnsList < nWorkers (throws a warning message)
+minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers=nWorkers, rxnsList=1:2)
+
+# call to write logFiles with onlyFluxes
+minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers=nWorkers, onlyFluxes=true, rxnsList=1:10, logFiles=true)
+
+# test if the /logs folder has been created
+@test isdir("$resultsDir/logs")
+
+# remove the results folder to clean up
+run(`rm -rf $(dirname(@__FILE__))/../results`)

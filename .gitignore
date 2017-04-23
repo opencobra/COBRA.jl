@@ -4,6 +4,9 @@
 Thumbs.db
 config/sshCfgPrivate.jl
 test/*.txt
+test/testFile.mat
+test/ecoli_core_model.mat
+ecoli_core_model.mat
 *.ipynb_checkpoints
 *.jl.cov
 *.jl.*.cov

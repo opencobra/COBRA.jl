@@ -29,7 +29,13 @@ if includeCOBRA
     end
 
     using COBRA
+    using Requests
+
+    include("getTestModel.jl")
 end
+
+# download the ecoli_core_model
+getTestModel()
 
 # include a common deck for running tests
 include("$(dirname(@__FILE__))/../config/solverCfg.jl")
@@ -74,22 +80,21 @@ print_with_color(:yellow, "\n>> The following tests throw warning messages for t
 @test createPool(2) == (workers(), 2)
 
 # load a new version of the model
-model=loadModel("$(dirname(@__FILE__))/ecoli_core_model.mat")
+model = loadModel("$(dirname(@__FILE__))/ecoli_core_model.mat")
 
 # run a model with more reactions on the reaction list than in the model
-nWorkers = 1
-rxnsList = 1:length(model.rxns)+1
-minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers, 90.0, "min", rxnsList)
+rxnsList = 1:length(model.rxns) + 1
+minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers=1, optPercentage=90.0, objective="min", rxnsList=rxnsList)
 
 # test preFBA! with min
 optSol, fbaSol = preFBA!(model, solver, 90.0, "min")
 
 # test if model does not have an objective (no return values)
-model.c = 0.0*model.c
+model.c = 0.0 * model.c
 @test_throws MethodError optSol, fbaSol = preFBA!(model, solver, 90.0, "min")
 
 # set a wrong solver handle
-model=loadModel("$(dirname(@__FILE__))/ecoli_core_model.mat")
+model = loadModel("$(dirname(@__FILE__))/ecoli_core_model.mat")
 solver = changeCobraSolver(solverName, solParams)
 solver.handle = -1
 @test_throws ErrorException solveCobraLP(model, solver)
@@ -97,7 +102,7 @@ solver.handle = -1
 
 # test if an infeasible solution status is returned
 solver = changeCobraSolver(solverName, solParams)
-m = MathProgBase.HighLevelInterface.buildlp([1.0, 0.0], [2.0, 1.0]', '<', -1.0, solver.handle)
+m = MathProgBase.HighLevelInterface.buildlp([1.0, 0.0], [2.0 1.0], '<', -1.0, solver.handle)
 retObj, retFlux, retStat = loopFBA(m, 1, 2)
 if solverName == "Clp" || solverName == "Gurobi" || solverName == "CPLEX" || solverName == "Mosek"
     @test retStat[1] == 0 # infeasible
@@ -106,12 +111,12 @@ else
 end
 
 # load the test model
-modelTest = loadModel("$(dirname(@__FILE__))/ecoli_core_model.mat", "S", "modelTest")
+modelTest = loadModel("$(dirname(@__FILE__))/testData.mat", "S", "modelTest")
 @test modelTest.osense == -1
 @test modelTest.csense == fill('E', length(modelTest.b))
 
 # test buildlp and solvelp for an unbounded problem
-m = MathProgBase.HighLevelInterface.buildlp([-1.0, -1.0], [-1.0, 2.0]', '<', [0.0], solver.handle)
+m = MathProgBase.HighLevelInterface.buildlp([-1.0, -1.0], [-1.0 2.0], '<', [0.0], solver.handle)
 sol = MathProgBase.HighLevelInterface.solvelp(m)
 if solver.name == "Clp" || solver.name == "Gurobi" || solver.name == "GLPK" || solver.name == "Mosek"
     @test sol.status == :Unbounded
@@ -120,12 +125,12 @@ elseif solverName == "CPLEX"
 end
 
 # solve an unbounded problem using loopFBA
-m = MathProgBase.HighLevelInterface.buildlp([0.0, -1.0], [-1.0, 2.0]', '<', [0.0], solver.handle)
+m = MathProgBase.HighLevelInterface.buildlp([0.0, -1.0], [-1.0 2.0], '<', [0.0], solver.handle)
 retObj, retFlux, retStat = loopFBA(m, 1, 2, 2, 1)
 if solver.name == "Clp" || solver.name == "Gurobi" || solver.name == "GLPK" || solver.name == "Mosek"
-    @test retStat == [2, -1] # unbounded and not solved
+    @test isequal(retStat, [2, NaN]) # unbounded and not solved
 elseif solver.name == "CPLEX"
-    @test retStat == [4, -1] # unbounded and not solved
+    @test isequal(retStat, [4, NaN]) # unbounded and not solved
 end
 
 print_with_color(:yellow, "\n >> Note: Warnings above are thrown for testing purposes and can be safely ignored.\n")

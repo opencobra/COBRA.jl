@@ -29,7 +29,13 @@ if includeCOBRA
     end
 
     using COBRA
+    using Requests
+
+    include("getTestModel.jl")
 end
+
+# download the ecoli_core_model
+getTestModel()
 
 # include a common deck for running tests
 include("$(dirname(@__FILE__))/../config/solverCfg.jl")
@@ -51,7 +57,7 @@ optPercentage = 90.0
 
 # launch the distributedFBA process
 startTime   = time()
-minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax = distributedFBA(model, solver, nWorkers, optPercentage, "max", rxnsList, 0, rxnsOptMode)
+minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax = distributedFBA(model, solver, nWorkers=nWorkers, optPercentage=optPercentage, rxnsList=rxnsList)
 solTime = time() - startTime
 
 # Test numerical values - test on floor as different numerical precision with different solvers
@@ -59,9 +65,9 @@ solTime = time() - startTime
 @test floor(minimum(maxFlux)) == -16.0
 @test floor(maximum(minFlux)) == 35.0
 @test floor(minimum(minFlux)) == -27.0
-@test floor(norm(maxFlux))    == 94.0
-@test floor(norm(minFlux))    == 61.0
-@test abs((model.c'*minFlux)[1] - optPercentage / 100.0 * optSol) < 1e-6
+@test floor(norm(maxFlux[rxnsList])) == 94.0
+@test floor(norm(minFlux[rxnsList])) == 61.0
+@test abs((model.c[rxnsList]' * minFlux[rxnsList])[1] - optPercentage / 100.0 * optSol) < 1e-6
 
 # save the variables to the current directory
 saveDistributedFBA("testFile.mat")

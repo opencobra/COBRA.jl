@@ -29,7 +29,13 @@ if includeCOBRA
     end
 
     using COBRA
+    using Requests
+
+    include("getTestModel.jl")
 end
+
+# download the ecoli_core_model
+getTestModel()
 
 # include a common deck for running tests
 include("$(dirname(@__FILE__))/../config/solverCfg.jl")
@@ -52,7 +58,7 @@ optPercentage = 10.0
 for s = 0:2
     # launch the distributedFBA process
     startTime   = time()
-    minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers, optPercentage, "min", rxnsList, s, rxnsOptMode, false)
+    minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers=nWorkers, optPercentage=optPercentage, objective="min", rxnsList=rxnsList, strategy=s, rxnsOptMode=rxnsOptMode, preFBA=false)
     solTime = time() - startTime
 
     # Test numerical values - test on ceil as different numerical precision with different solvers
@@ -62,7 +68,8 @@ for s = 0:2
     @test ceil(minimum(minFlux)) == 0.0
     @test ceil(norm(maxFlux))    == 1.0
     @test ceil(norm(minFlux))    == 0.0
-    @test abs((model.c'*fbaSol)[1] - optPercentage / 100.0 * optSol) < 1e-9
+    @test isequal(optSol, NaN)
+    @test isequal(fbaSol, NaN * zeros(length(model.rxns)))
 
     # print a solution summary
     printSolSummary(testFile, optSol, maxFlux, minFlux, solTime, nWorkers, solverName)
@@ -75,7 +82,7 @@ model = modelOrig
 
 # launch the distributedFBA process with only 1 reaction
 startTime = time()
-minFlux, maxFlux, optSol  = distributedFBA(model, solver, nWorkers, 100.0, "", rxnsList, 0, rxnsOptMode, false);
+minFlux, maxFlux, optSol  = distributedFBA(model, solver, nWorkers=nWorkers, objective="", rxnsList=rxnsList, rxnsOptMode=rxnsOptMode, preFBA=false);
 solTime = time() - startTime
 
 fbaSolution = solveCobraLP(model, solver)  # in the model, objective is assumed to be maximized
@@ -95,7 +102,7 @@ model = modelOrig
 model.osense = 1  # minimization - in the model, objective is assumed to be maximized
 rxnsOptMode = -1  # minimization
 startTime   = time()
-minFlux, maxFlux, optSol  = distributedFBA(model, solver, nWorkers, 100.0, "", rxnsList, 0, rxnsOptMode, false);
+minFlux, maxFlux, optSol  = distributedFBA(model, solver, nWorkers=nWorkers, objective="", rxnsList=rxnsList, rxnsOptMode=rxnsOptMode, preFBA=false);
 solTime = time() - startTime
 
 fbaSolution = solveCobraLP(model, solver)

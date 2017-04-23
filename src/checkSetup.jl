@@ -7,13 +7,19 @@
 
 #-------------------------------------------------------------------------------------------
 """
-    checkPackage(pkgname)
+    checkPackage(pkgName)
 
 Function checks whether a package is installed properly or not and returns a boolean value.
 
 # INPUTS
 
-- `pkgname`:        A string that contains the name of the package to be checked
+- `pkgName`:        A string that contains the name of the package to be checked
+
+# OPTIONAL INPUTS
+
+- `verbose`:        Verbose mode:
+    - 0: off (quiet)
+    - 1: on (default)
 
 # OUTPUTS
 
@@ -23,14 +29,16 @@ See also: `using`, `isdir()`
 
 """
 
-function checkPackage(pkgname)
+function checkPackage(pkgName, verbose = 1)
 
     try
-        eval(Expr(:using, pkgname))
+        eval(Expr(:using, pkgName))
         return true
     catch
-       print_with_color(:yellow, "Package ",string(pkgname), " is not installed. ",
-                        "In order to use $pkgname, you must first run `Pkg.add(\"$pkgname\")`\n")
+        if verbose == 1
+            print_with_color(:yellow, "Package ",string(pkgName), " is not installed. ",
+                             "In order to use $pkgName, you must first run `Pkg.add(\"$pkgName\")`\n")
+        end
         return false
     end
 
@@ -43,6 +51,12 @@ end
 Function evaluates whether the LP solvers of MathProgBase are installed on the system or not and
 returns a list of these packages. `MathProgBase.jl` must be installed.
 
+# OPTIONAL INPUTS
+
+- `verbose`:        Verbose mode:
+    - 0: off (quiet)
+    - 1: on (default)
+
 # OUTPUTS
 
 - packages:         A list of solver packages installed on the system
@@ -51,9 +65,11 @@ See also: `MathProgBase`, `checkPackage()`
 
 """
 
-function checkSysConfig()
+function checkSysConfig(verbose = 1)
 
-    print_with_color(:yellow, "\n >> Checking the system's configuration ...\n\n")
+    if verbose == 1
+        print_with_color(:yellow, "\n >> Checking the system's configuration ...\n\n")
+    end
 
     #initialize a vector for storing the packages
     packages = []
@@ -61,20 +77,22 @@ function checkSysConfig()
     # initialize a vector with supported LP solvers
     LPsolvers = [:Clp, :GLPKMathProgInterface, :Gurobi, :CPLEX, :Mosek]
 
-    if checkPackage(:MathProgBase)
+    if checkPackage(:MathProgBase, verbose)
 
         # loop through all implemented interfaces
         for s in 1:length(LPsolvers)
-            pkgname = LPsolvers[s]
+            pkgName = LPsolvers[s]
 
-            if checkPackage(pkgname)
-                print_with_color(:green, string(pkgname), " is installed.\n")
-                push!(packages, pkgname)
+            if checkPackage(pkgName, verbose)
+                if verbose == 1
+                    print_with_color(:green, string(pkgName), " is installed.\n")
+                end
+                push!(packages, pkgName)
             end
 
             # load an additional package for GLPK
-            if string(pkgname) == "GLPKMathProgInterface"
-                checkPackage(:GLPK)
+            if string(pkgName) == "GLPKMathProgInterface"
+                checkPackage(:GLPK, verbose)
             end
         end
 
@@ -86,11 +104,12 @@ function checkSysConfig()
 
     # print a success message if the solver is installed
     catch
-        print_with_color(:green, "\n >> Done. $(length(packages)) solvers are installed and ready to use.\n")
+        if verbose == 1
+            print_with_color(:green, "\n >> Done. $(length(packages)) solvers are installed and ready to use.\n")
+        end
+
         return packages
-
     end
-
 end
 
 #-------------------------------------------------------------------------------------------
