@@ -5,7 +5,7 @@ var documenterSearchIndex = {"docs": [
     "page": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
     "title": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
     "category": "page",
-    "text": ""
+    "text": "<p align=\"center\">   <img src=\"https://raw.githubusercontent.com/opencobra/COBRA.jl/develop/docs/src/assets/logo.png\" height=\"160px\"/> </p>"
 },
 
 {
@@ -21,23 +21,7 @@ var documenterSearchIndex = {"docs": [
     "page": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
     "title": "Layout",
     "category": "section",
-    "text": "(Image: Code Layout)"
-},
-
-{
-    "location": "index.html#Beginner's-Guide-1",
-    "page": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
-    "title": "Beginner's Guide",
-    "category": "section",
-    "text": "Should you not have any prior experience with Julia and/or Linux, please read carefully the Beginner's Guide. If you however feel that you are set to proceed with this tutorial, please consider the Beginner's Guide as a go-to reference in case you are running into any issues."
-},
-
-{
-    "location": "index.html#Requirements-and-compatibility-1",
-    "page": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
-    "title": "Requirements and compatibility",
-    "category": "section",
-    "text": "If you are new to Julia, you may find the Beginner's Guide interesting. In this manual, a working installation of Julia is assumed.COBRA.jl has been tested on Ubuntu Linux 14.04+, MacOS 10.7+, and Windows 7 (64-bit). Currently, all solvers that are supported by MathProgBase.jl are supported by COBRA.jl, but must be installed separately. The COBRA.jl package has been tested with Julia v0.5+, and requires a working installation of the latest MathProgBase.jl. In order to load the COBRA model from a .mat file, the module MAT.jl is required."
+    "text": "<p align=\"center\">   <img src=\"https://raw.githubusercontent.com/opencobra/COBRA.jl/master/docs/src/assets/codeLayout.jpg\"/> </p>"
 },
 
 {
@@ -45,7 +29,15 @@ var documenterSearchIndex = {"docs": [
     "page": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
     "title": "Installation of COBRA",
     "category": "section",
-    "text": "At the Julia prompt, add the COBRA package:Pkg.add(\"COBRA\")Please make sure that all your packages are updated:Pkg.update()Use the COBRA.jl module by running:using COBRAIf you want to enjoy the latest untagged (but eventually unstable) features of COBRA.jl, do the following from Julia:if isdir(Pkg.dir(\"COBRA\"))\n    run(`rm -rf $(Pkg.dir(\"COBRA\"))`)\nend\nPkg.clone(\"https://github.com/opencobra/COBRA.jl.git\")Please make sure to not run Pkg.update() after having fetched the latest version. You may confirm that you have the latest version by typing:Pkg.status(\"COBRA\")"
+    "text": "If you are new to Julia, you may find the Beginner's Guide interesting. A working installation of Julia is required.At the Julia prompt, add the COBRA package:julia> Pkg.add(\"COBRA\")Use the COBRA.jl module by running:julia> using COBRACOBRA.jl has been tested on Julia v0.5+ on Ubuntu Linux 14.04+, MacOS 10.7+, and Windows 7 (64-bit). All solvers supported by MathProgBase.jl are supported by COBRA.jl, but must be installed separately. A COBRA model saved as a .mat file can be read in using MAT.jl. MathProgBase.jl and MAT.jl are automatically installed during the installation of the COBRA.jl package."
+},
+
+{
+    "location": "index.html#Tutorial,-documentation-and-FAQ-1",
+    "page": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
+    "title": "Tutorial, documentation and FAQ",
+    "category": "section",
+    "text": "The comprehensive tutorial is based on the interactive Jupyter notebook.The COBRA.jl package is fully documented here. You may also display the documentation in the Julia REPL:julia> ? distributedFBA:bulb: Should you encounter any errors or unusual behavior, please refer first to the FAQ section or open an issue."
 },
 
 {
@@ -53,23 +45,7 @@ var documenterSearchIndex = {"docs": [
     "page": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
     "title": "Testing and benchmarking",
     "category": "section",
-    "text": "You can test the package using:Pkg.test(\"COBRA\")Shall no solvers be detected on your system, you may experience error messages when testing the COBRA.jl package. Please make sure that you have installed at least one solver.The code has been benchmarked against the fastFVA implementation [3]. A test model ecoli_core_model.mat [4] can be used to pre-compile the code and is available in the /test folder. The modules and solvers are correctly installed when all tests pass without errors (warnings may appear of third party packages)."
-},
-
-{
-    "location": "index.html#How-can-I-generate-the-documentation?-1",
-    "page": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
-    "title": "How can I generate the documentation?",
-    "category": "section",
-    "text": "You can generate the documentation using Documenter.jl by typing in /docs:julia --color=yes makeDoc.jl"
-},
-
-{
-    "location": "index.html#Tutorial,-Documentation-and-FAQ-1",
-    "page": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
-    "title": "Tutorial, Documentation and FAQ",
-    "category": "section",
-    "text": "You may follow this interactive Jupyter notebook. The complete documentation can be read here. For each function, you may display a description. For instance, you may request more information on distributedFBA by typing at the Julia REPL:? distributedFBAShould you encounter any errors or unusual behavior, please refer to the FAQ section."
+    "text": "You can test the package using:julia> Pkg.test(\"COBRA\")Shall no solvers be detected on your system, error messages may be thrown when testing the COBRA.jl package.The code has been benchmarked against the fastFVA implementation [3]. A test model ecoli_core_model.mat [4] can be used to pre-compile the code and can be downloaded usingjulia> using Requests\njulia> include(\"$(Pkg.dir(\"COBRA\"))/test/getTestModel.jl\")\njulia> getTestModel()"
 },
 
 {
@@ -78,6 +54,14 @@ var documenterSearchIndex = {"docs": [
     "title": "How to cite distributedFBA.jl?",
     "category": "section",
     "text": "The corresponding paper can be downloaded from here. You may cite distributedFBA.jl as follows:Laurent Heirendt, Ines Thiele, Ronan M. T. Fleming; DistributedFBA.jl: high-level, high-performance flux balance analysis in Julia. Bioinformatics 2017 btw838. doi: 10.1093/bioinformatics/btw838"
+},
+
+{
+    "location": "index.html#Latest-version-of-COBRA.jl-1",
+    "page": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
+    "title": "Latest version of COBRA.jl",
+    "category": "section",
+    "text": "If you want to enjoy the latest untagged (but eventually unstable) features of COBRA.jl, do the following from Julia:julia> Pkg.checkout(\"COBRA\", \"develop\")"
 },
 
 {
@@ -125,7 +109,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Beginner's Guide",
     "title": "How do I get Julia?",
     "category": "section",
-    "text": "You may install Julia as explained here. Please read through the Julia documentation if this is your first time trying out Julia.For Linux users (you must have sudo rights for this), you may install Julia as follows:sudo add-apt-repository ppa:staticfloat/juliareleases\nsudo add-apt-repository ppa:staticfloat/julia-deps\nsudo apt-get update\nsudo apt-get install juliaFor macOS and Windows, you may download the Julia binaries here."
+    "text": "You may download Julia as explained here. Please read through the Julia documentation if this is your first time trying out Julia."
 },
 
 {
@@ -133,7 +117,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Beginner's Guide",
     "title": "How do I use Julia?",
     "category": "section",
-    "text": "You may launch Julia on Linux or macOS by in a terminal window:juliaOn Windows systems, you may click on the executable .exe to start Julia. In both cases, you should see the prompt of Julia:julia>You are now in the so-called REPL. Here, you can type all Julia-commands."
+    "text": "On Windows, click on the executable .exe to start Julia. You may launch Julia on Linux or macOS by in a terminal window:juliaYou should then see the prompt of Julia:julia>You are now in the so-called REPL. Here, you can type all Julia-commands. You can quit Julia by typingjulia> quit()or hitting CTRL-d."
 },
 
 {
@@ -149,7 +133,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Beginner's Guide",
     "title": "How do I install a solver?",
     "category": "section",
-    "text": "Please make sure that you have ***at least one*** of the supported solvers installed on your system.In order to get you started, you may install the Clp solver using:Pkg.add(\"Clp\")This might take a while, as the Clp solver is downloaded to your system and then installed."
+    "text": "Please make sure that you have ***at least one*** of the supported solvers installed on your system.In order to get you started, you may install the Clp solver using:julia> Pkg.add(\"Clp\")This might take a while, as the Clp solver is downloaded to your system and then installed."
 },
 
 {
@@ -173,7 +157,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Beginner's Guide",
     "title": "There is a tutorial, but I cannot open it. What should I do?",
     "category": "section",
-    "text": "If you wish to install Jupyter notebook on your own system, you may download Jupyter notebook from here.Please make sure that you have at least Julia 0.5 as a kernel when running the Jupyter notebook. You may install the Julia kernel by launching Julia and running the following command from within the Julia REPL (as explained here):Pkg.add(\"IJulia\")You have a working kernel if you see in the top right corner the name of the Julia kernel (Julia 0.5).Please note that before adding the IJulia package, you must have followed the Jupyter installation instructions. If you are running into any issue running this tutorial on either Jupyter notebook, try it out locally by downloading first Julia as explained here.Now, you can start the Jupyter notebook. On Linux, you may start Jupyter with:jupyter notebookYou are all set. You can run the tutorial."
+    "text": "If you wish to install Jupyter notebook on your own system, you may download Jupyter notebook from here.Please make sure that you have at least Julia 0.5 as a kernel when running the Jupyter notebook. You may install the Julia kernel by launching Julia and running the following command from within the Julia REPL (as explained here):Pkg.add(\"IJulia\")You have a working kernel if you see in the top right corner the name of the Julia kernel (Julia 0.5).Please note that before adding the IJulia package, you must have followed the Jupyter installation instructions. If you are running into any issue running this tutorial on either Jupyter notebook, try it out locally by downloading first Julia as explained here.Now, you can start the Jupyter notebook. On Linux, you may start Jupyter with:jupyter notebookYou are all set and can run the tutorial."
 },
 
 {
@@ -189,7 +173,15 @@ var documenterSearchIndex = {"docs": [
     "page": "Tutorial",
     "title": "COBRA.jl - Tutorial",
     "category": "section",
-    "text": "This tutorial serves as a quick start guide as well as an interactive reference for more advanced users.Download the live notebook here."
+    "text": "This tutorial serves as a quick start guide as well as an interactive reference for more advanced users. Download the live notebook here."
+},
+
+{
+    "location": "cobratutorial.html#Installation-1",
+    "page": "Tutorial",
+    "title": "Installation",
+    "category": "section",
+    "text": "If you do not already have the COBRA.jl package installed, you must first first follow the installation instructions here.Please note that should you run this tutorial on an already configured system. Otherwise, the following lines will throw an error message.Before running any function of COBRA.jl, it is necessary to include the COBRA.jl module:using COBRA"
 },
 
 {
@@ -197,15 +189,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tutorial",
     "title": "Beginner's Guide",
     "category": "section",
-    "text": "Should you not have any prior experience with Julia and/or Linux, please read carefully the Beginner's Guide. If you however feel that you are set to proceed with this tutorial, please consider the Beginner's Guide as a go-to reference in case you are running into any issues. If you see unusual behavior, you may consider reading the FAQ section."
-},
-
-{
-    "location": "cobratutorial.html#Quick-installation-1",
-    "page": "Tutorial",
-    "title": "Quick installation",
-    "category": "section",
-    "text": "Should you not already have the COBRA.jl package, you must first first follow the installation instructions here.Please note that should you run this tutorial on an already configured system, the following lines will throw an error message.Before running any function of COBRA.jl, it is necessary to include the COBRA.jl module:using COBRA"
+    "text": "Should you not have any prior experience with Julia and/or Linux, read carefully the Beginner's Guide. If you however feel that you are set to proceed with this tutorial, please consider the Beginner's Guide as a go-to reference in case you are running into any issues. If you see unusual behavior, you may consider reading the FAQ section.# download the test model\nusing Requests\ninclude(\"$(Pkg.dir(\"COBRA\"))/test/getTestModel.jl\")\ngetTestModel()\n\n# load the stoichiometric matrix S from a struct named model in the specified .mat file\nmodel = loadModel(\"ecoli_core_model.mat\", \"S\", \"model\");"
 },
 
 {
@@ -213,7 +197,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tutorial",
     "title": "Quick help",
     "category": "section",
-    "text": "Should you feel lost or don't know the meaning of certain input parameters, try typing a question mark at the Julia REPL followed by a keyword. For instance:? distributedFBA"
+    "text": "Do you feel lost or you don’t know the meaning of certain input parameters? Try typing a question mark at the Julia REPL followed by a keyword. For instance:julia> ? distributedFBA"
 },
 
 {
@@ -221,7 +205,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tutorial",
     "title": "Installation check and package testing",
     "category": "section",
-    "text": "Please make sure that you have a working installation of MathProgBase.jl and at least one of the supported solvers. You may find further information here. You may run the following in order to be sure and check your system's configuration.You can find further information on how to install other supported solvers, such as CPLEX, CLP, Gurobi, or Mosek here.# loads the functions to check your setup\ninclude(\"$(Pkg.dir(\"COBRA\"))/src/checkSetup.jl\")\n\n# list your installed packages\npackages = checkSysConfig()\n\n# clear the workspace of loaded packages\nworkspace()You may, at any time, check the integrity of the COBRA.jl package by running:Pkg.test(\"COBRA\")The code has been benchmarked against the fastFVA implementation [3]. A test model ecoli_core_model.mat [4] can be used to pre-compile the code and is available in the /test folder. The modules and solvers are correctly installed when all tests pass without errors (warnings may appear)."
+    "text": "Make sure that you have a working installation of MathProgBase.jl and at least one of the supported solvers. You may find further information here. If you want to install other solvers such as CPLEX, CLP, Gurobi, or Mosek, you can find more information here.You may, at any time, check the integrity of the COBRA.jl package by running:julia> Pkg.test(\"COBRA\")The code has been benchmarked against the fastFVA implementation [3]. The modules and solvers are correctly installed when all tests pass without errors (warnings may appear)."
 },
 
 {
@@ -229,7 +213,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tutorial",
     "title": "Adding local workers",
     "category": "section",
-    "text": "The connection functions are given in connect.jl, which, if a parallel version is desired, must be included separately:include(\"$(Pkg.dir(\"COBRA\"))/src/connect.jl\")You may add local workers as follows:# specify the total number of parallel workers\nnWorkers = 4\n\n# create a parallel pool\nworkersPool, nWorkers = createPool(nWorkers)The IDs of the respective workers are given in workersPool, and the number of local workers is stored in nWorkers.In order to be able to use the COBRA module on all connected workers, you must invoke (the Compat package may throw errors):using COBRA"
+    "text": "The connection functions are given in connect.jl, which, if a parallel version is desired, must be included separately:include(\"$(Pkg.dir(\"COBRA\"))/src/connect.jl\")You may add local workers as follows:# specify the total number of parallel workers\nnWorkers = 4 \n\n# create a parallel pool\nworkersPool, nWorkers = createPool(nWorkers) The IDs of the respective workers are given in workersPool, and the number of local workers is stored in nWorkers.In order to be able to use the COBRA module on all connected workers, you must invoke:@everywhere using COBRA;"
 },
 
 {
@@ -245,7 +229,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tutorial",
     "title": "Load a COBRA model",
     "category": "section",
-    "text": "As a test and as an example, the E.coli core model may be loaded as:# load the stoichiometric matrix S from a struct named model in the specified .mat file\nmodel = loadModel(\"$(Pkg.dir(\"COBRA\"))/test/ecoli_core_model.mat\", \"S\", \"model\");where S is the name of the field of the stoichiometric matrix and model is the name of the model. Note the semicolon that suppresses the ouput of model."
+    "text": "As a test and as an example, the E.coli core model may be loaded as:# load the stoichiometric matrix S from a struct named model in the specified .mat file\nmodel = loadModel(\"ecoli_core_model.mat\", \"S\", \"model\");where S is the name of the field of the stoichiometric matrix and model is the name of the model. Note the semicolon that suppresses the ouput of model."
 },
 
 {
@@ -253,7 +237,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tutorial",
     "title": "Flux Balance Analysis (FBA)",
     "category": "section",
-    "text": "In order to run a flux balance analysis (FBA), distributedFBA can be invoked with only 1 reaction and without an extra condition:# set the reaction list (only one reaction)\nrxnsList = 13\n\n# select the reaction optimization mode\n#  0: only minimization\n#  1: only maximization\n#  2: maximization and minimization\nrxnsOptMode = 1\n\n# launch the distributedFBA process with only 1 reaction on 1 worker\n# distributedFBA(model, solver, nWorkers, optPercentage, objective, rxnsList, strategy, preFBA, rxnsOptMode)\nminFlux, maxFlux  = distributedFBA(model, solver, 1, 90.0, \"\", rxnsList, 0, rxnsOptMode, false);where the reaction number 13 is solved. Note that the no extra conditions are added to the model (last function argument is false). The minimum flux and maximum flux can hence be listed as:maxFlux[rxnsList]"
+    "text": "In order to run a flux balance analysis (FBA), distributedFBA can be invoked with only 1 reaction and without an extra condition:# set the reaction list (only one reaction)\nrxnsList = 13\n\n# select the reaction optimization mode\n#  0: only minimization\n#  1: only maximization\n#  2: maximization and minimization\nrxnsOptMode = 1\n\n# launch the distributedFBA process with only 1 reaction on 1 worker\nminFlux, maxFlux  = distributedFBA(model, solver, nWorkers=1, optPercentage=90.0, rxnsList=rxnsList, rxnsOptMode=rxnsOptMode);where the reaction number 13 is solved. Note that the no extra conditions are added to the model (last function argument is false). The minimum flux and maximum flux can hence be listed as:maxFlux[rxnsList]"
 },
 
 {
@@ -261,7 +245,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tutorial",
     "title": "Flux Variability Analysis (FVA)",
     "category": "section",
-    "text": "In order to run a common flux variability analysis (FVA), distributedFBA can be invoked with all reactions as follows:nWorkers = 4\n\n# launch the distributedFBA process with all reactions\n# distributedFBA(model, solver, nWorkers, optPercentage, objective, rxnsList, strategy, preFBA, rxnsOptMode)\nminFlux, maxFlux, optSol, fbaSol, fvamin, fvamax = distributedFBA(model, solver, nWorkers, 90.0, \"max\");The optimal solution of the original FBA problem can be retrieved with:optSolThe corresponding solution vector maxFlux of the original FBA that is solved with:fbaSolThe minimum and maximum fluxes of each reaction are in:maxFluxThe flux vectors of all the reactions are stored in fvamin and fvamax.fvaminfvamax"
+    "text": "In order to run a common flux variability analysis (FVA), distributedFBA can be invoked with all reactions as follows:# launch the distributedFBA process with all reactions\n# distributedFBA(model, solver, nWorkers, optPercentage, objective, rxnsList, strategy, preFBA, rxnsOptMode)\nminFlux, maxFlux, optSol, fbaSol, fvamin, fvamax = distributedFBA(model, solver, nWorkers=4, optPercentage=90.0);The optimal solution of the original FBA problem can be retrieved with:optSolThe corresponding solution vector maxFlux of the original FBA that is solved with:fbaSolThe minimum and maximum fluxes of each reaction are in:maxFluxThe flux vectors of all the reactions are stored in fvamin and fvamax.fvaminfvamax"
 },
 
 {
@@ -269,15 +253,23 @@ var documenterSearchIndex = {"docs": [
     "page": "Tutorial",
     "title": "Distributed FBA of distinct reactions",
     "category": "section",
-    "text": "You may now input several reactions with various rxnsOptMode values to run specific optimization problems.rxnsList = [1; 18; 10; 20:30; 90; 93; 95]\nrxnsOptMode = [0; 1; 2; 2+zeros(Int, length(20:30)); 2; 1; 0]\n\n# run only a few reactions with rxnsOptMode and rxnsList\n# distributedFBA(model, solver, nWorkers, optPercentage, objective, rxnsList, strategy, preFBA, rxnsOptMode)\nminFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers, 90.0, \"max\", rxnsList, 0, rxnsOptMode);Note that the reactions can be input as an unordered list."
+    "text": "You may now input several reactions with various rxnsOptMode values to run specific optimization problems.rxnsList = [1; 18; 10; 20:30; 90; 93; 95]\nrxnsOptMode = [0; 1; 2; 2+zeros(Int, length(20:30)); 2; 1; 0]\n\n# run only a few reactions with rxnsOptMode and rxnsList\n# distributedFBA(model, solver, nWorkers, optPercentage, objective, rxnsList, strategy, preFBA, rxnsOptMode)\nminFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver);Note that the reactions can be input as an unordered list."
 },
 
 {
-    "location": "cobratutorial.html#Save-the-variables-1",
+    "location": "cobratutorial.html#Saving-the-variables-1",
     "page": "Tutorial",
-    "title": "Save the variables",
+    "title": "Saving the variables",
     "category": "section",
-    "text": "You can save the output of distributedFBA by using:saveDistributedFBA(\"results.mat\")"
+    "text": "You can save the output of distributedFBA by using:saveDistributedFBA(\"results.mat\")Note that the results are saved in a .mat file that can be opened in MATLAB for further processing."
+},
+
+{
+    "location": "cobratutorial.html#Cleanup-1",
+    "page": "Tutorial",
+    "title": "Cleanup",
+    "category": "section",
+    "text": "In order to cleanup the files generated during this tutorial, you can remove the files using:rm(\"ecoli_core_model.mat\")\nrm(\"results.mat\")"
 },
 
 {
@@ -357,7 +349,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Modules and Functions",
     "title": "checkPackage",
     "category": "Function",
-    "text": "checkPackage(pkgname)\n\nFunction checks whether a package is installed properly or not and returns a boolean value.\n\nINPUTS\n\npkgname:        A string that contains the name of the package to be checked\n\nOUTPUTS\n\n(bool):           A boolean that indicates whether a package is installed properly\n\nSee also: using, isdir()\n\n\n\n"
+    "text": "checkPackage(pkgName)\n\nFunction checks whether a package is installed properly or not and returns a boolean value.\n\nINPUTS\n\npkgName:        A string that contains the name of the package to be checked\n\nOPTIONAL INPUTS\n\nverbose:        Verbose mode:\n0: off (quiet)\n1: on (default)\n\nOUTPUTS\n\n(bool):           A boolean that indicates whether a package is installed properly\n\nSee also: using, isdir()\n\n\n\n"
 },
 
 {
@@ -365,7 +357,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Modules and Functions",
     "title": "checkSysConfig",
     "category": "Function",
-    "text": "checkSysConfig()\n\nFunction evaluates whether the LP solvers of MathProgBase are installed on the system or not and returns a list of these packages. MathProgBase.jl must be installed.\n\nOUTPUTS\n\npackages:         A list of solver packages installed on the system\n\nSee also: MathProgBase, checkPackage()\n\n\n\n"
+    "text": "checkSysConfig()\n\nFunction evaluates whether the LP solvers of MathProgBase are installed on the system or not and returns a list of these packages. MathProgBase.jl must be installed.\n\nOPTIONAL INPUTS\n\nverbose:        Verbose mode:\n0: off (quiet)\n1: on (default)\n\nOUTPUTS\n\npackages:         A list of solver packages installed on the system\n\nSee also: MathProgBase, checkPackage()\n\n\n\n"
 },
 
 {
@@ -397,7 +389,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Modules and Functions",
     "title": "loopFBA",
     "category": "Function",
-    "text": "loopFBA(m, rxnsList, nRxns, pid, iRound, rxnsOptMode)\n\nFunction used to perform a loop of a series of FBA problems using the CPLEX solver Generally, loopFBA is called in a loop over multiple workers and makes use of the CPLEX.jl module.\n\nINPUTS\n\nm:              A MathProgBase.LinearQuadraticModel object with inner field\nsolver:         A ::SolverConfig object that contains a valid handleto the solver\nrxnsList:       List of reactions to analyze (default: all reactions)\nnRxns:          Total number of reaction in the model m.inner\n\nOPTIONAL INPUTS\n\nrxnsOptMode:    List of min/max optimizations to perform:\n0: only minimization\n1: only maximization\n2: minimization & maximization [default: all reactions are minimized and maximized, i.e. 2+zeros(Int,length(model.rxns))]\niRound:         Index of optimization round\n0: minimization\n1: maximization\npid:            Julia ID of launched process\n\nOUTPUTS\n\nretObj:         Vector with optimal (either min or max) solutions (objective values)\nretFlux:        Array of solution vectors corresponding to the vector with the optimal objective values                   (either min or max)\nretStat:        Vector with the status of the solver of each FBA (default: initialized with -1)\n0: LP problem is infeasible\n1: LP problem is optimal\n2: LP problem is unbounded\n3: Solver for the LP problem has hit a user limit\n4: LP problem is infeasible or unbounded\n5: LP problem has a non-documented solution status\n\nEXAMPLES\n\nMinimum working example\n\njulia> loopFBA(m, rxnsList, nRxns)\n\nSee also: distributeFBA(), MathProgBase.HighLevelInterface\n\n\n\n"
+    "text": "loopFBA(m, rxnsList, nRxns, rxnsOptMode, iRound, pid, resultsDir, logFiles, onlyFluxes)\n\nFunction used to perform a loop of a series of FBA problems using the CPLEX solver Generally, loopFBA is called in a loop over multiple workers and makes use of the CPLEX.jl module.\n\nINPUTS\n\nm:              A MathProgBase.LinearQuadraticModel object with inner field\nsolver:         A ::SolverConfig object that contains a valid handleto the solver\nrxnsList:       List of reactions to analyze (default: all reactions)\nnRxns:          Total number of reaction in the model m.inner\n\nOPTIONAL INPUTS\n\nrxnsOptMode:    List of min/max optimizations to perform:\n0: only minimization\n1: only maximization\n2: minimization & maximization [default: all reactions are minimized and maximized, i.e. 2+zeros(Int,length(model.rxns))]\niRound:         Index of optimization round\n0: minimization\n1: maximization\npid:            Julia ID of launched process\nresultsDir:     Path to results folder (default is a results folder in the Julia package directory)\nlogFiles:       (only available for CPLEX) Boolean to write a solver logfile of each optimization (default: false)\nonlyFluxes:     Save only minFlux and maxFlux if true and will return placeholders for fvamin, fvamax, statussolmin, or statussolmax (applicable for quick checks of large models, default: false)\n\nOUTPUTS\n\nretObj:         Vector with optimal (either min or max) solutions (objective values)\nretFlux:        Array of solution vectors corresponding to the vector with the optimal objective values                   (either min or max)\nretStat:        Vector with the status of the solver of each FBA (default: initialized with -1)\n0:   LP problem is infeasible\n1:   LP problem is optimal\n2:   LP problem is unbounded\n3:   Solver for the LP problem has hit a user limit\n4:   LP problem is infeasible or unbounded\n5:   LP problem has a non-documented solution status\n< 0: returned original solution status of solver (only CPLEX supported)\n\nEXAMPLES\n\nMinimum working example\n\njulia> loopFBA(m, rxnsList, nRxns)\n\nSee also: distributeFBA(), MathProgBase.HighLevelInterface\n\n\n\n"
 },
 
 {
@@ -405,7 +397,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Modules and Functions",
     "title": "distributedFBA",
     "category": "Function",
-    "text": "distributedFBA(model, solver, nWorkers, optPercentage, objective, rxnsList, strategy, preFBA, rxnsOptMode, saveChunks)\n\nFunction to distribute a series of FBA problems across one or more workers that have been initialized using the createPool function (or similar).\n\nINPUTS\n\nmodel:          An ::LPproblem object that has been built using the loadModel function.                       All fields of model must be available.\nsolver:         A ::SolverConfig object that contains a valid handle to the solver\nnWorkers:       Number of workers as initialized using createPool() or similar\n\nOPTIONAL INPUTS\n\noptPercentage:  Only consider solutions that give you at least a certain percentage of the optimal solution (default: 100%)\nobjective:      Objective (\"min\" or \"max\") (default: \"max\")\nrxnsList:       List of reactions to analyze (default: all reactions)\nstrategy:       Number of the splitting strategy\n0: Blind splitting: default random distribution\n1: Extremal dense-and-sparse splitting: every worker receives dense and sparse reactions, starting from both extremal indices of the sorted column density vector\n2: Central dense-and-sparse splitting: every worker receives dense and sparse reactions, starting from the beginning and center indices of the sorted column density vector\nrxnsOptMode:    List of min/max optimizations to perform:\n0: only minimization\n1: only maximization\n2: minimization & maximization [default: all reactions are minimized and maximized, i.e. 2+zeros(Int,length(model.rxns))]\npreFBA:         Solve the original FBA and add a percentage condition (Boolean variable, default: true for flux variability analysis FVA)\nsaveChunks:     Save the fluxes of the minimizations and maximizations in individual files on each worker (applicable for large models)\n\nOUTPUTS\n\nminFlux:        Minimum flux for each reaction\nmaxFlux:        Maximum flux for each reaction\noptSol:         Optimal solution of the initial FBA\nfbaSol:         Solution vector of the initial FBA\nfvamin:         Array with flux values for the considered reactions (minimization)     Note: fvamin is saved in individual .mat files when saveChunks is true.\nfvamax:         Array with flux values for the considered reactions (maximization)     Note: fvamax is saved in individual .mat files when saveChunks is true.\nstatussolmin:   Vector of solution status for each reaction (minimization)\nstatussolmax:   Vector of solution status for each reaction (maximization)\n\nEXAMPLES\n\nMinimum working example\n\njulia> minFlux, maxFlux = distributedFBA(model, solver)\n\nFull input/output example\n\njulia> minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, optPercentage, objective, rxnsList, strategy, rxnsOptMode, true)\n\nSee also: preFBA!(), splitRange(), buildCobraLP(), loopFBA(), or fetch()\n\n\n\n"
+    "text": "distributedFBA(model, solver, nWorkers, optPercentage, objective, rxnsList, strategy, rxnsOptMode, preFBA, saveChunks, resultsDir, logFiles, onlyFluxes)\n\nFunction to distribute a series of FBA problems across one or more workers that have been initialized using the createPool function (or similar).\n\nINPUTS\n\nmodel:          An ::LPproblem object that has been built using the loadModel function.                       All fields of model must be available.\nsolver:         A ::SolverConfig object that contains a valid handle to the solver\nnWorkers:       Number of workers as initialized using createPool() or similar\n\nOPTIONAL INPUTS\n\noptPercentage:  Only consider solutions that give you at least a certain percentage of the optimal solution (default: 100%)\nobjective:      Objective (\"min\" or \"max\") (default: \"max\")\nrxnsList:       List of reactions to analyze (default: all reactions)\nstrategy:       Number of the splitting strategy\n0: Blind splitting: default random distribution\n1: Extremal dense-and-sparse splitting: every worker receives dense and sparse reactions, starting from both extremal indices of the sorted column density vector\n2: Central dense-and-sparse splitting: every worker receives dense and sparse reactions, starting from the beginning and center indices of the sorted column density vector\nrxnsOptMode:    List of min/max optimizations to perform:\n0: only minimization\n1: only maximization\n2: minimization & maximization [default: all reactions are minimized and maximized, i.e. 2+zeros(Int,length(model.rxns))]\npreFBA:         Solve the original FBA and add a percentage condition (Boolean variable, default: true for flux variability analysis FVA)\nsaveChunks:     Save the fluxes of the minimizations and maximizations in individual files on each worker (applicable for large models, default: false)\nresultsDir:     Path to results folder (default is a results folder in the Julia package directory)\nlogFiles:       Boolean to write a solver logfile of each optimization (folder resultsDir/logs is automatically created. default: false)\nonlyFluxes:     Save only minFlux and maxFlux if true and will return placeholders for fvamin, fvamax, statussolmin, or statussolmax (applicable for quick checks of large models, default: false)\n\nOUTPUTS\n\nminFlux:        Minimum flux for each reaction\nmaxFlux:        Maximum flux for each reaction\noptSol:         Optimal solution of the initial FBA (if preFBA set to true)\nfbaSol:         Solution vector of the initial FBA (if preFBA set to true)\nfvamin:         Array with flux values for the considered reactions (minimization) (if onlyFluxes set to false)     Note: fvamin is saved in individual .mat files when saveChunks is true.\nfvamax:         Array with flux values for the considered reactions (maximization) (if onlyFluxes set to false)     Note: fvamax is saved in individual .mat files when saveChunks is true.\nstatussolmin:   Vector of solution status for each reaction (minimization) (if onlyFluxes set to false)\nstatussolmax:   Vector of solution status for each reaction (maximization) (if onlyFluxes set to false)\n\nEXAMPLES\n\nMinimum working example\n\njulia> minFlux, maxFlux = distributedFBA(model, solver)\n\nFull input/output example\n\njulia> minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers=nWorkers, logFiles=true)\n\nSave only the fluxes\n\njulia> minFlux, maxFlux = distributedFBA(model, solver, preFBA=true, saveChunks=false, onlyFluxes=true)\n\nSave flux vectors in files\n\njulia> minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver)\n\nSee also: preFBA!(), splitRange(), buildCobraLP(), loopFBA(), or fetch()\n\n\n\n"
 },
 
 {
@@ -421,7 +413,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Modules and Functions",
     "title": "saveDistributedFBA",
     "category": "Function",
-    "text": "saveDistributedFBA(fileName::String)\n\nOutput a file with all the output variables of distributedFBA() and rxnsList\n\nINPUTS\n\nfileName:         Filename of the output\n\nOUTPUTS\n\n.mat file with all output variables of distributedFBA()\n\nEXAMPLES\n\nMinimum working example\n\njulia> saveDistributedFBA(\"myResults.mat\")\n\nFile location\n\njulia> saveDistributedFBA(\"myDirectory/myResults.mat\")\n\nHome location\n\njulia> saveDistributedFBA(ENV[\"HOME\"]*\"/myResults.mat\")\n\n\n\n"
+    "text": "saveDistributedFBA(fileName::String, vars)\n\nOutput a file with all the output variables of distributedFBA() and rxnsList\n\nINPUTS\n\nfileName:         Filename of the output\nvars:             List of variables (default: [\"minFlux\", \"maxFlux\", \"optSol\", \"fbaSol\", \"fvamin\", \"fvamax\", \"statussolmin\", \"statussolmax\", \"rxnsList\"])\n\nOUTPUTS\n\n.mat file with the specified output variables\n\nEXAMPLES\n\nMinimum working example\n\njulia> saveDistributedFBA(\"myResults.mat\")\n\nFile location\n\njulia> saveDistributedFBA(\"myDirectory/myResults.mat\")\n\nHome location\n\njulia> saveDistributedFBA(ENV[\"HOME\"]*\"/myResults.mat\")\n\nSave minFlux and maxFlux variables\n\njulia> saveDistributedFBA(ENV[\"HOME\"]*\"/myResults.mat\", [\"minFlux\", \"maxFlux\"])\n\n\n\n"
 },
 
 {
@@ -497,6 +489,30 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "functions.html#findRxnIDS",
+    "page": "Modules and Functions",
+    "title": "findRxnIDS",
+    "category": "Function",
+    "text": "findRxnIDS(model, rxnsList)\n\nFunction that returns a vector of reaction IDs that correspond to an input list of reaction names.\n\nINPUTS\n\nmodel:          An ::LPproblem object that has been built using the loadModel function.                       All fields of model must be available.\n\nOPTIONAL INPUTS\n\nrxnsList:       List of reaction names (default: all reactions in the model)\n\nOUTPUTS\n\nrxnIDs:       	Vector with the reaction IDs that correspond to the reaction names in rxnsList\n\nEXAMPLES\n\nMinimum working example:\n\njulia> findRxnIDS(model)\n\nFull input/output example\n\njulia> rxnIDs, rxnIDsNE = findRxnIDS(model, rxnsList)\n\nFull input/output example\n\njulia> rxnIDs, rxnIDsNE = findRxnIDS(model, [\"reactionName1\", \"reactionName2\"])\n\nSee also: loadModel(), distributedFBA()\n\n\n\n"
+},
+
+{
+    "location": "functions.html#convertUnitRange",
+    "page": "Modules and Functions",
+    "title": "convertUnitRange",
+    "category": "Function",
+    "text": "convertUnitRange(vect)\n\nConverts a unit range vector to an array type vector. If the vector is not of UnitRange{Int64} type, the same vector is returned.\n\nINPUTS\n\nvect:         Any vector (UnitRange{Int64} will be converted to Array{Int64})\n\nOUTPUTS\n\nretVect       Converted vector (if type of input vector is UnitRange{Int64})\n\nEXAMPLES\n\nMinimum working example\n\njulia> a = 1:4\n1:4\n\njulia> convertUnitRange(a)\n4-element Array{Int64,1}:\n  1\n  2\n  3\n  4\n\n\n\n"
+},
+
+{
+    "location": "functions.html#tools.jl-1",
+    "page": "Modules and Functions",
+    "title": "tools.jl",
+    "category": "section",
+    "text": "findRxnIDS\nconvertUnitRange"
+},
+
+{
     "location": "faq.html#",
     "page": "FAQ",
     "title": "FAQ",
@@ -525,7 +541,7 @@ var documenterSearchIndex = {"docs": [
     "page": "FAQ",
     "title": "Why do the Julia instances on remote workers not start?",
     "category": "section",
-    "text": "There can be several reasons, but majorly, you must ensure that the Julia configuration on all the nodes is the same than on the host node.Make sure that the lib folder in ~/.julia is the same on the ALL the nodes (.ji files in /.julia/lib/v0.x). The exact (bitwise) same usr/lib/julia/* binaries, which requires copying them to each machine. In order to have the same .ji files on all nodes, it is recommended to copy them from a central storage space (or cloud) to the library folder on the node:cp ~/centralStorage/CPLEX.ji ~/.julia/lib/v0.x/\ncp ~/centralStorage/MathProgBase.ji ~/.julia/lib/v0.x/Once all the .ji have been copied, do not use or build the modules on the nodes. In other words, do not type using CPLEX/MathProgBase at the REPL. Alternatively, you may set JULIA_PKGDIR to a cloud or common storage location."
+    "text": "There can be several reasons, but majorly, you must ensure that the Julia configuration on all the nodes is the same than on the host node.Make sure that the lib folder in ~/.julia is the same on the ALL the nodes (.ji files in /.julia/lib/v0.x). The exact (bitwise) same usr/lib/julia/* binaries, which requires copying them to each machine. In order to have the same .ji files on all nodes, it is recommended to copy them from a central storage space (or cloud) to the library folder on the node:$ cp ~/centralStorage/CPLEX.ji ~/.julia/lib/v0.x/\n$ cp ~/centralStorage/MathProgBase.ji ~/.julia/lib/v0.x/Once all the .ji have been copied, do not use or build the modules on the nodes. In other words, do not type using CPLEX/MathProgBase at the REPL. Alternatively, you may set JULIA_PKGDIR to a cloud or common storage location."
 },
 
 {
@@ -549,7 +565,15 @@ var documenterSearchIndex = {"docs": [
     "page": "FAQ",
     "title": "My machine is a Windows machine, and everything is so slow. What can I do?",
     "category": "section",
-    "text": "Some Windows users may have to wait a while when installing Julia. The performance of COBRA.jl is unaffected by this relatively long load time. However, you may try these avenues of fixing this:Try setting the git parameters correctly (using git bash that you can download from here):git config --global core.preloadindex true\ngit config --global core.fscache true\ngit config --global gc.auto 256Make sure that you set the following environment variables correctly:set JULIA_PKGDIR=C:\\Users\\<yourUsername>\\.julia\\v0.5\nset HOME=C:\\Users\\<yourUsername>\\AppData\\Local\\Julia-0.5.0Make sure that the .julia folder is not located on a network. This slows the processes in Julia down dramatically."
+    "text": "Some Windows users may have to wait a while when installing Julia. The performance of COBRA.jl is unaffected by this relatively long load time. However, you may try these avenues of fixing this:Try setting the git parameters correctly (using git bash that you can download from here):$ git config --global core.preloadindex true\n$ git config --global core.fscache true\n$ git config --global gc.auto 256Make sure that you set the following environment variables correctly:$ set JULIA_PKGDIR=C:\\Users\\<yourUsername>\\.julia\\v0.5\n$ set HOME=C:\\Users\\<yourUsername>\\AppData\\Local\\Julia-0.5.0Make sure that the .julia folder is not located on a network. This slows the processes in Julia down dramatically."
+},
+
+{
+    "location": "faq.html#How-can-I-generate-the-documentation?-1",
+    "page": "FAQ",
+    "title": "How can I generate the documentation?",
+    "category": "section",
+    "text": "You can generate the documentation using Documenter.jl by typing in /docs:$ julia --color=yes makeDoc.jl"
 },
 
 {
