@@ -20,17 +20,10 @@ Layout
   <img src="https://raw.githubusercontent.com/opencobra/COBRA.jl/master/docs/src/assets/codeLayout.jpg"/>
 </p>
 
-Beginner's Guide
---------------------------
-
-Should you not have any prior experience with Julia and/or Linux, **read carefully** the [Beginner's Guide](http://opencobra.github.io/COBRA.jl/stable/cbg.html).
-
 Installation of COBRA
 ---------------------
 
->
-If you are new to Julia, you may find the [Beginner's Guide](http://opencobra.github.io/COBRA.jl/stable/cbg.html) interesting. A working installation of Julia is required.
->
+> If you are new to Julia, you may find the [Beginner's Guide](http://opencobra.github.io/COBRA.jl/stable/cbg.html) interesting. A working installation of Julia is required.
 
 At the Julia prompt, add the `COBRA` package:
 ```Julia
@@ -47,15 +40,13 @@ julia> using COBRA
 Tutorial, documentation and FAQ
 -------------------------------
 
-**Tutorial** A comprehensive tutorial is [here](https://github.com/opencobra/COBRA.jl/blob/master/docs/src/cobratutorial.md). The interactive Jupyter notebook tutorial can be downloaded from [here](https://github.com/opencobra/COBRA.jl/tree/master/docs/tutorial).
+The [comprehensive tutorial](https://github.com/opencobra/COBRA.jl/blob/master/docs/src/cobratutorial.md) is based on the [interactive Jupyter notebook](https://github.com/opencobra/COBRA.jl/tree/master/docs/tutorial).
 
-**Documentation** The full documentation is [here](http://opencobra.github.io/COBRA.jl).
-
-For each function, you may display a description. For instance, you may request more information on `distributedFBA` by typing at the Julia REPL:
+The `COBRA.jl` package is fully documented [here](http://opencobra.github.io/COBRA.jl). You may also display the documentation in the Julia REPL:
 ```Julia
 julia> ? distributedFBA
 ```
-Should you encounter any errors or unusual behavior, please refer to the [FAQ section](http://opencobra.github.io/COBRA.jl/stable/faq.html).
+:bulb: Should you encounter any errors or unusual behavior, please refer first to the [FAQ section](http://opencobra.github.io/COBRA.jl/stable/faq.html) or open an issue.
 
 Testing and benchmarking
 ------------------------
@@ -64,7 +55,14 @@ You can test the package using:
 ```Julia
 julia> Pkg.test("COBRA")
 ```
-Shall no solvers be detected on your system, you may receive error messages when testing the `COBRA.jl` package. Please make sure that you have installed at least one solver. The code has been benchmarked against the `fastFVA` implementation [[3](#References-1)]. A test model `ecoli_core_model.mat` [[4](#References-1)] can be used to pre-compile the code and can be downloaded using `./test/getTestModel.jl`.
+Shall no solvers be detected on your system, error messages may be thrown when testing the `COBRA.jl` package.
+
+The code has been benchmarked against the `fastFVA` implementation [[3](#References-1)]. A test model `ecoli_core_model.mat` [[4](#References-1)] can be used to pre-compile the code and can be downloaded using
+```Julia
+julia> using Requests
+julia> include("$(Pkg.dir("COBRA"))/test/getTestModel.jl")
+julia> getTestModel()
+```
 
 How to cite `distributedFBA.jl`?
 -----------------------------------------------
@@ -78,13 +76,7 @@ Latest version of `COBRA.jl`
 
 If you want to enjoy the latest untagged (but eventually unstable) features of `COBRA.jl`, do the following from `Julia`:
 ```Julia
-julia> Pkg.update()  # make sure that all your packages are updated
-julia> if isdir(Pkg.dir("COBRA"))  run(`rm -rf $(Pkg.dir("COBRA"))`)  end
-julia> Pkg.clone("https://github.com/opencobra/COBRA.jl.git")
-```
-Please make sure to not run `Pkg.update()` after having fetched the latest version. You may confirm that you have the latest version by typing:
-```Julia
-julia> Pkg.status("COBRA")
+julia> Pkg.checkout("COBRA", "develop")
 ```
 
 Limitations
