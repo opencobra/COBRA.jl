@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="https://raw.githubusercontent.com/opencobra/COBRA.jl/develop/docs/src/assets/logo.png" height="160px"/>
-</p>
-
 COBRA.jl - COnstraint-Based Reconstruction and Analysis
 =======================================================
 
@@ -16,9 +12,7 @@ FBA and FVA rely on the solution of LP problems. The package can be used with ea
 Layout
 -------
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/opencobra/COBRA.jl/master/docs/src/assets/codeLayout.jpg"/>
-</p>
+![Code Layout](https://raw.githubusercontent.com/opencobra/COBRA.jl/master/docs/src/assets/codeLayout.jpg)
 
 Installation of COBRA
 ---------------------
