@@ -214,7 +214,7 @@ See also: `loopModels()` and `shareLoad()`
 
 """
 
-function PALM(dir, scriptName, nMatlab::Int = 2, outputFile::AbstractString = "PALM_data.mat")
+function PALM(dir, scriptName, nMatlab::Int = 2, outputFile::AbstractString = "PALM_data.mat", varsCharact=[])
     #include("shareLoad.jl")
 
     dirContent = readdir(dir)
