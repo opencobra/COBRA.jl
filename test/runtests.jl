@@ -64,11 +64,9 @@ for s = 1:length(packages)
 end
 
 # remove the results folder to clean up
-run(`rm -rf $(dirname(@__FILE__))/../results`)
-
-# remove the ecoli_core_model.mat file
-if isfile("ecoli_core_model.mat")
-    rm("ecoli_core_model.mat")
+tmpDir = joinpath(dirname(@__FILE__), "..", "results")
+if isdir(tmpDir)
+    rm(tmpDir, recursive=true)
 end
 
 # print a status line
