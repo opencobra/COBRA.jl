@@ -249,7 +249,7 @@ for s = 0:2
 
     # launch the distributedFBA process
     startTime = time()
-    minFlux, maxFlux, optSol = distributedFBA(model, solver, nWorkers=nWorkers, optPercentage=optPercentage, objective="max", rxnsList=rxnsList, strategy=s)
+    minFlux, maxFlux, optSol = distributedFBA(model, solver, nWorkers=nWorkers, preFBA=true, optPercentage=optPercentage, objective="max", rxnsList=rxnsList, strategy=s)
     solTime = time() - startTime
 
     # Test numerical values - test on floor as different numerical precision with different solvers
@@ -273,7 +273,7 @@ end
 
 # launch the distributedFBA process
 startTime = time()
-minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax = distributedFBA(model, solver, nWorkers=nWorkers)
+minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax = distributedFBA(model, solver, nWorkers=nWorkers, preFBA=true, optPercentage=100.0)
 solTime = time() - startTime
 
 # Test numerical values - test on floor as different numerical precision with different solvers
@@ -343,8 +343,6 @@ printSolSummary(testFile, optSol, maxFlux, minFlux, solTime, nWorkers, solverNam
 
 # output only the fluxes
 minFlux, maxFlux = distributedFBA(model, solver, onlyFluxes=true)
-
-#minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers, optPercentage, objective, rxnsList, strategy, rxnsOptMode, true, false, "$(dirname(@__FILE__))/../results", false, true)
 
 minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, onlyFluxes=true)
 
