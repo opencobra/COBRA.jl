@@ -373,7 +373,7 @@ run(`rm -rf $(dirname(@__FILE__))/../results`)
 resultsDir = "$(dirname(@__FILE__))/../results"
 
 if isdir("$resultsDir/logs")
-    rmdir("$resultsDir/logs")
+    rm("$resultsDir/logs")
     print_with_color(:green, "$resultsDir/logs folder created")
 end
 
