@@ -504,10 +504,15 @@ julia> minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussol
 See also: `preFBA!()`, `splitRange()`, `buildCobraLP()`, `loopFBA()`, or `fetch()`
 """
 
-function distributedFBA(model, solver; nWorkers::Int=1, optPercentage::Float64=0.0, objective::String="max",
+function distributedFBA(model, solver; nWorkers::Int=1, optPercentage::Union{Float64, Int64}=0.0, objective::String="max",
                         rxnsList=1:length(model.rxns), strategy::Int=0, rxnsOptMode=2 + zeros(Int, length(model.rxns)),
                         preFBA::Bool=false, saveChunks::Bool=false, resultsDir::String="$(dirname(@__FILE__))/../results",
                         logFiles::Bool=false, onlyFluxes::Bool=false)
+
+    # convert type of optPercentage
+    if typeof(optPercentage) != Float64
+        optPercentage = convert(Float64, optPercentage)
+    end
 
     # determine an additional condition (flux variability analysis)
     if preFBA

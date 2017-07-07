@@ -245,7 +245,7 @@ maxFluxT = [0
 
 for s = 0:2
     # define an optPercentage value
-    optPercentage = 90.0
+    optPercentage = 90 # define optPercentage as Int64 (will be converted to Float64)
 
     # launch the distributedFBA process
     startTime = time()
