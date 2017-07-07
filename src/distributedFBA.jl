@@ -20,7 +20,7 @@ stoichiometric matrix of the model, and changes the RHS vector `b`. Note that th
 
 # OPTIONAL INPUTS
 
-- `optPercentage`:  Only consider solutions that give you at least a certain percentage of the optimal solution (default: 100%)
+- `optPercentage`:  Only consider solutions that give you at least a certain percentage of the optimal solution (default: 0%)
 - `osenseStr`:      Sets the optimization mode of the original FBA ("max" or "min", default: "max")
 - `rxnsList`:       List of reactions to analyze (default: all reactions)
 
@@ -45,7 +45,7 @@ See also: `solveCobraLP()`, `distributedFBA()`
 
 """
 
-function preFBA!(model, solver, optPercentage::Float64=100.0, osenseStr::String="max",
+function preFBA!(model, solver, optPercentage::Float64=0.0, osenseStr::String="max",
                  rxnsList::Array{Int, 1}=ones(Int, length(model.rxns)))
 
     # constants
@@ -59,8 +59,9 @@ function preFBA!(model, solver, optPercentage::Float64=100.0, osenseStr::String=
     # determine the number of reactions that shall be considered
     nRxnsList = length(rxnsList)
 
+    # provide a warning when the optPercentage is higher than 90%
     if optPercentage > OPT_PERCENTAGE
-        print_with_color(:cyan, "The optPercentage is higher than 90. The solution process might take longer than expected.\n\n")
+        print_with_color(:cyan, "The value of optPercentage is higher than 90%. The solution process might take longer than expected.\n\n")
     end
 
     # determine constraints for the correct space (0-100% of the full space)
@@ -442,7 +443,7 @@ initialized using the `createPool` function (or similar).
 
 # OPTIONAL INPUTS
 
-- `optPercentage`:  Only consider solutions that give you at least a certain percentage of the optimal solution (default: 100%)
+- `optPercentage`:  Only consider solutions that give you at least a certain percentage of the optimal solution (default: 0%).
 - `objective`:      Objective ("min" or "max") (default: "max")
 - `rxnsList`:       List of reactions to analyze (default: all reactions)
 - `strategy`:       Number of the splitting strategy
@@ -454,7 +455,7 @@ initialized using the `createPool` function (or similar).
     - 1: only maximization
     - 2: minimization & maximization
       [default: all reactions are minimized and maximized, i.e. `2+zeros(Int,length(model.rxns))]`
-- `preFBA`:         Solve the original FBA and add a percentage condition (Boolean variable, default: true for flux variability analysis FVA)
+- `preFBA`:         Solve the original FBA and add a percentage condition (Boolean variable, default: `false`). Set to `true` for flux variability analysis.
 - `saveChunks`:     Save the fluxes of the minimizations and maximizations in individual files on each worker (applicable for large models, default: false)
 - `resultsDir`:     Path to results folder (default is a `results` folder in the Julia package directory)
 - `logFiles`:       Boolean to write a solver logfile of each optimization (folder `resultsDir/logs` is automatically created. default: false)
@@ -480,6 +481,11 @@ initialized using the `createPool` function (or similar).
 julia> minFlux, maxFlux = distributedFBA(model, solver)
 ```
 
+- Flux variability analysis with optPercentage = 90% (on 4 workers)
+```julia
+julia> minFlux, maxFlux = distributedFBA(model, solver, nWorkers=4, optPercentage=90.0, preFBA=true)
+```
+
 - Full input/output example
 ```julia
 julia> minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers=nWorkers, logFiles=true)
@@ -498,18 +504,25 @@ julia> minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussol
 See also: `preFBA!()`, `splitRange()`, `buildCobraLP()`, `loopFBA()`, or `fetch()`
 """
 
-function distributedFBA(model, solver; nWorkers::Int=1, optPercentage::Float64=100.0, objective::String="max",
+function distributedFBA(model, solver; nWorkers::Int=1, optPercentage::Float64=0.0, objective::String="max",
                         rxnsList=1:length(model.rxns), strategy::Int=0, rxnsOptMode=2 + zeros(Int, length(model.rxns)),
-                        preFBA::Bool=true, saveChunks::Bool=false, resultsDir::String="$(dirname(@__FILE__))/../results",
+                        preFBA::Bool=false, saveChunks::Bool=false, resultsDir::String="$(dirname(@__FILE__))/../results",
                         logFiles::Bool=false, onlyFluxes::Bool=false)
 
-    # calculate a default FBA solution
+    # determine an additional condition (flux variability analysis)
     if preFBA
+        # calculate an FBA solution
         startTime = time()
         optSol, fbaSol = preFBA!(model, solver, optPercentage, objective)
         solTime = time() - startTime
         print_with_color(:green, "Original FBA solved. Solution time: $solTime s.\n\n")
     else
+        # throw a warning message if preFBA = false and optPercentage > 0%
+        if optPercentage > 0.0
+            warn("The value of optPercentage is > 0%, but preFBA = false. Set preFBA = true in order to take optPercentage into account.\n\n")
+        end
+
+        # define the optSol and fbaSol variables
         optSol = NaN
         fbaSol = NaN * zeros(length(model.rxns))
         print_with_color(:blue, "Original FBA. No additional constraints have been added.\n")
@@ -519,6 +532,7 @@ function distributedFBA(model, solver; nWorkers::Int=1, optPercentage::Float64=1
     nRxns = length(model.rxns)
     nMets = length(model.mets)
 
+    # define the lenght of the rxnsList
     nRxnsList = length(rxnsList)
 
     # intialize the flux vectors
@@ -553,7 +567,7 @@ function distributedFBA(model, solver; nWorkers::Int=1, optPercentage::Float64=1
         print_with_color(:green, "Directory `$resultsDir/logs` created.\n")
     end
 
-    # initialilze the flux matrices
+    # initialize the flux matrices
     if !onlyFluxes
         if !saveChunks
             fvamax = NaN * zeros(nRxns, nRxns)
