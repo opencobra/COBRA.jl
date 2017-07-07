@@ -9,7 +9,9 @@
 
 using Base.Test
 
-if !isdefined(:includeCOBRA) includeCOBRA = true end
+if !@isdefined includeCOBRA
+    includeCOBRA = true
+end
 
 # output information
 testFile = @__FILE__

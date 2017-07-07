@@ -32,8 +32,6 @@ type LPproblem
     csense  ::Array{Char,1}
     rxns    ::Array{String,1}
     mets    ::Array{String,1}
-
-    #LPproblem() = new()#new(zeros(0,0), zeros(0), zeros(0), zeros(0), zeros(0), 0, [Char('E')], [""], [""])
 end
 
 #-------------------------------------------------------------------------------------------
