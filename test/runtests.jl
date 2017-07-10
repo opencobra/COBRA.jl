@@ -18,7 +18,7 @@ connectSSHWorkers = false
 include("$(dirname(@__FILE__))/../src/connect.jl")
 
 # create a parallel pool and determine its size
-if isdefined(:nWorkers) && isdefined(:connectSSHWorkers)
+if (@isdefined nWorkers) && (@isdefined connectSSHWorkers)
     workersPool, nWorkers = createPool(nWorkers, connectSSHWorkers)
 end
 

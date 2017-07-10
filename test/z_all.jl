@@ -9,7 +9,9 @@
 
 using Base.Test
 
-if !isdefined(:includeCOBRA) includeCOBRA = true end
+if !@isdefined includeCOBRA
+    includeCOBRA = true
+end
 
 # output information
 testFile = @__FILE__
@@ -119,7 +121,7 @@ modelTest = loadModel("$(dirname(@__FILE__))/testData.mat", "S", "modelTest")
 m = MathProgBase.HighLevelInterface.buildlp([-1.0, -1.0], [-1.0 2.0], '<', [0.0], solver.handle)
 sol = MathProgBase.HighLevelInterface.solvelp(m)
 if solver.name == "Clp" || solver.name == "Gurobi" || solver.name == "GLPK" || solver.name == "Mosek"
-    @test sol.status == :Unbounded
+    @test sol.status == :Undefined
 elseif solverName == "CPLEX"
     @test sol.status == :InfeasibleOrUnbounded
 end
@@ -128,7 +130,7 @@ end
 m = MathProgBase.HighLevelInterface.buildlp([0.0, -1.0], [-1.0 2.0], '<', [0.0], solver.handle)
 retObj, retFlux, retStat = loopFBA(m, 1, 2, 2, 1)
 if solver.name == "Clp" || solver.name == "Gurobi" || solver.name == "GLPK" || solver.name == "Mosek"
-    @test isequal(retStat, [2, NaN]) # unbounded and not solved
+    @test isequal(retStat, [5, NaN]) # unbounded and not solved
 elseif solver.name == "CPLEX"
     @test isequal(retStat, [4, NaN]) # unbounded and not solved
 end

@@ -112,4 +112,13 @@ function checkSysConfig(verbose = 1)
     end
 end
 
+# fix deprecation warnings in Julia 0.7
+if VERSION.major == 0 && VERSION.minor < 7
+    macro isdefined(symbol)
+        return isdefined(symbol)
+    end
+
+    export @isdefined
+end
+
 #-------------------------------------------------------------------------------------------

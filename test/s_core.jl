@@ -9,7 +9,9 @@
 
 using Base.Test
 
-if !isdefined(:includeCOBRA) includeCOBRA = true end
+if !@isdefined includeCOBRA
+    includeCOBRA = true
+end
 
 # output information
 testFile = @__FILE__
@@ -70,7 +72,7 @@ optPercentage = 90.0
 
 # launch the distributedFBA process
 startTime = time()
-minFlux, maxFlux, optSol = distributedFBA(model, solver, nWorkers=nWorkers, optPercentage=optPercentage)
+minFlux, maxFlux, optSol = distributedFBA(model, solver, nWorkers=nWorkers, optPercentage=optPercentage, preFBA=true)
 solTime = time() - startTime
 
 # Test numerical values - test on floor as different numerical precision with different solvers
