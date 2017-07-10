@@ -16,22 +16,18 @@ Before running any function of `COBRA.jl`, it is necessary to include the `COBRA
 using COBRA
 ```
 
+You can test your system by running:
+
+
+```julia
+COBRA.checkSysConfig();
+```
+
 ## Beginner's Guide
 
 Should you not have any prior experience with Julia and/or Linux, **read carefully** the [Beginner's Guide](http://opencobra.github.io/COBRA.jl/stable/cobratutorial.html). If you however feel that you are set to proceed with this tutorial, please consider the Beginner's Guide as a go-to reference in case you are running into any issues. If you see unusual behavior, you may consider reading the [FAQ section](http://opencobra.github.io/COBRA.jl/stable/faq.html).
 
-
-```julia
-# download the test model
-using Requests
-include("$(Pkg.dir("COBRA"))/test/getTestModel.jl")
-getTestModel()
-
-# load the stoichiometric matrix S from a struct named model in the specified .mat file
-model = loadModel("ecoli_core_model.mat", "S", "model");
-```
-
-## Quick help
+### Quick help
 
 Do you feel lost or you don’t know the meaning of certain input parameters? Try typing a question mark at the Julia REPL followed by a keyword. For instance:
 
@@ -39,7 +35,7 @@ Do you feel lost or you don’t know the meaning of certain input parameters? Tr
 julia> ? distributedFBA
 ```
 
-## Installation check and package testing
+### Installation check and package testing
 
 Make sure that you have a working installation of `MathProgBase.jl` and at least one of the supported solvers. You may find further information [here](http://mathprogbasejl.readthedocs.io/en/latest/). 
 
@@ -99,7 +95,10 @@ solverName = :GLPKMathProgInterface
 
 # include the solver configuration file
 include("$(Pkg.dir("COBRA"))/config/solverCfg.jl")
+```
 
+
+```julia
 # change the COBRA solver
 solver = changeCobraSolver(solverName, solParams)
 ```
@@ -112,7 +111,16 @@ As a test and as an example, the *E.coli* core model may be loaded as:
 
 
 ```julia
-# load the stoichiometric matrix S from a struct named model in the specified .mat file
+# download the test model
+using Requests
+include("$(Pkg.dir("COBRA"))/test/getTestModel.jl")
+getTestModel()
+```
+
+Load the stoichiometric matrix S from a MATLAB `structure` named model in the specified .mat file
+
+
+```julia
 model = loadModel("ecoli_core_model.mat", "S", "model");
 ```
 
@@ -135,7 +143,7 @@ rxnsList = 13
 rxnsOptMode = 1
 
 # launch the distributedFBA process with only 1 reaction on 1 worker
-minFlux, maxFlux  = distributedFBA(model, solver, nWorkers=1, optPercentage=90.0, rxnsList=rxnsList, rxnsOptMode=rxnsOptMode);
+minFlux, maxFlux  = distributedFBA(model, solver, nWorkers=1, rxnsList=rxnsList, rxnsOptMode=rxnsOptMode);
 ```
 
 where the reaction number `13` is solved. Note that the no extra conditions are added to the model (last function argument is `false`). The minimum flux and maximum flux can hence be listed as:
@@ -152,8 +160,7 @@ In order to run a common flux variability analysis (FVA), `distributedFBA` can b
 
 ```julia
 # launch the distributedFBA process with all reactions
-# distributedFBA(model, solver, nWorkers, optPercentage, objective, rxnsList, strategy, preFBA, rxnsOptMode)
-minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax = distributedFBA(model, solver, nWorkers=4, optPercentage=90.0);
+minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax = distributedFBA(model, solver, nWorkers=4, optPercentage=90.0, preFBA=true);
 ```
 
 The optimal solution of the original FBA problem can be retrieved with:
