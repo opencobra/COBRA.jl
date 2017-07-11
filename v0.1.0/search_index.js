@@ -5,7 +5,7 @@ var documenterSearchIndex = {"docs": [
     "page": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
     "title": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
     "category": "page",
-    "text": ""
+    "text": "<p align=\"center\">   <img src=\"https://raw.githubusercontent.com/opencobra/COBRA.jl/develop/docs/src/assets/logo.png\" height=\"160px\"/> </p>"
 },
 
 {
@@ -21,7 +21,7 @@ var documenterSearchIndex = {"docs": [
     "page": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
     "title": "Layout",
     "category": "section",
-    "text": "(Image: Code Layout)"
+    "text": "<p align=\"center\">   <img src=\"https://raw.githubusercontent.com/opencobra/COBRA.jl/master/docs/src/assets/codeLayout.jpg\"/> </p>"
 },
 
 {
