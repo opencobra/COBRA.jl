@@ -164,7 +164,7 @@ function loopModels(p, scriptName, dirContent, startIndex, endIndex, varsCharact
 
             @mput PALM_iModel
             @mput PALM_modelFile
-            eval(parse("@matlab $scriptName"))
+            eval(parse("mat\"run('$scriptName')\""))
 
             for i = 1:nCharacteristics
                 data[k, i + 1] = MATLAB.get_variable(Symbol(varsCharact[i]))
@@ -179,20 +179,21 @@ end
 
 #-------------------------------------------------------------------------------------------
 """
-    PALM(dir, scriptName, nMatlab, outputFile)
+    PALM(dir, scriptName, nMatlab, outputFile, cobraToolboxDir)
 
 Function reads the directory `dir`, and launches `nMatlab` sessions to run `scriptName`.
 Results are saved in the `outputFile`.
 
 # INPUTS
 
-- `dir`:            Directory that contains the models (model file format: `.mat`)
-- `scriptName`:     Name of MATLAB script to be run (without extension `.m`)
+- `dir`:             Directory that contains the models (model file format: `.mat`)
+- `scriptName`:      Name of MATLAB script to be run (without extension `.m`)
 
 # OPTIONAL INPUTS
 
-- `nMatlab`:        Number of desired MATLAB sessions (default: 2)
-- `outputFile`:     Name of `.mat` file to save the result table named "summaryData" (default name: "PALM_data.mat")
+- `nMatlab`:         Number of desired MATLAB sessions (default: 2)
+- `outputFile`:      Name of `.mat` file to save the result table named "summaryData" (default name: "PALM_data.mat")
+- `cobraToolboxDir`: Directory of the COBRA Toolbox (default: "~/cobratoolbox")
 
 # OUTPUTS
 
@@ -214,7 +215,7 @@ See also: `loopModels()` and `shareLoad()`
 
 """
 
-function PALM(dir, scriptName, nMatlab::Int = 2, outputFile::AbstractString = "PALM_data.mat", varsCharact=[])
+function PALM(dir, scriptName, nMatlab::Int=2, outputFile::AbstractString="PALM_data.mat", varsCharact=[], cobraToolboxDir=ENV["HOME"]*Base.Filesystem.path_separator*"cobratoolbox")
     #include("shareLoad.jl")
 
     dirContent = readdir(dir)
@@ -267,6 +268,9 @@ function PALM(dir, scriptName, nMatlab::Int = 2, outputFile::AbstractString = "P
         end
 
         @async R[p] = @spawnat (p + 1) begin
+            # adding the model directory and eventual subdirectories to the MATLAB path
+            eval(parse("mat\"addpath(genpath('$dir'))\""))
+            eval(parse("mat\"run('$cobraToolboxDir"*Base.Filesystem.path_separator*"initCobraToolbox.m')\""))
             loopModels(p, scriptName, dirContent, startIndex, endIndex, varsCharact)
         end
 
@@ -281,7 +285,7 @@ function PALM(dir, scriptName, nMatlab::Int = 2, outputFile::AbstractString = "P
     end
 
     # save the summary data
-    fileName = outputFile#"modelCharacteristics.mat"
+    fileName = outputFile
     file = matopen(fileName, "w")
     write(file, "summaryData", summaryData)
 
