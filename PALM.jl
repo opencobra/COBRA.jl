@@ -287,7 +287,7 @@ function PALM(dir, scriptName, nMatlab::Int=2, outputFile::AbstractString="PALM_
     # save the summary data
     fileName = outputFile
     file = matopen(fileName, "w")
-    write(file, "summaryData", summaryData)
+    write(file, "summaryData", summaryData[1:nModels, :])
 
     # close the file and return a status message
     close(file)
