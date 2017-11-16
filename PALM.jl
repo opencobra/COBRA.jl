@@ -74,10 +74,12 @@ function shareLoad(nModels::Int, nMatlab::Int = 2, verbose::Bool = true)
             println(" >> Every worker (#", wrks[1], " - #", wrks[end - 1], ") will solve ", quotientModels, " model(s).")
         end
 
+        #remainderModels = Int(nModels - (nWorkers) * quotientModels)
         remainderModels = Int(nModels - (nWorkers - 1) * quotientModels)
         if remainderModels > 0
             if verbose
-                println(" >> Worker #", wrks[end], " will solve ", remainderModels, " model(s).")
+                #println(" >> Worker #", wrks[end-1], " will solve ", quotientModels + remainderModels, " model(s).")
+                println(" >> Worker #", wrks[end-1], " will solve ", quotientModels + remainderModels, " model(s).")
             end
         end
 
@@ -156,8 +158,8 @@ function loopModels(p, scriptName, dirContent, startIndex, endIndex, varsCharact
         data = Array{Union{Int,Float64,AbstractString}}(nModels, nCharacteristics + 1)
 
         for k = 1:nModels
-            PALM_iModel = k + (p - 1) * nModels
-            PALM_modelFile = dirContent[PALM_iModel]
+            PALM_iModel = k #+ (p - 1) * nModels
+            PALM_modelFile = dirContent[startIndex+k-1]
 
             # save the modelName
             data[k, 1] = PALM_modelFile
@@ -170,6 +172,8 @@ function loopModels(p, scriptName, dirContent, startIndex, endIndex, varsCharact
                 data[k, i + 1] = MATLAB.get_variable(Symbol(varsCharact[i]))
             end
         end
+
+        @show data
 
         return data
     else
@@ -244,6 +248,7 @@ function PALM(dir, scriptName, nMatlab::Int=2, outputFile::AbstractString="PALM_
 
     # declare an empty array for storing a summary of all data
     summaryData = Array{Union{Int,Float64,AbstractString}}(nModels + 1, nCharacteristics + 1)
+    #summaryData = []
 
     # launch the function loopModels on every worker
     @sync for (p, pid) in enumerate(workers())
@@ -255,16 +260,19 @@ function PALM(dir, scriptName, nMatlab::Int=2, outputFile::AbstractString="PALM_
         # save the startIndex for each worker
         indicesWorkers[p, 1] = startIndex
 
-        if p <  workers()[end]
+        #if p <  workers()[end]
+        if p <  workers()[end]-1
             endIndex = Int(p * quotientModels)
             indicesWorkers[p, 2] = endIndex
             indicesWorkers[p, 3] = quotientModels
-            info("Worker $(p+1) runs $quotientModels models: from $startIndex to $endIndex")
+            info("(case1): Worker $(p+1) runs $quotientModels models: from $startIndex to $endIndex")
         else
-            endIndex = Int((p - 1) * quotientModels + remainderModels)
-            indicesWorkers[p, 2] = endIndex
+            endIndex = Int((p-1) * quotientModels + remainderModels)
+            #endIndex = Int((p) * quotientModels + remainderModels)
+            indicesWorkers[p, 2] = nModels #endIndex
+            #indicesWorkers[p, 3] = quotientModels + remainderModels
             indicesWorkers[p, 3] = remainderModels
-            info("Worker $(p+1) runs $remainderModels models: from $startIndex to $endIndex")
+            info("(case 2): Worker $(p+1) runs $(endIndex - startIndex + 1) models: from $startIndex to $endIndex")
         end
 
         @async R[p] = @spawnat (p + 1) begin
@@ -276,20 +284,31 @@ function PALM(dir, scriptName, nMatlab::Int=2, outputFile::AbstractString="PALM_
 
     end
 
+    @show indicesWorkers
     # set the header of all the columns
+    #push!(summaryData, [""; varsCharact])
     summaryData[1, :] = [""; varsCharact]
 
+    #@show summaryData
+
     # store the data retrieved from worker p
-    @sync for (p, pid) in enumerate(workers())
-        summaryData[indicesWorkers[p, 1] + 1:indicesWorkers[p, 2] + 1, :] = fetch(R[p][1:indicesWorkers[p, 3], :])
+    #@sync
+    #@show R
+    #fetch(R)
+    for (p, pid) in enumerate(workers())
+        #@show fetch(R[p])
+        #push!(summaryData, fetch(R[p][1:indicesWorkers[p, 3], :]))
+        #@show summaryData
+        summaryData[indicesWorkers[p, 1] + 1:indicesWorkers[p, 2] + 1, :] = fetch(R[p])#[1:indicesWorkers[p, 3], :])
     end
 
+    return summaryData, R, indicesWorkers
     # save the summary data
-    fileName = outputFile
-    file = matopen(fileName, "w")
-    write(file, "summaryData", summaryData[1:nModels, :])
+    #fileName = outputFile
+    #file = matopen(fileName, "w")
+    #write(file, "summaryData", summaryData[1:nModels+1, :])
 
     # close the file and return a status message
-    close(file)
+    #close(file)
 
 end
