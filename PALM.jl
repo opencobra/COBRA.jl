@@ -220,15 +220,14 @@ See also: `loopModels()` and `shareLoad()`
 """
 
 function PALM(dir, scriptName, nMatlab::Int=2, outputFile::AbstractString="PALM_data.mat", varsCharact=[], cobraToolboxDir=ENV["HOME"]*Base.Filesystem.path_separator*"cobratoolbox")
-    #include("shareLoad.jl")
 
+    # read the content of the directory
     dirContent = readdir(dir)
 
     info("Directory with $(length(dirContent)) models read successfully.")
 
     nWorkers, quotientModels, remainderModels = shareLoad(length(dirContent), nMatlab)
 
-    #launchPALM(dirContent, scriptName, nWorkers, quotientModels, remainderModels, varsCharact, outputFile)
     # determine the number of models
     nModels = length(dirContent)
 
@@ -248,7 +247,6 @@ function PALM(dir, scriptName, nMatlab::Int=2, outputFile::AbstractString="PALM_
 
     # declare an empty array for storing a summary of all data
     summaryData = Array{Union{Int,Float64,AbstractString}}(nModels + 1, nCharacteristics + 1)
-    #summaryData = []
 
     # launch the function loopModels on every worker
     @sync for (p, pid) in enumerate(workers())
@@ -260,18 +258,19 @@ function PALM(dir, scriptName, nMatlab::Int=2, outputFile::AbstractString="PALM_
         # save the startIndex for each worker
         indicesWorkers[p, 1] = startIndex
 
-        #if p <  workers()[end]
         if p <  workers()[end]-1
             endIndex = Int(p * quotientModels)
+
             indicesWorkers[p, 2] = endIndex
             indicesWorkers[p, 3] = quotientModels
+
             info("(case1): Worker $(p+1) runs $quotientModels models: from $startIndex to $endIndex")
         else
             endIndex = Int((p-1) * quotientModels + remainderModels)
-            #endIndex = Int((p) * quotientModels + remainderModels)
-            indicesWorkers[p, 2] = nModels #endIndex
-            #indicesWorkers[p, 3] = quotientModels + remainderModels
+
+            indicesWorkers[p, 2] = nModels
             indicesWorkers[p, 3] = remainderModels
+
             info("(case 2): Worker $(p+1) runs $(endIndex - startIndex + 1) models: from $startIndex to $endIndex")
         end
 
@@ -284,31 +283,21 @@ function PALM(dir, scriptName, nMatlab::Int=2, outputFile::AbstractString="PALM_
 
     end
 
-    @show indicesWorkers
     # set the header of all the columns
-    #push!(summaryData, [""; varsCharact])
     summaryData[1, :] = [""; varsCharact]
 
-    #@show summaryData
-
     # store the data retrieved from worker p
-    #@sync
-    #@show R
-    #fetch(R)
     for (p, pid) in enumerate(workers())
-        #@show fetch(R[p])
-        #push!(summaryData, fetch(R[p][1:indicesWorkers[p, 3], :]))
-        #@show summaryData
-        summaryData[indicesWorkers[p, 1] + 1:indicesWorkers[p, 2] + 1, :] = fetch(R[p])#[1:indicesWorkers[p, 3], :])
+        summaryData[indicesWorkers[p, 1] + 1:indicesWorkers[p, 2] + 1, :] = fetch(R[p])
     end
 
-    return summaryData, R, indicesWorkers
     # save the summary data
-    #fileName = outputFile
-    #file = matopen(fileName, "w")
-    #write(file, "summaryData", summaryData[1:nModels+1, :])
+    fileName = outputFile
+    file = matopen(fileName, "w")
+    write(file, "summaryData", summaryData[1:nModels+1, :])
 
     # close the file and return a status message
-    #close(file)
+    close(file)
 
+    return summaryData, R, indicesWorkers
 end
