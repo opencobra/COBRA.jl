@@ -65,7 +65,7 @@ function shareLoad(nModels::Int, nMatlab::Int = 2, verbose::Bool = true)
     # Definition of workers and load distribution
     wrks = workers()
     nWorkers = length(wrks)
-    quotientModels = Int(round(nModels / nWorkers))
+    quotientModels = Int(ceil(nModels / nWorkers))
 
     remainderModels = 0
 
@@ -275,6 +275,7 @@ function PALM(dir, scriptName, nMatlab::Int=2, outputFile::AbstractString="PALM_
     info("> MATLAB sessions initializing")
 
     @sync for (p, pid) in enumerate(workers())
+
         startIndex = Int((p - 1) * quotientModels + 1)
 
         # save the startIndex for each worker
@@ -291,12 +292,16 @@ function PALM(dir, scriptName, nMatlab::Int=2, outputFile::AbstractString="PALM_
             info("(case1): Worker $(p+1) runs $localnModels models: from $startIndex to $endIndex")
 
         else
-            endIndex = Int((p-1) * quotientModels + remainderModels)
+            endIndex = Int((p+1) * quotientModels + remainderModels)
 
-            indicesWorkers[p, 2] = nModels
+            if endIndex >= nModels
+                endIndex = nModels
+            end
+
+            indicesWorkers[p, 2] = endIndex
             indicesWorkers[p, 3] = remainderModels
 
-            localnModels = remainderModels
+            localnModels = endIndex - startIndex + 1
 
             info("(case 2): Worker $(p+1) runs $localnModels models: from $startIndex to $endIndex")
 
@@ -313,7 +318,8 @@ function PALM(dir, scriptName, nMatlab::Int=2, outputFile::AbstractString="PALM_
     # store the data retrieved from worker p
     for (p, pid) in enumerate(workers())
         @show tmpArray = fetch(R[p])
-        summaryData[indicesWorkers[p, 1] + 1:indicesWorkers[p, 2] + 1, :] = tmpArray[1:indicesWorkers[p, 3], :]
+        localnModels = indicesWorkers[p, 2] - indicesWorkers[p, 1] + 1
+        summaryData[indicesWorkers[p, 1] + 1:indicesWorkers[p, 2] + 1, :] = tmpArray[1:localnModels, :]
     end
 
     # save the summary data
