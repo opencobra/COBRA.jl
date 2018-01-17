@@ -145,19 +145,19 @@ See also: `PALM()`
 
 """
 
-function loopModels(p, scriptName, dirContent, startIndex, endIndex, varsCharact)
+function loopModels(p, scriptName, dirContent, startIndex, endIndex, varsCharact, localnModels)
 
     # determine the lengt of the number of variables
     nCharacteristics = length(varsCharact)
 
     #local nModels
     if endIndex >= startIndex
-        nModels = endIndex - startIndex + 1
+        #nModels = endIndex - startIndex + 1
 
         # declaration of local data array
-        data = Array{Union{Int,Float64,AbstractString}}(nModels, nCharacteristics + 1)
+        data = Array{Union{Int,Float64,AbstractString}}(localnModels, nCharacteristics + 1)
 
-        for k = 1:nModels
+        for k = 1:localnModels
             PALM_iModel = k #+ (p - 1) * nModels
             PALM_modelFile = dirContent[startIndex+k-1]
 
@@ -248,11 +248,33 @@ function PALM(dir, scriptName, nMatlab::Int=2, outputFile::AbstractString="PALM_
     # declare an empty array for storing a summary of all data
     summaryData = Array{Union{Int,Float64,AbstractString}}(nModels + 1, nCharacteristics + 1)
 
+    for (p, pid) in enumerate(workers())
+        @spawnat (p + 1) begin
+            # clone a copy to a tmp folder as the cobtratoolbox is updated at runtime
+            if !isdir("/tmp/test-ct-$p")
+                run(`git clone $(ENV["HOME"])/cobratoolbox /tmp/test-ct-$p`)
+            end
+        end
+    end
+
     # launch the function loopModels on every worker
     @sync for (p, pid) in enumerate(workers())
 
         info("Launching MATLAB session on worker $(p+1).")
 
+        @async R[p] = @spawnat (p+1) begin
+            # adding the model directory and eventual subdirectories to the MATLAB path
+            eval(parse("mat\"addpath(genpath('/tmp/test-ct-$p'))\""))
+            eval(parse("mat\"run('/tmp/test-ct-$p/initCobraToolbox.m');\"")) #*Base.Filesystem.path_separator*
+            # add the path with the models
+            #eval(parse("mat\"addpath('$dir');\""))
+        end
+
+    end
+
+    info("> MATLAB sessions initializing")
+
+    @sync for (p, pid) in enumerate(workers())
         startIndex = Int((p - 1) * quotientModels + 1)
 
         # save the startIndex for each worker
@@ -264,23 +286,25 @@ function PALM(dir, scriptName, nMatlab::Int=2, outputFile::AbstractString="PALM_
             indicesWorkers[p, 2] = endIndex
             indicesWorkers[p, 3] = quotientModels
 
-            info("(case1): Worker $(p+1) runs $quotientModels models: from $startIndex to $endIndex")
+            localnModels = quotientModels
+
+            info("(case1): Worker $(p+1) runs $localnModels models: from $startIndex to $endIndex")
+
         else
             endIndex = Int((p-1) * quotientModels + remainderModels)
 
             indicesWorkers[p, 2] = nModels
             indicesWorkers[p, 3] = remainderModels
 
-            info("(case 2): Worker $(p+1) runs $(endIndex - startIndex + 1) models: from $startIndex to $endIndex")
+            localnModels = remainderModels
+
+            info("(case 2): Worker $(p+1) runs $localnModels models: from $startIndex to $endIndex")
+
         end
 
-        @async R[p] = @spawnat (p + 1) begin
-            # adding the model directory and eventual subdirectories to the MATLAB path
-            eval(parse("mat\"addpath(genpath('$dir'))\""))
-            eval(parse("mat\"run('$cobraToolboxDir"*Base.Filesystem.path_separator*"initCobraToolbox.m')\""))
-            loopModels(p, scriptName, dirContent, startIndex, endIndex, varsCharact)
+        @async R[p] = @spawnat (p+1) begin
+            loopModels(p, scriptName, dirContent, startIndex, endIndex, varsCharact, localnModels)
         end
-
     end
 
     # set the header of all the columns
@@ -288,7 +312,8 @@ function PALM(dir, scriptName, nMatlab::Int=2, outputFile::AbstractString="PALM_
 
     # store the data retrieved from worker p
     for (p, pid) in enumerate(workers())
-        summaryData[indicesWorkers[p, 1] + 1:indicesWorkers[p, 2] + 1, :] = fetch(R[p])
+        @show tmpArray = fetch(R[p])
+        summaryData[indicesWorkers[p, 1] + 1:indicesWorkers[p, 2] + 1, :] = tmpArray[1:indicesWorkers[p, 3], :]
     end
 
     # save the summary data
