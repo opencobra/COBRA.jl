@@ -113,7 +113,7 @@ end
 
 #-------------------------------------------------------------------------------------------
 """
-    loopModels(p, scriptName, dirContent, startIndex, endIndex, varsCharact)
+    loopModels(dir, p, scriptName, dirContent, startIndex, endIndex, varsCharact)
 
 Function `loopModels` is generally called in a loop from `PALM()` on worker `p`.
 Runs `scriptName` for all models with an index in `dirContent` between `startIndex` and `endIndex`.
@@ -122,6 +122,7 @@ is computed as `nModels = endIndex - startIndex + 1`.
 
 # INPUTS
 
+- `dir`:            Directory that contains the models (model file format: `.mat`)
 - `p`:              Process or worker number
 - `scriptName`:     Name of MATLAB script to be run (without extension `.m`)
 - `dirContent`:     Array with file names (commonly read from a directory)
@@ -138,14 +139,14 @@ is computed as `nModels = endIndex - startIndex + 1`.
 
 - Minimum working example
 ```julia
-julia> loopModels(p, scriptName, dirContent, startIndex, endIndex, varsCharact)
+julia> loopModels(dir, p, scriptName, dirContent, startIndex, endIndex, varsCharact)
 ```
 
 See also: `PALM()`
 
 """
 
-function loopModels(p, scriptName, dirContent, startIndex, endIndex, varsCharact, localnModels)
+function loopModels(dir, p, scriptName, dirContent, startIndex, endIndex, varsCharact, localnModels)
 
     # determine the lengt of the number of variables
     nCharacteristics = length(varsCharact)
@@ -160,12 +161,14 @@ function loopModels(p, scriptName, dirContent, startIndex, endIndex, varsCharact
         for k = 1:localnModels
             PALM_iModel = k #+ (p - 1) * nModels
             PALM_modelFile = dirContent[startIndex+k-1]
+            PALM_dir = dir
 
             # save the modelName
             data[k, 1] = PALM_modelFile
 
             @mput PALM_iModel
             @mput PALM_modelFile
+            @mput PALM_dir
             eval(parse("mat\"run('$scriptName')\""))
 
             for i = 1:nCharacteristics
@@ -308,7 +311,7 @@ function PALM(dir, scriptName, nMatlab::Int=2, outputFile::AbstractString="PALM_
         end
 
         @async R[p] = @spawnat (p+1) begin
-            loopModels(p, scriptName, dirContent, startIndex, endIndex, varsCharact, localnModels)
+            loopModels(dir, p, scriptName, dirContent, startIndex, endIndex, varsCharact, localnModels)
         end
     end
 
