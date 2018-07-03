@@ -5,5 +5,11 @@ before_install:
 
 script:
 
+    # set the environment variable CURRENT_DIR
+    - CURRENT_DIR=`pwd`
+
+    # rename the cloned folder
+    - mv $CURRENT_DIR COBRA
+
     # launch the tests
     - bash .artenolis/runtests.sh
