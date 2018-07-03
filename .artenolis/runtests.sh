@@ -12,7 +12,7 @@ if [ "$ARCH" == "Linux" ]; then
         /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'Pkg.add(pwd())'
         #/mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'Pkg.build()'
         /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'include("test/runtests.jl")'
-        /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'Pkg.rm(pwd())'
+        #/mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'Pkg.rm(pwd())'
 
         # remove th julia directory to clean the installation directory
         #rm -rf ~/.julia/v0.6
