@@ -5,10 +5,10 @@ before_install:
 
 script:
     # set the environment variable CURRENT_DIR
-    #- CURRENT_DIR=`pwd`
+    - CURRENT_DIR=`pwd`
 
     # change to the current directory
-    #- cd $CURRENT_DIR
+    - cd $CURRENT_DIR
 
     # launch the tests
     #- bash .artenolis/runtests.sh
