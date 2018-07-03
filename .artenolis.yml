@@ -11,7 +11,7 @@ script:
     - cd $CURRENT_DIR
 
     # launch the tests
-    /mnt/prince-data/JULIA/$JULIA_VER/bin/julia -e 'println(versioninfo()); exit()'
+    - /mnt/prince-data/JULIA/$JULIA_VER/bin/julia -e 'println(versioninfo()); exit()'
 
     #- bash .artenolis/runtests.sh
 
