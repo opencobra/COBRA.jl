@@ -25,3 +25,6 @@ fi
 
 CODE=$?
 exit $CODE
+
+# remove th julia directory to clean the installation directory
+rm -rf ~/.julia
