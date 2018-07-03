@@ -9,8 +9,7 @@ script:
     - CURRENT_DIR=`pwd`
 
     # rename the cloned folder
-    - cd ..
-    - mv linux COBRA
+    - cd .. && mv linux COBRA && cd COBRA
 
     # launch the tests
     - bash .artenolis/runtests.sh
