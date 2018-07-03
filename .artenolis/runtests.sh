@@ -8,7 +8,7 @@ if [ "$ARCH" == "Linux" ]; then
         rm -rf ~/.julia/v0.6/COBRA
 
         # add the COBRA module
-        /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'Pkg.update();'
+        #/mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'Pkg.update();'
         /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'Pkg.clone(pwd());'
         #/mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'Pkg.add(pwd());'
         /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'Pkg.test(pwd(), coverage = true); Pkg.rm(pwd()); '
