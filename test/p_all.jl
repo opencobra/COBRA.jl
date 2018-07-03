@@ -398,7 +398,7 @@ minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = d
 minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers=nWorkers, onlyFluxes=true, rxnsList=1:10, logFiles=true)
 
 # test if the /logs folder has been created
-@test isdir("$resultsDir/logs")
+@test isdir("$(Pkg.dir("COBRA"))/results/logs")
 
 # remove the results folder to clean up
 run(`rm -rf $(dirname(@__FILE__))/../results`)
