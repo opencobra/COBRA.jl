@@ -9,9 +9,9 @@ if [ "$ARCH" == "Linux" ]; then
         #/mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'Pkg.add("MAT"); Pkg.checkout("MAT")'
 
         # add the COBRA module
-        /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'Pkg.add(pwd())'
+        /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'Pkg.clone(pwd()); Pkg.test(pwd());'
         #/mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'Pkg.build()'
-        /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'include("test/runtests.jl")'
+        #/mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'include("test/runtests.jl")'
         #/mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'Pkg.rm(pwd())'
 
         # remove th julia directory to clean the installation directory
