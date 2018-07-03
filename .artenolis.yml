@@ -4,19 +4,9 @@ before_install:
     - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
 
 script:
-    # set the environment variable CURRENT_DIR
-    - CURRENT_DIR=`pwd`
 
-    # change to the current directory
-    - cd $CURRENT_DIR
-
-    # temporary addition for julia 0.6 until new version of MAT tagged
-    - /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'using Pkg; Pkg.add("MAT"); Pkg.checkout("MAT")'
-
-    # add the COBRA module
-    - /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'using Pkg; Pkg.clone(pwd())'
-    - /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'using Pkg; Pkg.build()'
-    - /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'using Pkg; Pkg.test("COBRA",coverage=true)'
+    # launch the tests
+    - bash .artenolis/runtests.sh
 
     # launch the tests
     #- /mnt/prince-data/JULIA/$JULIA_VER/bin/julia -e 'println(versioninfo()); exit()'
