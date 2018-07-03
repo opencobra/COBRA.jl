@@ -11,7 +11,7 @@ if [ "$ARCH" == "Linux" ]; then
         #/mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'Pkg.update();'
         /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'Pkg.clone(pwd());'
         #/mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'Pkg.add(pwd());'
-        /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'Pkg.test(pwd(), coverage = true); Pkg.rm(pwd()); '
+        /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'Pkg.test(pwd(), coverage = true);'
 
     elif [ "$JULIA_VER" == "v0.7.0" ]; then
         # temporary addition for julia 0.6 until new version of MAT tagged
