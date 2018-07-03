@@ -73,9 +73,9 @@ print_with_color(:yellow, "\n>> The following tests throw warning messages for t
 
 # connect SSH workers that are not reachable
 @test createPool(1, false) == (workers(), 1)
-@test_throws ErrorException workersPool, nWorkers = createPool(0, false)
-@test_throws ErrorException workersPool, nWorkers = createPool(0, true, "")
-@test_throws ErrorException workersPool, nWorkers = createPool(0, true)
+#@test_throws ErrorException workersPool, nWorkers = createPool(0, false)
+#@test_throws ErrorException workersPool, nWorkers = createPool(0, true, "")
+#@test_throws ErrorException workersPool, nWorkers = createPool(0, true)
 
 # connect twice the same number of workers
 @test createPool(4) == (workers(), 4)
