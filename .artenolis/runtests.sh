@@ -1,3 +1,6 @@
+echo "ARCH = $ARCH"
+echo "JULIA_VER = $JULIA_VER"
+
 if [ "$ARCH" == "Linux" ]; then
     if [ "$JULIA_VER" == "0.6.3" ]; then
         /mnt/prince-data/JULIA/$JULIA_VER/bin/julia -e 'println(versioninfo()); exit()'
