@@ -5,7 +5,7 @@ if [ "$ARCH" == "Linux" ]; then
     if [ "$JULIA_VER" == "v0.6.3" ]; then
 
         # remove th julia directory to clean the installation directory
-        #rm -rf ~/.julia/v0.6/COBRA
+        rm -rf ~/.julia/v0.6/COBRA
 
         # add the COBRA module
         /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'Pkg.update();'
