@@ -14,7 +14,7 @@ if [ "$ARCH" == "Linux" ]; then
 
         # adding coverage
         #/mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'using Coverage; Codecov.submit_generic(process_folder(), Pkg.dir("COBRA"), commit=$GIT_COMMIT, branch=$GIT_BRANCH);'
-        /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'using Coverage; Codecov.submit_generic(process_folder(), service="artenolis", branch=ENV["GIT_BRANCH"], commit=ENV["GIT_COMMIT"]);'
+        /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'cd(Pkg.dir("COBRA")); using Coverage; Codecov.submit_generic(process_folder(), service="artenolis", branch=ENV["GIT_BRANCH"], commit=ENV["GIT_COMMIT"]);'
 
     elif [ "$JULIA_VER" == "v0.7.0" ]; then
         # temporary addition for julia 0.6 until new version of MAT tagged
