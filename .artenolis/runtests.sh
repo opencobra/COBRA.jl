@@ -10,11 +10,7 @@ if [ "$ARCH" == "Linux" ]; then
         rm -rf ~/.julia/v0.6/COBRA
 
         # add the COBRA module
-        /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --inline=no --code-coverage=user --color=yes -e 'Pkg.clone(pwd()); Pkg.test(pwd(), coverage=true);'
-
-        # adding coverage
-        #/mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'cd(Pkg.dir("COBRA")); using Coverage; Codecov.submit_generic(process_folder(), commit=ENV["GIT_COMMIT"], branch=ENV["GIT_BRANCH"]);'
-        #/mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'cd(Pkg.dir("COBRA")); using Coverage; Codecov.submit_generic(process_folder(), service="artenolis", branch=ENV["GIT_BRANCH"], commit=ENV["GIT_COMMIT"]);'
+        /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'Pkg.clone(pwd()); Pkg.test(pwd(), coverage=true);'
 
     elif [ "$JULIA_VER" == "v0.7.0" ]; then
         # temporary addition for julia 0.6 until new version of MAT tagged
