@@ -1,6 +1,8 @@
 codecov:
   ci:
     - artenolis.lcsb.uni.lu
+
+coverage:
   status:
     project:
       default:
