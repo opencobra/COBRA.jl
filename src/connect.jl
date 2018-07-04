@@ -100,7 +100,7 @@ function createPool(localWorkers::Int, connectSSH::Bool=false, connectionFile::S
                 try
                     if !is_windows()
                         # try logging in quietly to defined node using SSH
-                        successConnect = success(`ssh -o BatchMode=yes -o ConnectTimeout=2 $(sshWorkers[i]["usernode"]) $(sshWorkers[i]["flags"])`)
+                        successConnect = success(`ssh -T -o BatchMode=yes -o ConnectTimeout=1 $(sshWorkers[i]["usernode"]) $(sshWorkers[i]["flags"])`)
 
                         # add threads when the SSH login is successful
                         if successConnect
