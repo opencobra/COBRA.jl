@@ -23,7 +23,7 @@ if [ "$ARCH" == "Linux" ]; then
         /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'Pkg.clone(pwd()); Pkg.test(pwd(), coverage = true);'
 
         # adding coverage
-        /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'using Coverage; Codecov.submit_generic(process_folder(), codecov_url="https://codecov.io");'
+        /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'using Coverage; Codecov.submit_local(process_folder())'
 
     elif [ "$JULIA_VER" == "v0.7.0" ]; then
         # temporary addition for julia 0.6 until new version of MAT tagged
