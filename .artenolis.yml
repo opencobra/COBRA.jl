@@ -10,3 +10,9 @@ script:
 
     # launch the tests
     - bash .artenolis/runtests.sh
+
+after_success:
+    - /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'cd(Pkg.dir("COBRA")); using Coverage; Codecov.submit_generic(process_folder(), commit=ENV["GIT_COMMIT"], branch=ENV["GIT_BRANCH"]);'
+    #- if [ "$ARCH" == "Linux" ]; then
+      bash <(curl -s https://codecov.io/bash) -f "!*.lst";
+      fi
