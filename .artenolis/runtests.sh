@@ -10,7 +10,7 @@ if [ "$ARCH" == "Linux" ]; then
         rm -rf ~/.julia/v0.6/COBRA
 
         # add the COBRA module
-        /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --code-coverage=all --color=yes -e 'Pkg.clone(pwd()); Pkg.test(pwd(), coverage=true);'
+        /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --inline=no --code-coverage=user --color=yes -e 'Pkg.clone(pwd()); Pkg.test(pwd(), coverage=true);'
 
         # adding coverage
         #/mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'cd(Pkg.dir("COBRA")); using Coverage; Codecov.submit_generic(process_folder(), commit=ENV["GIT_COMMIT"], branch=ENV["GIT_BRANCH"]);'
