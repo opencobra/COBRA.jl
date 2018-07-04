@@ -46,5 +46,5 @@ script:
 
 after_success:
     - echo $TRAVIS_JULIA_VERSION
-    - julia -e 'Pkg.add("Coverage"); cd(Pkg.dir("COBRA")); using Coverage; Codecov.submit(process_folder()); Coveralls.submit(Coveralls.process_folder())'
+    # - julia -e 'Pkg.add("Coverage"); cd(Pkg.dir("COBRA")); using Coverage; Codecov.submit(process_folder()); Coveralls.submit(Coveralls.process_folder())'
     - julia -e 'Pkg.add("Documenter"); cd(Pkg.dir("COBRA")); include(joinpath("docs", "makeDoc.jl"))'
