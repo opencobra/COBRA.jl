@@ -1,3 +1,5 @@
+printenv
+
 # print out the version and the architecture
 echo "ARCH = $ARCH"
 echo "JULIA_VER = $JULIA_VER"
