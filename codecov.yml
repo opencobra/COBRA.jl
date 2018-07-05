@@ -1,3 +1,7 @@
+codecov:
+  ci:
+    - prince.lcsb.uni.lu/jenkins
+
 coverage:
   status:
     project:
