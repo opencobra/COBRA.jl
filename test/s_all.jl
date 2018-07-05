@@ -46,7 +46,7 @@ include("$(Pkg.dir("COBRA"))/config/solverCfg.jl")
 solver = changeCobraSolver(solverName, solParams)
 
 # load an external mat file
-model = loadModel("$(Pkg.dir("COBRA"))/ecoli_core_model.mat", "S", "model")
+model = loadModel("$(Pkg.dir("COBRA"))/test/ecoli_core_model.mat", "S", "model")
 
 # select the number of reactions
 rxnsList = 1:length(model.rxns)
