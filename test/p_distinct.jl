@@ -23,7 +23,7 @@ nWorkers = 4
 if includeCOBRA
     solverName = :GLPKMathProgInterface
     connectSSHWorkers = false
-    include("$(dirname(@__FILE__))/../src/connect.jl")
+    include("$(Pkg.dir("COBRA"))/../src/connect.jl")
 
     # create a parallel pool and determine its size
     if isdefined(:nWorkers) && isdefined(:connectSSHWorkers)
@@ -40,13 +40,13 @@ end
 getTestModel()
 
 # include the solver configuration file
-include("$(dirname(@__FILE__))/../config/solverCfg.jl")
+include("$(Pkg.dir("COBRA"))/../config/solverCfg.jl")
 
 # change the COBRA solver
 solver = changeCobraSolver(solverName, solParams)
 
 # load an external mat file
-model = loadModel("$(dirname(@__FILE__))/ecoli_core_model.mat", "S", "model")
+model = loadModel("$(Pkg.dir("COBRA"))/ecoli_core_model.mat", "S", "model")
 
 # define an optPercentage value
 optPercentage = 90.0

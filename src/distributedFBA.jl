@@ -330,7 +330,7 @@ See also: `distributeFBA()`, `MathProgBase.HighLevelInterface`
 """
 
 function loopFBA(m, rxnsList, nRxns::Int, rxnsOptMode=2 + zeros(Int, length(rxnsList)), iRound::Int=0, pid::Int=1,
-                 resultsDir::String="$(dirname(@__FILE__))/../results", logFiles::Bool=false, onlyFluxes::Bool=false)
+                 resultsDir::String="$(Pkg.dir("COBRA"))/../results", logFiles::Bool=false, onlyFluxes::Bool=false)
 
     # initialize vectors and counters
     retObj = zeros(nRxns)
@@ -506,7 +506,7 @@ See also: `preFBA!()`, `splitRange()`, `buildCobraLP()`, `loopFBA()`, or `fetch(
 
 function distributedFBA(model, solver; nWorkers::Int=1, optPercentage::Union{Float64, Int64}=0.0, objective::String="max",
                         rxnsList=1:length(model.rxns), strategy::Int=0, rxnsOptMode=2 + zeros(Int, length(model.rxns)),
-                        preFBA::Bool=false, saveChunks::Bool=false, resultsDir::String="$(dirname(@__FILE__))/../results",
+                        preFBA::Bool=false, saveChunks::Bool=false, resultsDir::String="$(Pkg.dir("COBRA"))/../results",
                         logFiles::Bool=false, onlyFluxes::Bool=false)
 
     # convert type of optPercentage
