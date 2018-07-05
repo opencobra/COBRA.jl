@@ -6,7 +6,7 @@ before_install:
 script:
 
     # rename the cloned folder
-    - cd .. && mv linux COBRA && cd COBRA
+    - cd .. && mv $NODE_LABELS COBRA && cd COBRA
 
     # launch the tests
     - bash .artenolis/runtests.sh
