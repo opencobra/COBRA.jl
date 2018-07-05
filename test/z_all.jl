@@ -113,7 +113,7 @@ else
 end
 
 # load the test model
-modelTest = loadModel("$(Pkg.dir("COBRA"))/testData.mat", "S", "modelTest")
+modelTest = loadModel("$(Pkg.dir("COBRA"))/test/testData.mat", "S", "modelTest")
 @test modelTest.osense == -1
 @test modelTest.csense == fill('E', length(modelTest.b))
 
