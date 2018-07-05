@@ -41,9 +41,7 @@ script:
     # add the COBRA module
     - julia --color=yes -e 'Pkg.clone(pwd())'
     - julia --color=yes -e 'Pkg.build()'
-    - julia --color=yes -e 'Pkg.test("COBRA")' #,coverage=true)
+    - julia --color=yes -e 'Pkg.test("COBRA")'
 
 after_success:
-    #- echo $TRAVIS_JULIA_VERSION
-    # - julia -e 'Pkg.add("Coverage"); cd(Pkg.dir("COBRA")); using Coverage; Codecov.submit(process_folder()); Coveralls.submit(Coveralls.process_folder())'
     - julia -e 'Pkg.add("Documenter"); cd(Pkg.dir("COBRA")); include(joinpath("docs", "makeDoc.jl"))'
