@@ -12,4 +12,4 @@ script:
     - bash .artenolis/runtests.sh
 
 after_success:
-    - /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'cd(Pkg.dir("COBRA")); using Coverage; Codecov.submit_generic(process_folder(), commit=ENV["GIT_COMMIT"], branch=ENV["GIT_BRANCH"], job=ENV["JOB_NAME"], build=ENV["BUILD_ID"], build_url=ENV["BUILD_URL"], JENKINS_URL=ENV["JENKINS_URL"], service="jenkins", slug="opencobra/COBRA.jl");'
+    - /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'cd(Pkg.dir("COBRA")); using Coverage; Codecov.submit_generic(process_folder(), commit=ENV["GIT_COMMIT"], branch=ENV["GIT_BRANCH"], job=ENV["JOB_NAME"], build=ENV["BUILD_ID"], build_url=ENV["BUILD_URL"], JENKINS_URL=ENV["JENKINS_URL"], service="jenkins", slug="opencobra/COBRA.jl", verbose=false);'
