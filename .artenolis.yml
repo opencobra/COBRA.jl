@@ -5,6 +5,19 @@ before_install:
 
 script:
 
+    # set the environment variable CURRENT_DIR
+    - CURRENT_DIR=`pwd`
+
+    # update Coverage.jl until PRs merged
+    - cd ~/.julia/v0.6/Coverage
+    - git checkout jenkins-support
+    - git fetch origin
+    - git reset --hard origin/jenkins-support
+    - git merge hide-token --no-edit
+
+    # change to the current directory
+    - cd $CURRENT_DIR
+
     # rename the cloned folder
     - cd .. && mv $NODE_LABELS COBRA && cd COBRA
 
