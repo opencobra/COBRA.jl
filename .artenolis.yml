@@ -27,4 +27,4 @@ script:
     - bash .artenolis/runtests.sh
 
 after_success:
-    - /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e '@show lowercase(get(ENV, "JENKINS", "false")); @show ENV; cd(Pkg.dir("COBRA")); using Coverage; Codecov.submit_generic(process_folder(), verbose=true);'
+    - /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e '@show lowercase(get(ENV, "JENKINS", "false")); @show ENV; cd(Pkg.dir("COBRA")); using Coverage; Codecov.submit(process_folder(), verbose=true);'
