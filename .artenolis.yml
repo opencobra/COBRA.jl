@@ -5,8 +5,6 @@ before_install:
 
 script:
 
-    - printenv
-
     # set the environment variable CURRENT_DIR
     - CURRENT_DIR=`pwd`
 
@@ -27,4 +25,4 @@ script:
     - bash .artenolis/runtests.sh
 
 after_success:
-    - /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'cd(Pkg.dir("COBRA")); using Coverage; Codecov.submit(process_folder(), verbose=true);'
+    - /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'cd(Pkg.dir("COBRA")); using Coverage; Codecov.submit(process_folder(), verbose=false);'
