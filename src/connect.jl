@@ -44,7 +44,7 @@ See also: `workers()`, `nprocs()`, `addprocs()`, `gethostname()`
 
 """
 
-function createPool(localWorkers::Int, connectSSH::Bool=false, connectionFile::String="$(dirname(@__FILE__))/../config/sshCfg.jl")
+function createPool(localWorkers::Int, connectSSH::Bool=false, connectionFile::String="$(Pkg.dir("COBRA"))/config/sshCfg.jl")
 
     # load cores on remote nodes
     if connectSSH
@@ -100,18 +100,22 @@ function createPool(localWorkers::Int, connectSSH::Bool=false, connectionFile::S
                 try
                     if !is_windows()
                         # try logging in quietly to defined node using SSH
-                        run(`ssh -q $(sshWorkers[i]["flags"]) $(sshWorkers[i]["usernode"]) exit`)
+                        successConnect = success(`ssh -T -o BatchMode=yes -o ConnectTimeout=1 $(sshWorkers[i]["usernode"]) $(sshWorkers[i]["flags"])`)
 
                         # add threads when the SSH login is successful
-                        addprocs([(sshWorkers[i]["usernode"], sshWorkers[i]["procs"])], topology = :master_slave,
-                                 tunnel = true, dir = sshWorkers[i]["dir"], sshflags = sshWorkers[i]["flags"],
-                                 exeflags=`--depwarn=no`, exename = sshWorkers[i]["exename"])
+                        if successConnect
+                            addprocs([(sshWorkers[i]["usernode"], sshWorkers[i]["procs"])], topology = :master_slave,
+                                    tunnel = true, dir = sshWorkers[i]["dir"], sshflags = sshWorkers[i]["flags"],
+                                    exeflags=`--depwarn=no`, exename = sshWorkers[i]["exename"])
 
-                        # return a status update
-                        info("Connected ", sshWorkers[i]["procs"], " workers on ",  sshWorkers[i]["usernode"])
+                            # return a status update
+                            info("Connected ", sshWorkers[i]["procs"], " workers on ",  sshWorkers[i]["usernode"])
 
-                        # increase the counter of remote workers
-                        remoteWorkers += sshWorkers[i]["procs"]
+                            # increase the counter of remote workers
+                            remoteWorkers += sshWorkers[i]["procs"]
+                        else
+                            error("Connecting ", sshWorkers[i]["procs"], " workers on ",  sshWorkers[i]["usernode"], " via SSH failed.")
+                        end
                     else
                         error("Connecting computing nodes via SSH nodes is only supported on UNIX systems.\n")
                     end

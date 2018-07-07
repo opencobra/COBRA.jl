@@ -23,7 +23,7 @@ nWorkers = 4
 if includeCOBRA
     solverName = :GLPKMathProgInterface
     connectSSHWorkers = false
-    include("$(dirname(@__FILE__))/../src/connect.jl")
+    include("$(Pkg.dir("COBRA"))/src/connect.jl")
 
     # create a parallel pool and determine its size
     if isdefined(:nWorkers) && isdefined(:connectSSHWorkers)
@@ -40,13 +40,13 @@ end
 getTestModel()
 
 # include a common deck for running tests
-include("$(dirname(@__FILE__))/../config/solverCfg.jl")
+include("$(Pkg.dir("COBRA"))/config/solverCfg.jl")
 
 # change the COBRA solver
 solver = changeCobraSolver(solverName, solParams)
 
 # load an external mat file
-model = loadModel("$(dirname(@__FILE__))/ecoli_core_model.mat", "S", "model")
+model = loadModel("$(Pkg.dir("COBRA"))/test/ecoli_core_model.mat", "S", "model")
 
 # select the number of reactions
 rxnsList = 1:length(model.rxns)
@@ -318,21 +318,21 @@ minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = d
 printSolSummary(testFile, optSol, maxFlux, minFlux, solTime, nWorkers, solverName, strategy, saveChunks)
 
 # remove the results folder to clean up
-run(`rm -rf $(dirname(@__FILE__))/../results`)
+run(`rm -rf $(Pkg.dir("COBRA"))/results`)
 
 # create folders if they are not present
-if !isdir("$(dirname(@__FILE__))/../results")
-    mkdir("$(dirname(@__FILE__))/../results")
+if !isdir("$(Pkg.dir("COBRA"))/results")
+    mkdir("$(Pkg.dir("COBRA"))/results")
     print_with_color(:green, "Directory `results` created.\n\n")
 
     # create a folder for storing the chunks of the fluxes of each minimization
-    if !isdir("$(dirname(@__FILE__))/../results/fvamin")
-        mkdir("$(dirname(@__FILE__))/../results/fvamin")
+    if !isdir("$(Pkg.dir("COBRA"))/results/fvamin")
+        mkdir("$(Pkg.dir("COBRA"))/results/fvamin")
     end
 
     # create a folder for storing the chunks of the fluxes of each maximization
-    if !isdir("$(dirname(@__FILE__))/../results/fvamax")
-        mkdir("$(dirname(@__FILE__))/../results/fvamax")
+    if !isdir("$(Pkg.dir("COBRA"))/results/fvamax")
+        mkdir("$(Pkg.dir("COBRA"))/results/fvamax")
     end
 else
     print_with_color(:cyan, "Directory `results` already exists.\n\n")
@@ -369,10 +369,10 @@ saveDistributedFBA("testFile.mat", [""])
 run(`rm testFile.mat`)
 
 # remove the results folder to clean up
-run(`rm -rf $(dirname(@__FILE__))/../results`)
+run(`rm -rf $(Pkg.dir("COBRA"))/results`)
 
 # create the logs folder
-resultsDir = "$(dirname(@__FILE__))/../results"
+resultsDir = "$(Pkg.dir("COBRA"))/results"
 
 if isdir("$resultsDir/logs")
     rm("$resultsDir/logs")
@@ -386,7 +386,7 @@ minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = d
 @test isdir("$resultsDir/logs")
 
 # remove the results folder to clean up
-run(`rm -rf $(dirname(@__FILE__))/../results`)
+run(`rm -rf $(Pkg.dir("COBRA"))/results`)
 
 # call to create a log files directory (throws a warning message)
 minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers=nWorkers, saveChunks=true, onlyFluxes=true, rxnsList=1:10)
@@ -398,7 +398,7 @@ minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = d
 minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers=nWorkers, onlyFluxes=true, rxnsList=1:10, logFiles=true)
 
 # test if the /logs folder has been created
-@test isdir("$resultsDir/logs")
+@test isdir("$(Pkg.dir("COBRA"))/results/logs")
 
 # remove the results folder to clean up
-run(`rm -rf $(dirname(@__FILE__))/../results`)
+run(`rm -rf $(Pkg.dir("COBRA"))/results`)

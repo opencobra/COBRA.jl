@@ -1,0 +1,28 @@
+language: bash
+
+before_install:
+    - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
+
+script:
+
+    # set the environment variable CURRENT_DIR
+    - CURRENT_DIR=`pwd`
+
+    # update Coverage.jl until PRs merged from laurentheirendt/Coverage.jl
+    - cd ~/.julia/v0.6/Coverage
+    - git checkout jenkins-support
+    - git fetch origin
+    - git reset --hard origin/jenkins-support
+    - git merge hide-token --no-edit
+
+    # change to the current directory
+    - cd $CURRENT_DIR
+
+    # rename the cloned folder
+    - cd .. && mv $NODE_LABELS COBRA && cd COBRA
+
+    # launch the tests
+    - bash .artenolis/runtests.sh
+
+after_success:
+    - /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'cd(Pkg.dir("COBRA")); using Coverage; Codecov.submit(process_folder(), verbose=false);'
