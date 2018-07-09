@@ -5,8 +5,6 @@ before_install:
 
 script:
 
-    - printenv
-
     # set the environment variable CURRENT_DIR
     - CURRENT_DIR=`pwd`
 
@@ -36,4 +34,5 @@ after_success:
     - export TRAVIS_OS_NAME=$label
     - export TRAVIS_JULIA_VERSION=$JULIA_VER
 
+    # deploy documentation
     - /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'cd(Pkg.dir("COBRA")); include(joinpath("docs", "makeDoc.jl"))'
