@@ -40,5 +40,6 @@ deploydocs(repo = "github.com/opencobra/COBRA.jl.git",
            julia  = "v0.6.3",
            target = "build",
            make = nothing,
-           deps = nothing
+           deps = nothing,
+           latest = "ci"
           )
