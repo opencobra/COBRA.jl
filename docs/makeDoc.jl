@@ -37,7 +37,7 @@ makedocs(format = :html,
         )
 
 deploydocs(repo = "github.com/opencobra/COBRA.jl.git",
-           julia  = "0.5",
+           julia  = "v0.6.3",
            target = "build",
            make = nothing,
            deps = nothing
