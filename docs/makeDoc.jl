@@ -41,5 +41,5 @@ deploydocs(repo = "github.com/opencobra/COBRA.jl.git",
            target = "build",
            make = nothing,
            deps = nothing,
-           latest = "ci"
+           latest = get(ENV, "GIT_BRANCH", "")
           )

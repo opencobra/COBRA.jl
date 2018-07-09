@@ -32,7 +32,7 @@ after_success:
     # set environment variables for documentation deployment
     - export TRAVIS_BRANCH=$GIT_BRANCH
     - export TRAVIS_PULL_REQUEST=false
-    - export TRAVIS_REPO_SLUG=$GIT_URL
+    - var=$GIT_URL; export TRAVIS_REPO_SLUG=${var:7:${#var}}
     - export TRAVIS_OS_NAME=$label
     - export TRAVIS_JULIA_VERSION=$JULIA_VER
 
