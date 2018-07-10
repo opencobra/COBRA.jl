@@ -133,7 +133,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Beginner\'s Guide",
     "title": "How do I install a solver?",
     "category": "section",
-    "text": "Please make sure that you have ***at least one*** of the supported solvers installed on your system.In order to get you started, you may install the Clp solver using:julia> Pkg.add(\"Clp\")This might take a while, as the Clp solver is downloaded to your system and then installed."
+    "text": "Please make sure that you have at least one of the supported solvers installed on your system.In order to get you started, you may install the Clp solver using:julia> Pkg.add(\"Clp\")This might take a while, as the Clp solver is downloaded to your system and then installed."
 },
 
 {
@@ -565,7 +565,7 @@ var documenterSearchIndex = {"docs": [
     "page": "FAQ",
     "title": "My machine is a Windows machine, and everything is so slow. What can I do?",
     "category": "section",
-    "text": "Some Windows users may have to wait a while when installing Julia. The performance of COBRA.jl is unaffected by this relatively long load time. However, you may try these avenues of fixing this:Try setting the git parameters correctly (using git bash that you can download from here):$ git config --global core.preloadindex true\n$ git config --global core.fscache true\n$ git config --global gc.auto 256Make sure that you set the following environment variables correctly:$ set JULIA_PKGDIR=C:\\Users\\<yourUsername>\\.julia\\v0.5\n$ set HOME=C:\\Users\\<yourUsername>\\AppData\\Local\\Julia-0.5.0Make sure that the .julia folder is not located on a network. This slows the processes in Julia down dramatically."
+    "text": "Some Windows users may have to wait a while when installing Julia. The performance of COBRA.jl is unaffected by this relatively long load time. However, you may try these avenues of fixing this:Try setting the git parameters correctly (using git bash that you can download from here):$ git config --global core.preloadindex true\n$ git config --global core.fscache true\n$ git config --global gc.auto 256Make sure that you set the following environment variables correctly:$ set JULIA_PKGDIR=C:\\Users\\<yourUsername>\\.julia\\vx.y.z\n$ set HOME=C:\\Users\\<yourUsername>\\AppData\\Local\\Julia-x.y.zMake sure that the .julia folder is not located on a network. This slows the processes in Julia down dramatically."
 },
 
 {
