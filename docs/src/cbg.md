@@ -9,7 +9,7 @@ How do I get Julia?
 -------------------
 
 You may download Julia as explained [here](http://julialang.org/downloads/). Please read through the
-[Julia documentation](http://docs.julialang.org/en/release-0.5/) if this is your first time trying out Julia.
+[Julia documentation](http://docs.julialang.org/) if this is your first time trying out Julia.
 
 How do I use Julia?
 -------------------
@@ -41,7 +41,7 @@ You may also find the [FAQ section](faq.html) of this documentation interesting,
 How do I install a solver?
 --------------------------
 
-Please make sure that you have ***at least one*** of the supported solvers installed on your system.
+Please make sure that you have **at least one** of the supported solvers installed on your system.
 
 In order to get you started, you may install the `Clp` solver using:
 ```Julia
