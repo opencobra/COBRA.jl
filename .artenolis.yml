@@ -5,6 +5,8 @@ before_install:
 
 script:
 
+    - printenv
+
     # set the environment variable CURRENT_DIR
     - CURRENT_DIR=`pwd`
 
