@@ -13,7 +13,7 @@ script:
     - git checkout jenkins-support
     - git fetch origin
     - git reset --hard origin/jenkins-support
-    - git merge hide-token --no-edit
+    - git merge hide-token-2 --no-edit
 
     # change to the current directory
     - cd $CURRENT_DIR
