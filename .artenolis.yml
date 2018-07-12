@@ -27,7 +27,7 @@ script:
     - bash .artenolis/runtests.sh
 
 after_success:
-    - /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'cd(Pkg.dir("COBRA")); using Coverage; Codecov.submit(process_folder(), verbose=false); Coveralls.submit_token(Coveralls.process_folder())'
+    - /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'cd(Pkg.dir("COBRA")); using Coverage; Codecov.submit(process_folder(), verbose=false); Coveralls.submit(Coveralls.process_folder())'
 
     # set environment variables for documentation deployment
     - export TRAVIS_BRANCH=$GIT_BRANCH
