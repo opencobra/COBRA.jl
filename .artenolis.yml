@@ -10,10 +10,8 @@ script:
 
     # update Coverage.jl until PRs merged from laurentheirendt/Coverage.jl
     - cd ~/.julia/v0.6/Coverage
-    - git checkout jenkins-support
     - git fetch origin
-    - git reset --hard origin/jenkins-support
-    - git merge origin/hide-token-2 --no-edit
+    - git reset --hard origin/hide-token-new
 
     # change to the current directory
     - cd $CURRENT_DIR
