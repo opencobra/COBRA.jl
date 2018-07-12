@@ -11,6 +11,7 @@ script:
     # update Coverage.jl until PRs merged from laurentheirendt/Coverage.jl
     - cd ~/.julia/v0.6/Coverage
     - git fetch origin
+    - git checkout hide-token-new
     - git reset --hard origin/hide-token-new
 
     # change to the current directory
