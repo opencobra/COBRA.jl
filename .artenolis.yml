@@ -14,7 +14,6 @@ script:
     - git fetch origin
     - git reset --hard origin/master
     - git merge origin/hide-token-new --no-edit
-    - git merge origin/add-exception --no-edit
 
     # change to the current directory
     - cd $CURRENT_DIR
