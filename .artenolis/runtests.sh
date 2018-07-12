@@ -4,7 +4,7 @@ echo "JULIA_VER = $JULIA_VER"
 
 # launch the test script
 if [ "$ARCH" == "Linux" ]; then
-    if [ "$JULIA_VER" == "v0.6.3" ]; then
+    if [ "$JULIA_VER" == "v0.6.4" ]; then
 
         # remove th julia directory to clean the installation directory
         rm -rf ~/.julia/v0.6/COBRA
