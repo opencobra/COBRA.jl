@@ -26,7 +26,7 @@ elif [ "$ARCH" == "windows" ]; then
     rm -rf ~/.julia/v0.6/COBRA
 
     unset Path
-    nohup "D:\\JULIA\\$JULIA_VER\\\bin\\julia.exe" --color=yes -e 'Pkg.clone(pwd()); cd(Pkg.dir("COBRA")); Pkg.test(pwd(), coverage=true);' > output.log & PID=$!
+    nohup "D:\\JULIA\\$JULIA_VER\\\bin\\julia.exe" --color=yes -e 'Pkg.clone(pwd()); cd(Pkg.dir("COBRA")); Pkg.test(pwd());' > output.log & PID=$!
 
     # follow the log file
     tail -n0 -F --pid=$! output.log 2>/dev/null
