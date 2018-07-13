@@ -20,7 +20,7 @@ if [ "$ARCH" == "Linux" ]; then
 elif [ "$ARCH" == "windows" ]; then
     # change to the build directory
     echo " -- changing to the build directory --"
-    cd "D:\\jenkins\\workspace\\$CI_PROJECT_NAME\\JULIA_VER\\$JULIA_VER\\\\MATLAB_VER\\$MATLAB_VER\\label\\$ARCHVERSION"
+    cd "D:\\jenkins\\workspace\\$CI_PROJECT_NAME\\JULIA_VER\\$JULIA_VER\\\\MATLAB_VER\\$MATLAB_VER\\label\\COBRA"
 
     # remove th julia directory to clean the installation directory
     rm -rf ~/.julia/v0.6/COBRA
