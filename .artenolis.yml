@@ -9,11 +9,11 @@ script:
     - CURRENT_DIR=`pwd`
 
     # update Coverage.jl until PRs merged from laurentheirendt/Coverage.jl
-    - cd ~/.julia/v0.6/Coverage
-    - git checkout master
-    - git fetch origin
-    - git reset --hard origin/master
-    - git merge origin/hide-token-new --no-edit
+    - if [ "$ARCH" == "Linux" ]; then cd ~/.julia/v0.6/Coverage; fi
+    - if [ "$ARCH" == "Linux" ]; then git checkout master; fi
+    - if [ "$ARCH" == "Linux" ]; then git fetch origin; fi
+    - if [ "$ARCH" == "Linux" ]; then git reset --hard origin/master; fi
+    - if [ "$ARCH" == "Linux" ]; then git merge origin/hide-token-new --no-edit; fi
 
     # change to the current directory
     - cd $CURRENT_DIR
