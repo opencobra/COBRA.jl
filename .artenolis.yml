@@ -19,8 +19,11 @@ script:
     - cd $CURRENT_DIR
 
     # rename the cloned folder
-    - if [ "$ARCH" == "Linux" ]; then cd .. && mv $NODE_LABELS COBRA && cd COBRA; fi
-    - if [ "$ARCH" == "windows" ]; then cd .. && cp -r $NODE_LABELS COBRA && cd COBRA; fi
+    - if [ "$ARCH" == "windows" ]; then
+        cd .. && cp -r $NODE_LABELS COBRA && cd COBRA;
+      else
+        cd .. && mv $NODE_LABELS COBRA && cd COBRA;
+      fi
 
     # launch the tests
     - bash .artenolis/runtests.sh

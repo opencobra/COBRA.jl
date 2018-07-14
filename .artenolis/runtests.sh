@@ -16,6 +16,10 @@ if [ "$ARCH" == "Linux" ]; then
         /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'using Pkg; Pkg.clone(pwd())'
     fi
 
+elif [ "$ARCH" == "macOS" ]; then
+    caffeinate -u &
+    /Applications/Julia-$JULIA_VER.app/Contents/Resources/julia/bin/julia --color=yes -e 'Pkg.clone(pwd()); cd(Pkg.dir("COBRA")); Pkg.test(pwd());'
+
 elif [ "$ARCH" == "windows" ]; then
     if [ "$JULIA_VER" == "v0.6.4" ]; then
         # remove th julia directory to clean the installation directory
