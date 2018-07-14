@@ -17,6 +17,9 @@ if [ "$ARCH" == "Linux" ]; then
     fi
 
 elif [ "$ARCH" == "macOS" ]; then
+    # remove th julia directory to clean the installation directory
+    rm -rf ~/.julia/v0.6/COBRA
+
     caffeinate -u &
     /Applications/Julia-$JULIA_VER.app/Contents/Resources/julia/bin/julia --color=yes -e 'Pkg.clone(pwd()); cd(Pkg.dir("COBRA")); Pkg.test(pwd());'
 
