@@ -14,9 +14,7 @@ script:
     # rename the cloned folder
     - if [ "$ARCH" == "windows" ]; then
         cd .. && cp -r $NODE_LABELS COBRA && cd COBRA;
-      elif [ "$ARCH" == "Linux" ]; then
-        cd .. && mv $NODE_LABELS COBRA && cd COBRA;
-      elif [ "$ARCH" == "macOS" ]; then
+      else
         cd .. && mv $NODE_LABELS COBRA && cd COBRA;
       fi
 
