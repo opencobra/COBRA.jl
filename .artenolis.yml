@@ -17,7 +17,7 @@ script:
       elif [ "$ARCH" == "Linux" ]; then
         cd .. && mv $NODE_LABELS COBRA && cd COBRA;
       elif [ "$ARCH" == "macOS" ]; then
-        cd .. && rm-rf COBRA && mv $NODE_LABELS COBRA && cd COBRA;
+        cd .. && mv $NODE_LABELS COBRA && cd COBRA;
       fi
 
     # launch the tests
