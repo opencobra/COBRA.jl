@@ -7,7 +7,7 @@
 
 #-------------------------------------------------------------------------------------------
 
-VERSION >= v"0.5"
+true
 
 """
 Main module for `COBRA.jl` - COnstraint-Based Reconstruction and Analysis in Julia
