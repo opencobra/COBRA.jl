@@ -11,6 +11,9 @@ script:
     # change to the current directory
     - cd $CURRENT_DIR
 
+    # add MATLAB to the path
+    - export PATH="/mnt/prince-data/MATLAB/$MATLAB_VER/bin:$PATH"
+
     # rename the cloned folder
     - if [ "$ARCH" == "windows" ]; then
         cd .. && cp -r $NODE_LABELS COBRA && cd COBRA;
