@@ -19,6 +19,7 @@ if includeCOBRA
     include("../src/connect.jl")
     include("../src/checkSetup.jl")
     include("../src/tools.jl")
+    include("../src/PALM.jl")
 end
 
 makedocs(format = :html,
