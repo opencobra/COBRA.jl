@@ -21,6 +21,7 @@ module COBRA
     # include the load file to load a model of .mat format
     using MAT
     using MathProgBase
+    using MATLAB
 
     include("checkSetup.jl")
     checkSysConfig(0)
