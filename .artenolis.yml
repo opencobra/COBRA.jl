@@ -15,11 +15,7 @@ script:
     - export PATH="/mnt/prince-data/MATLAB/$MATLAB_VER/bin:$PATH"
 
     # rename the cloned folder
-    - if [ "$ARCH" == "windows" ]; then
-        cd .. && cp -r $NODE_LABELS COBRA && cd COBRA;
-      else
-        cd .. && mv $NODE_LABELS COBRA && cd COBRA;
-      fi
+    - cd .. && cp -r $NODE_LABELS COBRA && cd COBRA;
 
     # launch the tests
     - bash .artenolis/runtests.sh
