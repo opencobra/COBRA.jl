@@ -166,10 +166,10 @@ function loopModels(dir, p, scriptName, dirContent, startIndex, endIndex, varsCh
             # save the modelName
             data[k, 1] = PALM_modelFile
 
-            @mput PALM_iModel
-            @mput PALM_modelFile
-            @mput PALM_dir
-            eval(parse("mat\"run('$scriptName')\""))
+            MATLAB.@mput PALM_iModel
+            MATLAB.@mput PALM_modelFile
+            MATLAB.@mput PALM_dir
+            eval(parse("MATLAB.mat\"run('$scriptName')\""))
 
             for i = 1:nCharacteristics
                 data[k, i + 1] = MATLAB.get_variable(Symbol(varsCharact[i]))

@@ -31,7 +31,6 @@ module COBRA
     include("distributedFBA.jl")
     include("tools.jl")
     include("PALM.jl")
-
 end
 
 #-------------------------------------------------------------------------------------------
