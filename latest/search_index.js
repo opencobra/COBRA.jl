@@ -449,6 +449,38 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "functions.html#shareLoad",
+    "page": "Modules and Functions",
+    "title": "shareLoad",
+    "category": "function",
+    "text": "shareLoad(nModels, nMatlab, verbose)\n\nFunction shares the number of nModels across nMatlab sessions (Euclidian division)\n\nINPUTS\n\nnModels:        Number of models to be run\n\nOPTIONAL INPUTS\n\nnMatlab:        Number of desired MATLAB sessions (default: 2)\nverbose:        Verbose mode, set false for quiet load sharing (default: true)\n\nOUTPUTS\n\nnWorkers:       Number of effective workers in the parallel pool; corresponds to nMatlab if nMatlab < nModels and to nModels otherwise\nquotientModels:  Rounded number of models to be run by all MATLAB sessions apart from the last one\nremainderModels:     Number of remaining models to be run by the last MATLAB session\n\nEXAMPLES\n\nMinimum working example\n\njulia> shareLoad(nModels)\n\nDetermination of the load of 4 models in 2 MATLAB sessions\n\njulia> shareLoad(4, 2, false)\n\nSee also: createPool(), launchPALM(), and PALM\n\n\n\n"
+},
+
+{
+    "location": "functions.html#loopModels",
+    "page": "Modules and Functions",
+    "title": "loopModels",
+    "category": "function",
+    "text": "loopModels(dir, p, scriptName, dirContent, startIndex, endIndex, varsCharact)\n\nFunction loopModels is generally called in a loop from PALM() on worker p. Runs scriptName for all models with an index in dirContent between startIndex and endIndex. Retrieves all variables defined in varsCharact. The number of models on worker p is computed as nModels = endIndex - startIndex + 1.\n\nINPUTS\n\ndir:            Directory that contains the models (model file format: .mat)\np:              Process or worker number\nscriptName:     Name of MATLAB script to be run (without extension .m)\ndirContent:     Array with file names (commonly read from a directory)\nstartIndex:     Index of the first model in dirContent to be used on worker p\nendIndex:       Index of the last model in dirContent to be used on worker p\nvarsCharact:    Array with the names of variables to be retrieved from the MATLAB session on worker p\n\nOUTPUTS\n\ndata:           Mixed array of variables retrieved from worker p (rows: models, columns: variables).                   First column corresponds to the model name, and first row corresponds to varsCharact.\n\nEXAMPLES\n\nMinimum working example\n\njulia> loopModels(dir, p, scriptName, dirContent, startIndex, endIndex, varsCharact)\n\nSee also: PALM()\n\n\n\n"
+},
+
+{
+    "location": "functions.html#PALM",
+    "page": "Modules and Functions",
+    "title": "PALM",
+    "category": "function",
+    "text": "PALM(dir, scriptName, nMatlab, outputFile, cobraToolboxDir)\n\nFunction reads the directory dir, and launches nMatlab sessions to run scriptName. Results are saved in the outputFile.\n\nINPUTS\n\ndir:             Directory that contains the models (model file format: .mat)\nscriptName:      Name of MATLAB script to be run (without extension .m)\n\nOPTIONAL INPUTS\n\nnMatlab:         Number of desired MATLAB sessions (default: 2)\noutputFile:      Name of .mat file to save the result table named \"summaryData\" (default name: \"PALM_data.mat\")\ncobraToolboxDir: Directory of the COBRA Toolbox (default: \"~/cobratoolbox\")\n\nOUTPUTS\n\nFile with the name specified in outputFile.\n\nEXAMPLES\n\nMinimum working example\n\njulia> PALM(\"~/models\", \"characteristics\")\n\nRunning PALM on 12 MATLAB sessions\n\njulia> PALM(\"~/models\", \"characteristics\", 12, \"characteristicsResults.mat\")\n\nSee also: loopModels() and shareLoad()\n\n\n\n"
+},
+
+{
+    "location": "functions.html#PALM.jl-1",
+    "page": "Modules and Functions",
+    "title": "PALM.jl",
+    "category": "section",
+    "text": "shareLoad\nloopModels\nPALM"
+},
+
+{
     "location": "functions.html#SolverConfig",
     "page": "Modules and Functions",
     "title": "SolverConfig",
