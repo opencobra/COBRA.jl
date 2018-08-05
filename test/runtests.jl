@@ -45,11 +45,15 @@ if matlabPresent
     # check the default value
     nWorkers, quotientModels, remainderModels = COBRA.shareLoad(2)
 
-    @test nWorkers === 1
-    @test quotientModels == 2
-    @test remainderModels == 0
+    @test nWorkers === 4  # Note: this not the default, it is the number of available workers
+    @test quotientModels == 1
+    @test remainderModels == -1
 
-    #COBRA.shareLoad(2, 2, false)
+    nWorkers, quotientModels, remainderModels = COBRA.shareLoad(4)
+
+    @test nWorkers === 4  # Note: this not the default, it is the number of available workers
+    @test quotientModels == 1
+    @test remainderModels == 0
 
     #PALM(dir, scriptName, nWorkers, outputFile, varsCharact, cobraToolboxDir)
 else
