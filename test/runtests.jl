@@ -58,6 +58,7 @@ if matlabPresent
     #@test remainderModels == 0
 
     # prepare a directory with 2 models
+    rm(joinpath(TESTDIR, "testModels"), force=true, recursive=true)
     cd(TESTDIR)
     mkdir("testModels")
     cp("ecoli_core_model.mat", "testModels/ecoli_core_model_1.mat")
