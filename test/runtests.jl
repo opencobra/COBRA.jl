@@ -39,6 +39,11 @@ end
 
 if matlabPresent
     info("MATLAB is present. The tests for PALM.jl will be run.")
+
+    # use the MATLAB module on every worker
+    @everywhere using MAT
+    @everywhere using MATLAB
+    #PALM(dir, scriptName, nWorkers, outputFile, varsCharact, cobraToolboxDir)
 else
     warn("MATLAB is not present. The tests for PALM.jl will not be run.")
 end
