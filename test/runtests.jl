@@ -67,6 +67,11 @@ if matlabPresent
     @test quotientModels == 1
     @test remainderModels == 0
 
+    # create a parallel pool and determine its size
+    if (@isdefined nWorkers) && (@isdefined connectSSHWorkers)
+        workersPool, nWorkers = createPool(4, connectSSHWorkers)
+    end
+
     #PALM(dir, scriptName, nWorkers, outputFile, varsCharact, cobraToolboxDir)
 else
     warn("The MATLAB package is not present. The tests for PALM.jl will not be run.")
