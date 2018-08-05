@@ -255,7 +255,7 @@ function PALM(dir, scriptName, nMatlab::Int=2, outputFile::AbstractString="PALM_
         @spawnat (p + 1) begin
             # clone a copy to a tmp folder as the cobtratoolbox is updated at runtime
             if !isdir("/tmp/test-ct-$p")
-                run(`git clone $(ENV["HOME"])/cobratoolbox /tmp/test-ct-$p`)
+                run(`git clone $cobraToolboxDir /tmp/test-ct-$p`)
             end
         end
     end

@@ -1,5 +1,3 @@
-initCobraToolbox(0)
-
 % define the filename of the model
 modelFile = PALM_modelFile;
 
