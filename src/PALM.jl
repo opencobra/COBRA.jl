@@ -13,18 +13,18 @@ Function shares the number of `nModels` across `nMatlab` sessions (Euclidian div
 
 # INPUTS
 
-- `nModels`:        Number of models to be run
+- `nModels`:         Number of models to be run
 
 # OPTIONAL INPUTS
 
-- `nMatlab`:        Number of desired MATLAB sessions (default: 2)
-- `verbose`:        Verbose mode, set `false` for quiet load sharing (default: true)
+- `nMatlab`:         Number of desired MATLAB sessions (default: 2)
+- `verbose`:         Verbose mode, set `false` for quiet load sharing (default: true)
 
 # OUTPUTS
 
-- `nWorkers`:       Number of effective workers in the parallel pool; corresponds to `nMatlab` if `nMatlab` < `nModels` and to `nModels` otherwise
+- `nWorkers`:        Number of effective workers in the parallel pool; corresponds to `nMatlab` if `nMatlab` < `nModels` and to `nModels` otherwise
 - `quotientModels`:  Rounded number of models to be run by all MATLAB sessions apart from the last one
-- `remainderModels`:     Number of remaining models to be run by the last MATLAB session
+- `remainderModels`: Number of remaining models to be run by the last MATLAB session
 
 # EXAMPLES
 
