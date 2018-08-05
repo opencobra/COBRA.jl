@@ -45,7 +45,7 @@ if matlabPresent
     @test quotientModels == 1
     @test remainderModels == -1
 
-    #=
+
     # check the default value
     nWorkers, quotientModels, remainderModels = COBRA.shareLoad(2, 4, true)
 
@@ -55,7 +55,7 @@ if matlabPresent
 
     # reset the number of workers
     workersPool, nWorkers = createPool(3, connectSSHWorkers)
-    =#
+
 
     nWorkers, quotientModels, remainderModels = COBRA.shareLoad(4)
 
