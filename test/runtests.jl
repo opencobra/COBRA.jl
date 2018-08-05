@@ -31,6 +31,18 @@ using Requests
 include("getTestModel.jl")
 getTestModel()
 
+# tests for PALM.jl
+matlabPresent = false;
+if sizeof(Pkg.installed("MATLAB")) > 0
+    matlabPresent = true;
+end
+
+if matlabPresent
+    info("MATLAB is present. The tests for PALM.jl will be run.")
+else
+    warn("MATLAB is not present. The tests for PALM.jl will not be run.")
+end
+
 # list all currently supported solvers
 supportedSolvers = [:Clp, :GLPKMathProgInterface, :CPLEX, :Gurobi, :Mosek]
 
