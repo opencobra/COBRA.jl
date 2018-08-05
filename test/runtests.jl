@@ -27,25 +27,35 @@ using COBRA
 using Base.Test
 using Requests
 
+# check if MATLAB package is present
+matlabPresent = false;
+if sizeof(Pkg.installed("MATLAB")) > 0
+    matlabPresent = true;
+    using MAT
+    using MATLAB
+end
+
 # download the ecoli_core_model
 include("getTestModel.jl")
 getTestModel()
 
-# tests for PALM.jl
-matlabPresent = false;
-if sizeof(Pkg.installed("MATLAB")) > 0
-    matlabPresent = true;
-end
-
 if matlabPresent
-    info("MATLAB is present. The tests for PALM.jl will be run.")
+    info("The MATLAB package is present. The tests for PALM.jl will be run.")
 
-    # use the MATLAB module on every worker
-    @everywhere using MAT
-    @everywhere using MATLAB
+    # check the default value
+    loadVector = shareLoad(2)
+
+    nWorkers, quotientModels, remainderModels = shareLoad(2)
+
+    @test nWorkers === 1
+    @test quotientModels == 2
+    @test remainderModels == 0
+
+    #COBRA.shareLoad(2, 2, false)
+
     #PALM(dir, scriptName, nWorkers, outputFile, varsCharact, cobraToolboxDir)
 else
-    warn("MATLAB is not present. The tests for PALM.jl will not be run.")
+    warn("The MATLAB package is not present. The tests for PALM.jl will not be run.")
 end
 
 # list all currently supported solvers
