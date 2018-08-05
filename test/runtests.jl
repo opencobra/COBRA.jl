@@ -45,6 +45,7 @@ if matlabPresent
     @test quotientModels == 1
     @test remainderModels == -1
 
+    #=
     # check the default value
     nWorkers, quotientModels, remainderModels = COBRA.shareLoad(2, 4, true)
 
@@ -61,16 +62,17 @@ if matlabPresent
     @test quotientModels == 1
     @test remainderModels == 0
 
-    #nWorkers, quotientModels, remainderModels = COBRA.shareLoad(4, 8)
+    nWorkers, quotientModels, remainderModels = COBRA.shareLoad(4, 8)
 
-    #@test nWorkers === 4  # Note: this not the default, it is the number of available workers
-    #@test remainderModels == 0
-    ##@test quotientModels == 1
+    @test nWorkers === 4  # Note: this not the default, it is the number of available workers
+    @test remainderModels == 0
+    @test quotientModels == 1
 
     # create a parallel pool and determine its size
-    #if (@isdefined nWorkers) && (@isdefined connectSSHWorkers)
-    #    workersPool, nWorkers = createPool(4, connectSSHWorkers)
-    #end
+    if (@isdefined nWorkers) && (@isdefined connectSSHWorkers)
+        workersPool, nWorkers = createPool(4, connectSSHWorkers)
+    end
+    =#
 
     #PALM(dir, scriptName, nWorkers, outputFile, varsCharact, cobraToolboxDir)
 else
