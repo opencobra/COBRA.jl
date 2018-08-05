@@ -15,7 +15,7 @@ script:
     - if [ "$ARCH" == "Linux" ]; then
          export PATH="/mnt/prince-data/MATLAB/$MATLAB_VER/bin:$PATH";
       elif [ "$ARCH" == "windows" ]; then
-         setx MATLAB_HOME "D:\MATLAB\$MATLAB_VER\";
+         setx MATLAB_HOME "D:\\MATLAB\\$MATLAB_VER\\";
       fi
 
     # rename the cloned folder
