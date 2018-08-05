@@ -38,43 +38,19 @@ end
 if matlabPresent
     info("The MATLAB package is present. The tests for PALM.jl will be run.")
 
-    # check the default value
+    # load sharing that is not fair
     nWorkers, quotientModels, remainderModels = COBRA.shareLoad(2)
 
     @test nWorkers === 4  # Note: this not the default, it is the number of available workers
     @test quotientModels == 1
     @test remainderModels == -1
 
-
-    # check the default value
-    nWorkers, quotientModels, remainderModels = COBRA.shareLoad(2, 4, true)
-
-    @test nWorkers === 1  # Note: this not the default, it is the number of available workers
-    @test quotientModels == 2
-    @test remainderModels == 0
-
-    # reset the number of workers
-    workersPool, nWorkers = createPool(3, connectSSHWorkers)
-
-
+    # ideal load sharing
     nWorkers, quotientModels, remainderModels = COBRA.shareLoad(4)
 
     @test nWorkers === 4  # Note: this not the default, it is the number of available workers
     @test quotientModels == 1
     @test remainderModels == 0
-
-    #=
-    nWorkers, quotientModels, remainderModels = COBRA.shareLoad(4, 8)
-
-    @test nWorkers === 4  # Note: this not the default, it is the number of available workers
-    @test remainderModels == 0
-    @test quotientModels == 1
-
-    # create a parallel pool and determine its size
-    if (@isdefined nWorkers) && (@isdefined connectSSHWorkers)
-        workersPool, nWorkers = createPool(4, connectSSHWorkers)
-    end
-    =#
 
     #PALM(dir, scriptName, nWorkers, outputFile, varsCharact, cobraToolboxDir)
 else
@@ -102,7 +78,7 @@ for s = 1:length(packages)
     solverName = string(packages[s])
 
     # read out the directory with the test files
-    testDir = readdir(".")
+    testDir = readdir("$(Pkg.dir("COBRA"))/test")
 
     # print the solver name
     print_with_color(:green, "\n\n -- Running $(length(testDir) - 2) tests using the $solverName solver. -- \n\n")
