@@ -8,9 +8,6 @@ script:
     # set the environment variable CURRENT_DIR
     - CURRENT_DIR=`pwd`
 
-    # change to the current directory
-    - cd $CURRENT_DIR
-
     # add MATLAB to the path
     - if [ "$ARCH" == "Linux" ]; then
          export PATH="/mnt/prince-data/MATLAB/$MATLAB_VER/bin:$PATH";
@@ -20,6 +17,9 @@ script:
     - git clone git@github.com:opencobra/cobratoolbox.git /tmp/cobratoolbox-cobrajl --depth=1
     - cd /tmp/cobratoolbox-cobrajl
     - git submodule update --init --remote --no-fetch --depth=1
+
+    # change to the current directory
+    - cd $CURRENT_DIR
 
     # rename the cloned folder
     - cd .. && cp -r $NODE_LABELS COBRA && cd COBRA;
