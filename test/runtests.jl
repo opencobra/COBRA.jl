@@ -13,9 +13,10 @@ packages = checkSysConfig()
 
 # configure for runnint the tests in batch
 solverName = :GLPKMathProgInterface #:CPLEX
-nWorkers = 4
+nWorkers = 2
 connectSSHWorkers = false
 include("$(Pkg.dir("COBRA"))/src/connect.jl")
+TESTDIR = "$(Pkg.dir("COBRA"))/test"
 
 # create a parallel pool and determine its size
 if (@isdefined nWorkers) && (@isdefined connectSSHWorkers)
@@ -35,31 +36,47 @@ if sizeof(Pkg.installed("MATLAB")) > 0
     using MATLAB
 end
 
+# download the ecoli_core_model
+include("getTestModel.jl")
+getTestModel()
+
 if matlabPresent
     info("The MATLAB package is present. The tests for PALM.jl will be run.")
 
     # load sharing that is not fair
     nWorkers, quotientModels, remainderModels = COBRA.shareLoad(2)
 
-    @test nWorkers === 4  # Note: this not the default, it is the number of available workers
-    @test quotientModels == 1
-    @test remainderModels == -1
-
-    # ideal load sharing
-    nWorkers, quotientModels, remainderModels = COBRA.shareLoad(4)
-
-    @test nWorkers === 4  # Note: this not the default, it is the number of available workers
+    @test nWorkers === 2  # Note: this not the default, it is the number of available workers
     @test quotientModels == 1
     @test remainderModels == 0
 
-    #PALM(dir, scriptName, nWorkers, outputFile, varsCharact, cobraToolboxDir)
+    # ideal load sharing
+    #nWorkers, quotientModels, remainderModels = COBRA.shareLoad(4)
+
+    #@test nWorkers === 2  # Note: this not the default, it is the number of available workers
+    #@test quotientModels == 1
+    #@test remainderModels == 0
+
+    # prepare a directory with 2 models
+    cd(TESTDIR)
+    mkdir("testModels")
+    cp("ecoli_core_model.mat", "testModels/ecoli_core_model_1.mat")
+    cp("ecoli_core_model.mat", "testModels/ecoli_core_model_2.mat")
+
+    varsCharact = ["nMets",
+    "nRxns",
+    "nElem",
+    "nNz"]
+
+    # launch PALM with the scriptFile on the 2 models
+    PALM(joinpath(TESTDIR, "testModels"), "scriptFile", 2, "modelCharacteristics.mat", varsCharact, "/tmp/cobratoolbox-cobrajl")
+
+    # remove the directory with the test models
+    rm(joinpath(TESTDIR, "testModels"), force=true, recursive=true)
 else
     warn("The MATLAB package is not present. The tests for PALM.jl will not be run.")
 end
 
-# download the ecoli_core_model
-include("getTestModel.jl")
-getTestModel()
 
 # list all currently supported solvers
 supportedSolvers = [:Clp, :GLPKMathProgInterface, :CPLEX, :Gurobi, :Mosek]
@@ -78,7 +95,7 @@ for s = 1:length(packages)
     solverName = string(packages[s])
 
     # read out the directory with the test files
-    testDir = readdir("$(Pkg.dir("COBRA"))/test")
+    testDir = readdir(TESTDIR)
 
     # print the solver name
     print_with_color(:green, "\n\n -- Running $(length(testDir) - 2) tests using the $solverName solver. -- \n\n")

@@ -38,7 +38,7 @@ julia> shareLoad(nModels)
 julia> shareLoad(4, 2, false)
 ```
 
-See also: `createPool()`, `launchPALM()`, and `PALM`
+See also: `createPool()` and `PALM`
 
 """
 
