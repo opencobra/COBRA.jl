@@ -43,9 +43,7 @@ if matlabPresent
     info("The MATLAB package is present. The tests for PALM.jl will be run.")
 
     # check the default value
-    loadVector = shareLoad(2)
-
-    nWorkers, quotientModels, remainderModels = shareLoad(2)
+    nWorkers, quotientModels, remainderModels = COBRA.shareLoad(2)
 
     @test nWorkers === 1
     @test quotientModels == 2

@@ -335,3 +335,5 @@ function PALM(dir, scriptName, nMatlab::Int=2, outputFile::AbstractString="PALM_
 
     return summaryData, R, indicesWorkers
 end
+
+export PALM
