@@ -12,7 +12,11 @@ script:
     - cd $CURRENT_DIR
 
     # add MATLAB to the path
-    - export PATH="/mnt/prince-data/MATLAB/$MATLAB_VER/bin:$PATH"
+    - if [ "$ARCH" == "Linux" ]; then
+         export PATH="/mnt/prince-data/MATLAB/$MATLAB_VER/bin:$PATH";
+      elif [ "$ARCH" == "windows" ]; then
+         setx MATLAB_HOME "D:\MATLAB\$MATLAB_VER";
+      fi
 
     # rename the cloned folder
     - cd .. && cp -r $NODE_LABELS COBRA && cd COBRA;
@@ -24,11 +28,13 @@ after_success:
     - if [ "$ARCH" == "Linux" ]; then /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'cd(Pkg.dir("COBRA")); using Coverage; tmp=process_folder(); Codecov.submit(tmp, verbose=false); Coveralls.submit(tmp);'; fi
 
     # set environment variables for documentation deployment
-    - export TRAVIS_BRANCH=$GIT_BRANCH
-    - export TRAVIS_PULL_REQUEST=false
-    - var=$GIT_URL; export TRAVIS_REPO_SLUG=${var:7:${#var}}
-    - export TRAVIS_OS_NAME=$label
-    - export TRAVIS_JULIA_VERSION=$JULIA_VER
+    - if [ "$ARCH" == "Linux" ]; then
+        export TRAVIS_BRANCH=$GIT_BRANCH;
+        export TRAVIS_PULL_REQUEST=false;
+        var=$GIT_URL; export TRAVIS_REPO_SLUG=${var:7:${#var}};
+        export TRAVIS_OS_NAME=$label;
+        export TRAVIS_JULIA_VERSION=$JULIA_VER;
+      fi
 
     # deploy documentation
     - if [ "$ARCH" == "Linux" ]; then /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'cd(Pkg.dir("COBRA")); include(joinpath("docs", "makeDoc.jl"))'; fi
