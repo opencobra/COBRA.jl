@@ -16,6 +16,7 @@ solverName = :GLPKMathProgInterface #:CPLEX
 nWorkers = 4
 connectSSHWorkers = false
 include("$(Pkg.dir("COBRA"))/src/connect.jl")
+TESTDIR = "$(Pkg.dir("COBRA"))/test"
 
 # create a parallel pool and determine its size
 if (@isdefined nWorkers) && (@isdefined connectSSHWorkers)
@@ -97,7 +98,7 @@ for s = 1:length(packages)
     solverName = string(packages[s])
 
     # read out the directory with the test files
-    testDir = readdir(joinpath(Pkg.dir("COBRA"), "test"))
+    testDir = readdir(TESTDIR)
 
     # print the solver name
     print_with_color(:green, "\n\n -- Running $(length(testDir) - 2) tests using the $solverName solver. -- \n\n")
