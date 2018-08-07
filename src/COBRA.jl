@@ -23,6 +23,13 @@ module COBRA
     using MathProgBase
     using MATLAB
 
+    if "JENKINS" in keys(ENV)
+        include("$JULIA_HOME/../share/julia/test/testenv.jl")
+        addprocsCOBRA = addprocs_with_testenv
+    else
+        addprocsCOBRA = addprocs
+    end
+
     include("checkSetup.jl")
     checkSysConfig(0)
 
