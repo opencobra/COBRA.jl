@@ -85,7 +85,7 @@ function createPool(localWorkers::Int, connectSSH::Bool=false, connectionFile::S
 
         # add local threads
         if localWorkers > 0 && nworkers() < nWorkers
-            addprocs(localWorkers, topology = :master_slave)
+            addprocsCOBRA(localWorkers, topology = :master_slave)
             print_with_color(:blue, "$(nworkers()) local workers are connected. (+1) on host: $(gethostname())\n")
         end
 
