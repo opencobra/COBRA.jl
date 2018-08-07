@@ -46,16 +46,9 @@ if matlabPresent
     # load sharing that is not fair
     nWorkers, quotientModels, remainderModels = COBRA.shareLoad(2)
 
-    #@test nWorkers === 4  # Note: this not the default, it is the number of available workers
-    #@test quotientModels == 1
-    #@test remainderModels == 0
-
-    # ideal load sharing
-    #nWorkers, quotientModels, remainderModels = COBRA.shareLoad(4)
-
-    #@test nWorkers === 2  # Note: this not the default, it is the number of available workers
-    #@test quotientModels == 1
-    #@test remainderModels == 0
+    @test nWorkers === 4  # Note: this not the default, it is the number of available workers
+    @test quotientModels == 1
+    @test remainderModels == -1
 
     # prepare a directory with 2 models
     rm(joinpath(TESTDIR, "testModels"), force=true, recursive=true)
@@ -67,9 +60,9 @@ if matlabPresent
     cp("ecoli_core_model.mat", "testModels/ecoli_core_model_4.mat")
 
     varsCharact = ["nMets",
-    "nRxns",
-    "nElem",
-    "nNz"]
+                   "nRxns",
+                   "nElem",
+                   "nNz"]
 
     # launch PALM with the scriptFile on the 2 models
     PALM(joinpath(TESTDIR, "testModels"), "scriptFile", 2, "modelCharacteristics.mat", varsCharact, "/tmp/cobratoolbox-cobrajl")
