@@ -16,7 +16,6 @@ solverName = :GLPKMathProgInterface #:CPLEX
 nWorkers = 4
 connectSSHWorkers = false
 include("$(Pkg.dir("COBRA"))/src/connect.jl")
-TESTDIR = "$(Pkg.dir("COBRA"))/test"
 
 # create a parallel pool and determine its size
 if (@isdefined nWorkers) && (@isdefined connectSSHWorkers)
