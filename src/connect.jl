@@ -6,6 +6,15 @@
 =#
 
 #-------------------------------------------------------------------------------------------
+
+if "JENKINS" in keys(ENV)
+    info("JENKINS CI server detected. Workers will be added with test environment configuration.")
+    include("$JULIA_HOME/../share/julia/test/testenv.jl")
+    addprocsCOBRA = addprocs_with_testenv
+else
+    addprocsCOBRA = addprocs
+end
+
 """
     createPool(localWorkers, connectSSHWorkers, connectionFile)
 

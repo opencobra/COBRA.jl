@@ -23,14 +23,6 @@ module COBRA
     using MathProgBase
     using MATLAB
 
-    if "JENKINS" in keys(ENV)
-        info("JENKINS CI server detected. Workers will be added with test environment configuration.")
-        include("$JULIA_HOME/../share/julia/test/testenv.jl")
-        addprocsCOBRA = addprocs_with_testenv
-    else
-        addprocsCOBRA = addprocs
-    end
-
     include("checkSetup.jl")
     checkSysConfig(0)
 
@@ -40,7 +32,6 @@ module COBRA
     include("tools.jl")
     include("PALM.jl")
 
-    export addprocsCOBRA
 end
 
 #-------------------------------------------------------------------------------------------
