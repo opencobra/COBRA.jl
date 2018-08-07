@@ -98,7 +98,7 @@ for s = 1:length(packages)
     solverName = string(packages[s])
 
     # read out the directory with the test files
-    testDir = readdir(TESTDIR)
+    testDir = readdir(joinpath(Pkg.dir("COBRA"), "test"))
 
     # print the solver name
     print_with_color(:green, "\n\n -- Running $(length(testDir) - 2) tests using the $solverName solver. -- \n\n")
