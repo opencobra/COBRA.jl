@@ -15,3 +15,4 @@ deps/deps.jl
 docs/build/
 docs/tutorial/results.mat
 results/*
+test/testModels
