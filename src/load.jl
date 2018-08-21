@@ -22,7 +22,7 @@ General type for storing an LP problem which contains the following fields:
 
 """
 
-type LPproblem
+mutable struct LPproblem
     S       ::Union{SparseMatrixCSC{Float64,Int64}, AbstractMatrix}
     b       ::Array{Float64,1}
     c       ::Array{Float64,1}
