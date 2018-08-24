@@ -79,8 +79,12 @@ supportedSolvers = [:Clp, :GLPKMathProgInterface, :CPLEX, :Gurobi, :Mosek]
 
 # test if an error is thrown for non-installed solvers
 for i = 1:length(supportedSolvers)
+    print(" > Testing $(supportedSolvers[i]) ... ")
     if !(supportedSolvers[i] in packages)
         @test_throws ErrorException changeCobraSolver(string(supportedSolvers[i]))
+        print_with_color(:red, "Not supported.\n")
+    else
+        print_with_color(:green, "Done.\n")
     end
 end
 
