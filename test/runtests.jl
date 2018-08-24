@@ -84,6 +84,7 @@ for i = 1:length(supportedSolvers)
         @test_throws ErrorException changeCobraSolver(string(supportedSolvers[i]))
         print_with_color(:red, "Not supported.\n")
     else
+        @test typeof(changeCobraSolver(supportedSolvers[i])) == COBRA.SolverConfig
         print_with_color(:green, "Done.\n")
     end
 end
