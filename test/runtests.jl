@@ -30,6 +30,8 @@ using Requests
 
 # check if MATLAB package is present
 matlabPresent = false;
+@show sizeof(Pkg.installed("MATLAB"))
+@show Pkg.status()
 if sizeof(Pkg.installed("MATLAB")) > 0
     matlabPresent = true;
     using MAT
