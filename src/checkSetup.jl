@@ -113,6 +113,7 @@ function checkSysConfig(verbose = 1)
 end
 
 # fix deprecation warnings in Julia 0.7
+#=
 if !isdefined(Base, Symbol("@isdefined"))
     macro isdefined(symbol)
         return isdefined(symbol)
@@ -120,5 +121,5 @@ if !isdefined(Base, Symbol("@isdefined"))
 
     export @isdefined
 end
-
+=#
 #-------------------------------------------------------------------------------------------
