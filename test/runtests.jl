@@ -28,22 +28,18 @@ using COBRA
 using Base.Test
 using Requests
 
-# check if MATLAB package is present
-matlabPresent = false;
-@show sizeof(Pkg.installed("MATLAB"))
-@show Pkg.status()
-if sizeof(Pkg.installed("MATLAB")) > 0
-    matlabPresent = true;
-    using MAT
-    using MATLAB
-end
-
 # download the ecoli_core_model
 include("getTestModel.jl")
 getTestModel()
 
-if matlabPresent
+# check if MATLAB package is present
+@show sizeof(Pkg.installed("MATLAB"))
+@show Pkg.status()
+if sizeof(Pkg.installed("MATLAB")) > 0
     info("The MATLAB package is present. The tests for PALM.jl will be run.")
+
+    using MAT
+    using MATLAB
 
     # load sharing that is not fair
     nWorkers, quotientModels, remainderModels = COBRA.shareLoad(2)
