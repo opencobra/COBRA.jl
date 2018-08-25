@@ -21,7 +21,9 @@ module COBRA
     # include the load file to load a model of .mat format
     using MAT
     using MathProgBase
-    using MATLAB
+    if sizeof(Pkg.installed("MATLAB")) > 0
+        using MATLAB
+    end
 
     include("checkSetup.jl")
     checkSysConfig(0)
@@ -30,7 +32,9 @@ module COBRA
     include("solve.jl")
     include("distributedFBA.jl")
     include("tools.jl")
-    include("PALM.jl")
+    if sizeof(Pkg.installed("MATLAB")) > 0
+        include("PALM.jl")
+    end
 
 end
 
