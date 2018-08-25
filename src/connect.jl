@@ -6,6 +6,15 @@
 =#
 
 #-------------------------------------------------------------------------------------------
+
+if "JENKINS" in keys(ENV)
+    info("JENKINS CI server detected. Workers will be added with test environment configuration.")
+    include("$JULIA_HOME/../share/julia/test/testenv.jl")
+    addprocsCOBRA = addprocs_with_testenv
+else
+    addprocsCOBRA = addprocs
+end
+
 """
     createPool(localWorkers, connectSSHWorkers, connectionFile)
 
@@ -85,7 +94,7 @@ function createPool(localWorkers::Int, connectSSH::Bool=false, connectionFile::S
 
         # add local threads
         if localWorkers > 0 && nworkers() < nWorkers
-            addprocs(localWorkers, topology = :master_slave)
+            addprocsCOBRA(localWorkers, topology = :master_slave)
             print_with_color(:blue, "$(nworkers()) local workers are connected. (+1) on host: $(gethostname())\n")
         end
 
@@ -104,9 +113,9 @@ function createPool(localWorkers::Int, connectSSH::Bool=false, connectionFile::S
 
                         # add threads when the SSH login is successful
                         if successConnect
-                            addprocs([(sshWorkers[i]["usernode"], sshWorkers[i]["procs"])], topology = :master_slave,
-                                    tunnel = true, dir = sshWorkers[i]["dir"], sshflags = sshWorkers[i]["flags"],
-                                    exeflags=`--depwarn=no`, exename = sshWorkers[i]["exename"])
+                            addprocsCOBRA([(sshWorkers[i]["usernode"], sshWorkers[i]["procs"])], topology = :master_slave,
+                                          tunnel = true, dir = sshWorkers[i]["dir"], sshflags = sshWorkers[i]["flags"],
+                                          exeflags=`--depwarn=no`, exename = sshWorkers[i]["exename"])
 
                             # return a status update
                             info("Connected ", sshWorkers[i]["procs"], " workers on ",  sshWorkers[i]["usernode"])

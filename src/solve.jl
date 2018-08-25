@@ -16,7 +16,7 @@ Definition of a common solver type, which inclues the name of the solver and oth
 
 """
 
-type SolverConfig
+mutable struct SolverConfig
     name      ::String
     handle
 end
