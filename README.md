@@ -1,8 +1,4 @@
-```@raw html
-<p align="center">
-<img class="readme_logo" src="https://prince.lcsb.uni.lu/img/logos/logo-COBRA.jl.png" height="160px"/>
-</p>
-```
+![COBRA logo](https://prince.lcsb.uni.lu/img/logos/logo-COBRA.jl.png)
 
 COBRA.jl - COnstraint-Based Reconstruction and Analysis
 =======================================================
