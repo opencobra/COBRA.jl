@@ -12,7 +12,7 @@ COBRA.jl - COnstraint-Based Reconstruction and Analysis
 
 `COBRA.jl` is a package written in [Julia](http://julialang.org/downloads/) used to perform COBRA analyses such as Flux Balance Anlysis (FBA), Flux Variability Anlysis (FVA), or any of its associated variants such as `distributedFBA` [[1](#References-1)].
 
-FBA and FVA rely on the solution of LP problems. The package can be used with ease when the LP problem is defined in a `.mat` file according to the format outlined in the [COBRA Toolbox](https://github.com/opencobra/COBRA Toolbox) [[2](#References-1)].
+FBA and FVA rely on the solution of LP problems. The package can be used with ease when the LP problem is defined in a `.mat` file according to the format outlined in the [COBRA Toolbox](https://github.com/opencobra/cobratoolbox) [[2](#References-1)].
 
 Installation of COBRA.jl
 ------------------------
@@ -76,6 +76,6 @@ References
 -----------
 
 1. [B. O. Palsson., Systems Biology: Constraint-based Reconstruction and Analysis. Cambridge University Press, NY, 2015.](http://www.cambridge.org/us/academic/subjects/life-sciences/genomics-bioinformatics-and-systems-biology/systems-biology-constraint-based-reconstruction-and-analysis?format=HB)
-2. [Heirendt, L. and Arreckx, S. et al., Creation and analysis of biochemical constraint-based models: the COBRA Toolbox v3.0 (submitted), 2017, arXiv:1710.04038.](https://github.com/opencobra/COBRA Toolbox)
+2. [Heirendt, L. and Arreckx, S. et al., Creation and analysis of biochemical constraint-based models: the COBRA Toolbox v3.0 (submitted), 2017, arXiv:1710.04038.](https://github.com/opencobra/cobratoolbox)
 3. [Steinn, G. et al., Computationally efficient flux variability analysis. BMC Bioinformatics, 11(1):1–3, 2010.](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-11-489)
 4. [Orth, J. et al., Reconstruction and use of microbial metabolic networks: the core escherichia coli metabolic model as an educational guide. EcoSal Plus, 2010.](http://gcrg.ucsd.edu/Downloads/EcoliCore)
