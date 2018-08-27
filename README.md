@@ -65,14 +65,6 @@ The corresponding paper can be downloaded from [here](https://academic.oup.com/b
 
 > Laurent Heirendt, Ines Thiele, Ronan M. T. Fleming; DistributedFBA.jl: high-level, high-performance flux balance analysis in Julia. Bioinformatics 2017 btw838. doi: 10.1093/bioinformatics/btw838
 
-Latest version of `COBRA.jl`
----------------------------
-
-If you want to enjoy the latest untagged (but eventually unstable) features of `COBRA.jl`, do the following from `Julia`:
-```Julia
-julia> Pkg.checkout("COBRA", "develop")
-```
-
 Limitations
 -----------
 
@@ -83,7 +75,7 @@ Limitations
 References
 -----------
 
-1. [B. O. Palsson. Systems Biology: Constraint-based Reconstruction and Analysis. Cambridge University Press, NY, 2015.](http://www.cambridge.org/us/academic/subjects/life-sciences/genomics-bioinformatics-and-systems-biology/systems-biology-constraint-based-reconstruction-and-analysis?format=HB)
-2. [Heirendt, L. et al. COBRA Toolbox 3.0.](https://github.com/opencobra/cobratoolbox)
-3. [Steinn, G. et al. Computationally efficient flux variability analysis. BMC Bioinformatics, 11(1):1–3, 2010.](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-11-489)
-4. [Orth, J. et al. Reconstruction and use of microbial metabolic networks: the core escherichia coli metabolic model as an educational guide. EcoSal Plus, 2010.](http://gcrg.ucsd.edu/Downloads/EcoliCore)
+1. [B. O. Palsson., Systems Biology: Constraint-based Reconstruction and Analysis. Cambridge University Press, NY, 2015.](http://www.cambridge.org/us/academic/subjects/life-sciences/genomics-bioinformatics-and-systems-biology/systems-biology-constraint-based-reconstruction-and-analysis?format=HB)
+2. [Heirendt, L. and Arreckx, S. et al., Creation and analysis of biochemical constraint-based models: the COBRA Toolbox v3.0 (submitted), 2017, arXiv:1710.04038.](https://github.com/opencobra/cobratoolbox)
+3. [Steinn, G. et al., Computationally efficient flux variability analysis. BMC Bioinformatics, 11(1):1–3, 2010.](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-11-489)
+4. [Orth, J. et al., Reconstruction and use of microbial metabolic networks: the core escherichia coli metabolic model as an educational guide. EcoSal Plus, 2010.](http://gcrg.ucsd.edu/Downloads/EcoliCore)

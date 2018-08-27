@@ -57,3 +57,11 @@ You can generate the documentation using [`Documenter.jl`](https://github.com/Ju
 ```sh
 $ julia --color=yes makeDoc.jl
 ```
+
+How can I get the latest version of `COBRA.jl`
+----------------------------------------------
+
+If you want to enjoy the latest untagged (but eventually unstable) features of `COBRA.jl`, do the following from within `Julia`:
+```Julia
+julia> Pkg.checkout("COBRA", "develop")
+```
