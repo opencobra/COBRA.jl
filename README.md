@@ -4,7 +4,7 @@ COBRA.jl - COnstraint-Based Reconstruction and Analysis
 =======================================================
 
 | **Documentation** | **Coverage** | **Continuous integration** |
-|-------------------|--------------|----------------------------|
+|:-----------------:|:------------:|:--------------------------:|
 |[![](https://img.shields.io/badge/COBRA-docs-blue.svg?maxAge=0)](https://opencobra.github.io/COBRA.jl/stable) | [![coverage status](http://codecov.io/github/opencobra/COBRA.jl/coverage.svg?branch=master)](http://codecov.io/github/opencobra/COBRA.jl?branch=master) | [![linux](https://prince.lcsb.uni.lu/badges/linux-COBRA.jl.svg)](https://prince.lcsb.uni.lu/jenkins/job/COBRA.jl-branches-auto-linux/) [![macOS](https://prince.lcsb.uni.lu/badges/macOS-COBRA.jl.svg)](https://prince.lcsb.uni.lu/jenkins/job/COBRA.jl-branches-auto-macOS/) [![windows10](https://prince.lcsb.uni.lu/badges/windows-COBRA.jl.svg)](https://prince.lcsb.uni.lu/jenkins/job/COBRA.jl-branches-auto-windows10/) [![COBRA](http://pkg.julialang.org/badges/COBRA_0.6.svg)](http://pkg.julialang.org/?pkg=COBRA) |
 
 `COBRA.jl` is a package written in [Julia](http://julialang.org/downloads/) used to perform COBRA analyses such as Flux Balance Anlysis (FBA), Flux Variability Anlysis (FVA), or any of its associated variants such as `distributedFBA` [[1](#References-1)].
