@@ -19,7 +19,11 @@ if includeCOBRA
     include("../src/connect.jl")
     include("../src/checkSetup.jl")
     include("../src/tools.jl")
-    include("../src/PALM.jl")
+
+    # only include PALM.jl if MATLAB is present
+    if sizeof(Pkg.installed("MATLAB")) > 0
+        include("../src/PALM.jl")
+    end
 end
 
 makedocs(format = :html,
