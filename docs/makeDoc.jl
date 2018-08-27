@@ -31,7 +31,7 @@ makedocs(format = :html,
          clean   = false,
          pages = Any[ # Compat: `Any` for 0.4 compat
                  "index.md",
-                 "Beginner's Guide" => "cbg.md",
+                 "Beginner's Guide" => "beginnerGuide.md",
                  "Tutorial" => "cobratutorial.md",
                  "Configuration" => "configuration.md",
                  "Modules and Functions" => "functions.md",

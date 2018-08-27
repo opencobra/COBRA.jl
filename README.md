@@ -17,7 +17,7 @@ Layout
 Installation of COBRA
 ---------------------
 
-> If you are new to Julia, you may find the [Beginner's Guide](http://opencobra.github.io/COBRA.jl/stable/cbg.html) interesting. A working installation of Julia is required.
+> If you are new to Julia, you may find the [Beginner's Guide](http://opencobra.github.io/COBRA.jl/stable/beginnerGuide.html) interesting. A working installation of Julia is required.
 
 At the Julia prompt, add the `COBRA` package:
 ```Julia
