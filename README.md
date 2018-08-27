@@ -1,3 +1,8 @@
+<p align="center">
+     <img class="readme_logo" src="https://prince.lcsb.uni.lu/img/logos/logo-COBRA.jl.png" height="160px"/>
+</p>
+
+
 COBRA.jl - COnstraint-Based Reconstruction and Analysis
 =======================================================
 
@@ -9,13 +14,8 @@ COBRA.jl - COnstraint-Based Reconstruction and Analysis
 
 FBA and FVA rely on the solution of LP problems. The package can be used with ease when the LP problem is defined in a `.mat` file according to the format outlined in the [COBRAToolbox](https://github.com/opencobra/cobratoolbox) [[2](#References-1)].
 
-Layout
--------
-
-![Code Layout](https://raw.githubusercontent.com/opencobra/COBRA.jl/master/docs/src/assets/codeLayout.jpg)
-
-Installation of COBRA
----------------------
+Installation of COBRA.jl
+------------------------
 
 > If you are new to Julia, you may find the [Beginner's Guide](http://opencobra.github.io/COBRA.jl/stable/beginnerGuide.html) interesting. A working installation of Julia is required.
 
