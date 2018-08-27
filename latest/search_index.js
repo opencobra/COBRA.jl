@@ -5,7 +5,7 @@ var documenterSearchIndex = {"docs": [
     "page": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
     "title": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
     "category": "page",
-    "text": ""
+    "text": "(Image: COBRA logo)"
 },
 
 {
@@ -13,21 +13,13 @@ var documenterSearchIndex = {"docs": [
     "page": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
     "title": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
     "category": "section",
-    "text": "Documentation Coverage PackageEvaluator Build Status\n(Image: )(Image: ) (Image: coverage status)(Image: Coverage Status) (Image: COBRA)(Image: COBRA) (Image: Build Status)(Image: Build status)COBRA.jl is a package written in Julia used to perform COBRA analyses such as Flux Balance Anlysis (FBA), Flux Variability Anlysis (FVA), or any of its associated variants such as distributedFBA [1].FBA and FVA rely on the solution of LP problems. The package can be used with ease when the LP problem is defined in a .mat file according to the format outlined in the COBRAToolbox [2]."
+    "text": "Documentation Coverage Continuous integration - ARTENOLIS\n(Image: ) (Image: coverage status) (Image: linux) (Image: macOS) (Image: windows10)COBRA.jl is a package written in Julia used to perform COBRA analyses such as Flux Balance Anlysis (FBA), Flux Variability Anlysis (FVA), or any of its associated variants such as distributedFBA [1].FBA and FVA rely on the solution of LP problems. The package can be used with ease when the LP problem is defined in a .mat file according to the format outlined in the COBRA Toolbox [2]."
 },
 
 {
-    "location": "index.html#Layout-1",
+    "location": "index.html#Installation-of-COBRA.jl-1",
     "page": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
-    "title": "Layout",
-    "category": "section",
-    "text": "(Image: Code Layout)"
-},
-
-{
-    "location": "index.html#Installation-of-COBRA-1",
-    "page": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
-    "title": "Installation of COBRA",
+    "title": "Installation of COBRA.jl",
     "category": "section",
     "text": "If you are new to Julia, you may find the Beginner\'s Guide interesting. A working installation of Julia is required.At the Julia prompt, add the COBRA package:julia> Pkg.add(\"COBRA\")Use the COBRA.jl module by running:julia> using COBRACOBRA.jl has been tested on Julia v0.5+ on Ubuntu Linux 14.04+, MacOS 10.7+, and Windows 7 (64-bit). All solvers supported by MathProgBase.jl are supported by COBRA.jl, but must be installed separately. A COBRA model saved as a .mat file can be read in using MAT.jl. MathProgBase.jl and MAT.jl are automatically installed during the installation of the COBRA.jl package."
 },
@@ -57,14 +49,6 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#Latest-version-of-COBRA.jl-1",
-    "page": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
-    "title": "Latest version of COBRA.jl",
-    "category": "section",
-    "text": "If you want to enjoy the latest untagged (but eventually unstable) features of COBRA.jl, do the following from Julia:julia> Pkg.checkout(\"COBRA\", \"develop\")"
-},
-
-{
     "location": "index.html#Limitations-1",
     "page": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
     "title": "Limitations",
@@ -77,11 +61,11 @@ var documenterSearchIndex = {"docs": [
     "page": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
     "title": "References",
     "category": "section",
-    "text": "B. O. Palsson. Systems Biology: Constraint-based Reconstruction and Analysis. Cambridge University Press, NY, 2015.\nSchellenberger, J. et al. COBRA Toolbox 2.0. 05 2011.\nSteinn, G. et al. Computationally efficient flux variability analysis. BMC Bioinformatics, 11(1):1–3, 2010.\nOrth, J. et al. Reconstruction and use of microbial metabolic networks: the core escherichia coli metabolic model as an educational guide. EcoSal Plus, 2010."
+    "text": "B. O. Palsson., Systems Biology: Constraint-based Reconstruction and Analysis. Cambridge University Press, NY, 2015.\nHeirendt, L. and Arreckx, S. et al., Creation and analysis of biochemical constraint-based models: the COBRA Toolbox v3.0 (submitted), 2017, arXiv:1710.04038.\nSteinn, G. et al., Computationally efficient flux variability analysis. BMC Bioinformatics, 11(1):1–3, 2010.\nOrth, J. et al., Reconstruction and use of microbial metabolic networks: the core escherichia coli metabolic model as an educational guide. EcoSal Plus, 2010."
 },
 
 {
-    "location": "cbg.html#",
+    "location": "beginnerGuide.html#",
     "page": "Beginner\'s Guide",
     "title": "Beginner\'s Guide",
     "category": "page",
@@ -89,7 +73,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "cbg.html#Beginner\'s-Guide-1",
+    "location": "beginnerGuide.html#Beginner\'s-Guide-1",
     "page": "Beginner\'s Guide",
     "title": "Beginner\'s Guide",
     "category": "section",
@@ -97,7 +81,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "cbg.html#What-is-Julia?-1",
+    "location": "beginnerGuide.html#What-is-Julia?-1",
     "page": "Beginner\'s Guide",
     "title": "What is Julia?",
     "category": "section",
@@ -105,7 +89,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "cbg.html#How-do-I-get-Julia?-1",
+    "location": "beginnerGuide.html#How-do-I-get-Julia?-1",
     "page": "Beginner\'s Guide",
     "title": "How do I get Julia?",
     "category": "section",
@@ -113,7 +97,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "cbg.html#How-do-I-use-Julia?-1",
+    "location": "beginnerGuide.html#How-do-I-use-Julia?-1",
     "page": "Beginner\'s Guide",
     "title": "How do I use Julia?",
     "category": "section",
@@ -121,7 +105,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "cbg.html#What-if-I-need-help?-1",
+    "location": "beginnerGuide.html#What-if-I-need-help?-1",
     "page": "Beginner\'s Guide",
     "title": "What if I need help?",
     "category": "section",
@@ -129,7 +113,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "cbg.html#How-do-I-install-a-solver?-1",
+    "location": "beginnerGuide.html#How-do-I-install-a-solver?-1",
     "page": "Beginner\'s Guide",
     "title": "How do I install a solver?",
     "category": "section",
@@ -137,7 +121,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "cbg.html#What-if-I-want-another-solver?-1",
+    "location": "beginnerGuide.html#What-if-I-want-another-solver?-1",
     "page": "Beginner\'s Guide",
     "title": "What if I want another solver?",
     "category": "section",
@@ -145,7 +129,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "cbg.html#Now-I-have-a-solver,-and-I-have-Julia.-What-is-next?-1",
+    "location": "beginnerGuide.html#Now-I-have-a-solver,-and-I-have-Julia.-What-is-next?-1",
     "page": "Beginner\'s Guide",
     "title": "Now I have a solver, and I have Julia. What is next?",
     "category": "section",
@@ -153,7 +137,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "cbg.html#There-is-a-tutorial,-but-I-cannot-open-it.-What-should-I-do?-1",
+    "location": "beginnerGuide.html#There-is-a-tutorial,-but-I-cannot-open-it.-What-should-I-do?-1",
     "page": "Beginner\'s Guide",
     "title": "There is a tutorial, but I cannot open it. What should I do?",
     "category": "section",
@@ -606,6 +590,14 @@ var documenterSearchIndex = {"docs": [
     "title": "How can I generate the documentation?",
     "category": "section",
     "text": "You can generate the documentation using Documenter.jl by typing in /docs:$ julia --color=yes makeDoc.jl"
+},
+
+{
+    "location": "faq.html#How-can-I-get-the-latest-version-of-COBRA.jl-1",
+    "page": "FAQ",
+    "title": "How can I get the latest version of COBRA.jl",
+    "category": "section",
+    "text": "If you want to enjoy the latest untagged (but eventually unstable) features of COBRA.jl, do the following from within Julia:julia> Pkg.checkout(\"COBRA\", \"develop\")"
 },
 
 {
