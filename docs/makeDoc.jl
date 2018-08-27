@@ -19,7 +19,11 @@ if includeCOBRA
     include("../src/connect.jl")
     include("../src/checkSetup.jl")
     include("../src/tools.jl")
-    include("../src/PALM.jl")
+
+    # only include PALM.jl if MATLAB is present
+    if sizeof(Pkg.installed("MATLAB")) > 0
+        include("../src/PALM.jl")
+    end
 end
 
 makedocs(format = :html,
@@ -27,7 +31,7 @@ makedocs(format = :html,
          clean   = false,
          pages = Any[ # Compat: `Any` for 0.4 compat
                  "index.md",
-                 "Beginner's Guide" => "cbg.md",
+                 "Beginner's Guide" => "beginnerGuide.md",
                  "Tutorial" => "cobratutorial.md",
                  "Configuration" => "configuration.md",
                  "Modules and Functions" => "functions.md",
