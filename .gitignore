@@ -1,6 +1,7 @@
 *~
 *#
 *.DS_Store
+modelCharacteristics.mat
 Thumbs.db
 config/sshCfgPrivate.jl
 test/*.txt
