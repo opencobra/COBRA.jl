@@ -17,3 +17,7 @@ docs/build/
 docs/tutorial/results.mat
 results/*
 test/testModels
+
+docs/src/tutorial-COBRA.jl.md
+docs/src/tutorial-PALM.jl.md
+docs/src/tutorial-distributedFBA.jl.md
