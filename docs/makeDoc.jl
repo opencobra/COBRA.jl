@@ -28,12 +28,13 @@ end
 
 # special concatenation of tutorials until issue 701 is fixed:
 # https://github.com/JuliaDocs/Documenter.jl/issues/701
+# Note: When generating a new tutorial is .ipynb, export as .md and save in ./tutorials/.
 
 # save the current directory
 currentDir = pwd()
 
 # concatenate tutorial files
-cd("$(Pkg.dir("COBRA"))/docs/src")
+cd("$(Pkg.dir("COBRA"))/tutorials")
 
 # define list of tutorials to be concatenated
 tutorials = ["tutorial-COBRA.jl.md", "tutorial-distributedFBA.jl.md", "tutorial-PALM.jl.md"]
