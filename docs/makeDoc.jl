@@ -26,13 +26,43 @@ if includeCOBRA
     end
 end
 
+# special concatenation of tutorials until issue 701 is fixed:
+# https://github.com/JuliaDocs/Documenter.jl/issues/701
+
+# save the current directory
+currentDir = pwd()
+
+# concatenate tutorial files
+cd("$(Pkg.dir("COBRA"))/docs/src")
+
+# define list of tutorials to be concatenated
+tutorials = ["tutorial-COBRA.jl.md", "tutorial-distributedFBA.jl.md", "tutorial-PALM.jl.md"]
+
+# concatenate the tutorials properly speaking
+cat = ""
+for tut in tutorials
+    tmp = read(tut, String)
+    cat = cat * tmp
+end
+
+# set all headers one level lower
+cat = replace(cat, "\n#", "\n##")
+
+# write out the tutorial to new file
+open("tutorials.md", "w") do f
+    write(f, "# Tutorials \n\n")
+    write(f, cat)
+end
+
+# change back to the old directory
+cd(currentDir)
+
 makedocs(format = :html,
          sitename = "COBRA.jl",
-         clean   = false,
          pages = Any[ # Compat: `Any` for 0.4 compat
                  "index.md",
                  "Beginner's Guide" => "beginnerGuide.md",
-                 "Tutorial" => "cobratutorial.md",
+                 "Tutorials" => "tutorials.md",
                  "Configuration" => "configuration.md",
                  "Modules and Functions" => "functions.md",
                  "FAQ" => "faq.md",
