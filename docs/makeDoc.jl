@@ -55,6 +55,9 @@ open("tutorials.md", "w") do f
     write(f, cat)
 end
 
+# move the tutorials.md file to the docs folder
+mv("tutorials.md", "$(Pkg.dir("COBRA"))/docs/src/tutorials.md", remove_destination=true)
+
 # change back to the old directory
 cd(currentDir)
 
