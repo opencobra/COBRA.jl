@@ -22,7 +22,7 @@ docs_dir: 'build'
 
 pages:
 - Introduction: index.md
-- Beginner's Guide: cbg.md
+- Beginner's Guide: beginnerGuide.md
 - Tutorial: cobratutorial.md
 - Configuration: configuration.md
 - Modules and Functions: functions.md

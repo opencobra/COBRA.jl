@@ -29,6 +29,13 @@ LPproblem
 loadModel
 ```
 
+## PALM.jl
+```@docs
+shareLoad
+loopModels
+PALM
+```
+
 ## solve.jl
 ```@docs
 SolverConfig

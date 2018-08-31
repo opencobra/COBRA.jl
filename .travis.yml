@@ -2,14 +2,15 @@ language: julia
 
 os:
     - linux
-    - osx
 
 julia:
-    - 0.5
+    - 0.6
+    - 0.7
     - nightly
 
 matrix:
   allow_failures:
+    - julia: 0.7
     - julia: nightly
 
 notifications:
@@ -37,12 +38,5 @@ script:
     # temporary addition for julia 0.6 until new version of MAT tagged
     - julia --color=yes -e 'Pkg.add("MAT"); Pkg.checkout("MAT")'
 
-    # add the COBRA module
-    - julia --color=yes -e 'Pkg.clone(pwd())'
-    - julia --color=yes -e 'Pkg.build()'
-    - julia --color=yes -e 'Pkg.test("COBRA",coverage=true)'
-
-after_success:
-    - echo $TRAVIS_JULIA_VERSION
-    - julia -e 'Pkg.add("Coverage"); cd(Pkg.dir("COBRA")); using Coverage; Codecov.submit(process_folder()); Coveralls.submit(Coveralls.process_folder())'
-    - julia -e 'Pkg.add("Documenter"); cd(Pkg.dir("COBRA")); include(joinpath("docs", "makeDoc.jl"))'
+    # add and test the COBRA module
+    - julia --color=yes -e 'Pkg.clone(pwd()); Pkg.test("COBRA")'

@@ -45,8 +45,8 @@ $ git config --global gc.auto 256
 ```
 Make sure that you set the following [environment variables](http://www.computerhope.com/issues/ch000549.htm) correctly:
 ```
-$ set JULIA_PKGDIR=C:\Users\<yourUsername>\.julia\v0.5
-$ set HOME=C:\Users\<yourUsername>\AppData\Local\Julia-0.5.0
+$ set JULIA_PKGDIR=C:\Users\<yourUsername>\.julia\vx.y.z
+$ set HOME=C:\Users\<yourUsername>\AppData\Local\Julia-x.y.z
 ```
 Make sure that the `.julia` folder is **not** located on a network. This slows the processes in Julia down dramatically.
 
@@ -56,4 +56,12 @@ How can I generate the documentation?
 You can generate the documentation using [`Documenter.jl`](https://github.com/JuliaDocs/Documenter.jl) by typing in `/docs`:
 ```sh
 $ julia --color=yes makeDoc.jl
+```
+
+How can I get the latest version of `COBRA.jl`
+----------------------------------------------
+
+If you want to enjoy the latest untagged (but eventually unstable) features of `COBRA.jl`, do the following from within `Julia`:
+```Julia
+julia> Pkg.checkout("COBRA", "develop")
 ```
