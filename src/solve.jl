@@ -236,7 +236,7 @@ See also: `MathProgBase.linprog()`
 function autoTuneSolver(m, nMets, nRxns, solver, pid::Int = 1)
 
     # turn scaling off in CPLEX when solving coupled models or models with more metabolites that reactions in the stoichiometric matrix
-    if (nMets >= nRxns || nRxns >= 50000) && solver.name == "CPLEX"
+    if isdefined(m, :inner) && (nMets >= nRxns || nRxns >= 50000) && solver.name == "CPLEX"
         CPLEX.set_param!(m.inner.env, "CPX_PARAM_SCAIND", -1) # set the scaling parameter
     end
 end

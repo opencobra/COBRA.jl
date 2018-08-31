@@ -273,28 +273,32 @@ for s = 0:2
     printSolSummary(testFile, optSol, maxFlux, minFlux, solTime, nWorkers, solverName)
 end
 
-# launch the distributedFBA process
-startTime = time()
-minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax = distributedFBA(model, solver, nWorkers=nWorkers, preFBA=true, optPercentage=100.0)
-solTime = time() - startTime
+if solverName != "Mosek"
+    # Note: Mosek is not able to solve this problem
+    # launch the distributedFBA process
+    startTime = time()
+    minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax = distributedFBA(model, solver, nWorkers=nWorkers, preFBA=true, optPercentage=100.0)
+    solTime = time() - startTime
 
-# Test numerical values - test on floor as different numerical precision with different solvers
-@test floor(maximum(maxFlux)) == 1000.0
-@test floor(minimum(maxFlux)) == -30.0
-@test floor(maximum(minFlux)) == 45.0
-@test floor(minimum(minFlux)) == -30.0
-@test floor(norm(maxFlux))    == 1414.0
-@test floor(norm(minFlux))    == 106.0
-@test abs((model.c' * minFlux)[1] - optSol) < 1e-6
+    # Test numerical values - test on floor as different numerical precision with different solvers
 
-# save the variables to the current directory
-saveDistributedFBA("testFile.mat")
+    @test floor(maximum(maxFlux)) == 1000.0
+    @test floor(minimum(maxFlux)) == -30.0
+    @test floor(maximum(minFlux)) == 45.0
+    @test floor(minimum(minFlux)) == -30.0
+    @test floor(norm(maxFlux))    == 1414.0
+    @test floor(norm(minFlux))    == 106.0
+    @test abs((model.c' * minFlux)[1] - optSol) < 1e-6
 
-# remove the file to clean up
-run(`rm testFile.mat`)
+    # save the variables to the current directory
+    saveDistributedFBA("testFile.mat")
 
-# print a solution summary
-printSolSummary(testFile, optSol, maxFlux, minFlux, solTime, nWorkers, solverName)
+    # remove the file to clean up
+    run(`rm testFile.mat`)
+
+    # print a solution summary
+    printSolSummary(testFile, optSol, maxFlux, minFlux, solTime, nWorkers, solverName)
+end
 
 # define model and solution parameters
 optPercentage = 90.0
