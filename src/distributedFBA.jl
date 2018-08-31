@@ -412,7 +412,7 @@ function loopFBA(m, rxnsList, nRxns::Int, rxnsOptMode=2 + zeros(Int, length(rxns
                 retStat[rxnsList[k]] = 4 # LP problem is infeasible or unbounded
 
             else
-                if string(typeof(m.inner)) == "CPLEX.Model"
+                if isdefined(m, :inner) && string(typeof(m.inner)) == "CPLEX.Model"
                     retStat[rxnsList[k]] = - CPLEX.get_status_code(m.inner)
                 else
                     retStat[rxnsList[k]] = 5 # LP problem has a non-documented solution status
