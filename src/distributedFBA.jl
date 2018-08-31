@@ -375,7 +375,7 @@ function loopFBA(m, rxnsList, nRxns::Int, rxnsOptMode=2 + zeros(Int, length(rxns
 
             if logFiles
                 # save individual logFiles with the CPLEX solver
-                if string(typeof(m.inner)) == "CPLEX.Model"
+                if isdefined(m, :inner) && string(typeof(m.inner)) == "CPLEX.Model"
                     CPLEX.set_logfile(m.inner.env, "$resultsDir/logs/$((iRound == 0 ) ? "min" : "max")-myLogFile-$(rxnsList[k]).log")
                 end
             end
