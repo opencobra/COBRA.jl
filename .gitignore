@@ -18,6 +18,4 @@ docs/tutorial/results.mat
 results/*
 test/testModels
 
-tutorials/tutorial-COBRA.jl.md
-tutorials/tutorial-PALM.jl.md
-tutorials/tutorial-distributedFBA.jl.md
+docs/src/tutorials.md
