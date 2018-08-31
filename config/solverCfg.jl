@@ -7,7 +7,7 @@
 
 #-------------------------------------------------------------------------------------------
 
-if @isdefined solverName
+if !@isdefined solverName
     solverName = :GLPK
 end
 

@@ -194,7 +194,7 @@ Results are saved in the `outputFile`.
 # INPUTS
 
 - `dir`:             Directory that contains the models (model file format: `.mat`)
-- `scriptName`:      Name of MATLAB script to be run (without extension `.m`)
+- `scriptName`:      Absolute or relative path MATLAB script to be run
 
 # OPTIONAL INPUTS
 

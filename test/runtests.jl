@@ -33,8 +33,6 @@ include("getTestModel.jl")
 getTestModel()
 
 # check if MATLAB package is present
-@show sizeof(Pkg.installed("MATLAB"))
-@show Pkg.status()
 if sizeof(Pkg.installed("MATLAB")) > 0
     info("The MATLAB package is present. The tests for PALM.jl will be run.")
 

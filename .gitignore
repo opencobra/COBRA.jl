@@ -1,6 +1,7 @@
 *~
 *#
 *.DS_Store
+modelCharacteristics.mat
 Thumbs.db
 config/sshCfgPrivate.jl
 test/*.txt
@@ -16,3 +17,5 @@ docs/build/
 docs/tutorial/results.mat
 results/*
 test/testModels
+
+docs/src/tutorials.md
