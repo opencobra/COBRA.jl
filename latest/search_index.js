@@ -29,7 +29,7 @@ var documenterSearchIndex = {"docs": [
     "page": "COBRA.jl - COnstraint-Based Reconstruction and Analysis",
     "title": "Tutorial, documentation and FAQ",
     "category": "section",
-    "text": "The comprehensive tutorial is based on the interactive Jupyter notebook.The COBRA.jl package is fully documented here. You may also display the documentation in the Julia REPL:julia> ? distributedFBA:bulb: Should you encounter any errors or unusual behavior, please refer first to the FAQ section or open an issue."
+    "text": "The comprehensive tutorials are based on interactive Jupyter notebooks.The COBRA.jl package is fully documented here. You may also display the documentation in the Julia REPL:julia> ? distributedFBA:bulb: Should you encounter any errors or unusual behavior, please refer first to the FAQ section or open an issue."
 },
 
 {
