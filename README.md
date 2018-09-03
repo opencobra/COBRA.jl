@@ -31,7 +31,7 @@ julia> using COBRA
 Tutorial, documentation and FAQ
 -------------------------------
 
-The [comprehensive tutorial](https://github.com/opencobra/COBRA.jl/blob/master/docs/src/cobratutorial.md) is based on the [interactive Jupyter notebook](https://github.com/opencobra/COBRA.jl/tree/master/docs/tutorial).
+The [comprehensive tutorials](https://opencobra.github.io/COBRA.jl/latest/tutorials.html) are based on [interactive Jupyter notebooks](https://github.com/opencobra/COBRA.jl/tree/master/tutorials).
 
 The `COBRA.jl` package is fully documented [here](http://opencobra.github.io/COBRA.jl). You may also display the documentation in the Julia REPL:
 ```Julia
