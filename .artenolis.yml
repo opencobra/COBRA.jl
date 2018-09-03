@@ -23,10 +23,13 @@ script:
     - cd $CURRENT_DIR
 
     # rename the cloned folder
-    - cd .. && cp -r $NODE_LABELS COBRA && cd COBRA;
+    - cd .. && cp -r $NODE_LABELS COBRA && cd COBRA
 
     # launch the tests
     - bash .artenolis/runtests.sh
+
+    # clean up the build directory
+    - cd .. && rm -rf COBRA
 
 after_success:
     - if [ "$ARCH" == "Linux" ]; then /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'cd(Pkg.dir("COBRA")); using Coverage; tmp=process_folder(); Codecov.submit(tmp, verbose=false); Coveralls.submit(tmp);'; fi
