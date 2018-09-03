@@ -667,7 +667,7 @@ function distributedFBA(model, solver; nWorkers::Int=1, optPercentage::Union{Flo
     # perform maximizations and minimizations in parallel
     if nWorkers > 1
         # partition and split the reactions among workers
-        rxnsKey = splitRange(model, rxnsList, nWorkers, strategy)
+        rxnsKey = splitRange(model, rxnsList, nWorkers, strategy, printLevel)
 
         # prepare array for storing remote references
         R = Array{Future}(nWorkers, 2)
