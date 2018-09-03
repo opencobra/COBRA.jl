@@ -42,11 +42,19 @@ getTestModel()
 # include a common deck for running tests
 include("$(Pkg.dir("COBRA"))/config/solverCfg.jl")
 
-# change the COBRA solver
-solver = changeCobraSolver(solverName, solParams)
-
 # load an external mat file
 model = loadModel("$(Pkg.dir("COBRA"))/test/ecoli_core_model.mat", "S", "model")
+
+# test that no output is produced with printLevel = 0 (only for Gurobi)
+if string(solverName) == "Gurobi"
+    info("Testing silent Gurobi")
+    solver = changeCobraSolver(solverName, printLevel=0)
+    output = @capture_out minFlux, maxFlux = distributedFBA(model, solver, nWorkers=nWorkers, printLevel=0, rxnsList=1:4)
+    @test length(matchall(r"From worker ", output)) == 2*nWorkers
+end
+
+# change the COBRA solver
+solver = changeCobraSolver(solverName, solParams)
 
 # select the number of reactions
 rxnsList = 1:length(model.rxns)
@@ -406,3 +414,4 @@ minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = d
 
 # remove the results folder to clean up
 run(`rm -rf $(Pkg.dir("COBRA"))/results`)
+
