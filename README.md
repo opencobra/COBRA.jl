@@ -1,4 +1,4 @@
-![COBRA logo](docs/src/assets/logo-header.png)
+![COBRA logo](https://prince.lcsb.uni.lu/img/logos/logo-COBRA.jl.png)
 
 COBRA.jl - COnstraint-Based Reconstruction and Analysis
 =======================================================
