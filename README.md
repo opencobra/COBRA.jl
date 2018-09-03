@@ -1,4 +1,4 @@
-![COBRA logo](docs/src/assets/logo.png)
+![COBRA logo](docs/src/assets/logo-header.png)
 
 COBRA.jl - COnstraint-Based Reconstruction and Analysis
 =======================================================
