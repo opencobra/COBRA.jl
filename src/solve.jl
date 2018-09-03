@@ -233,7 +233,7 @@ julia> autoTuneSolver(env, nMets, nRxns, solver)
 See also: `MathProgBase.linprog()`
 """
 
-function autoTuneSolver(m, nMets, nRxns, solver, pid::Int = 1)
+function autoTuneSolver(m, nMets, nRxns, solver, pid::Int=1)
 
     # turn scaling off in CPLEX when solving coupled models or models with more metabolites that reactions in the stoichiometric matrix
     if isdefined(m, :inner) && (nMets >= nRxns || nRxns >= 50000) && solver.name == "CPLEX"

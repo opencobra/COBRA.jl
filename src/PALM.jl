@@ -7,7 +7,7 @@
 
 #-------------------------------------------------------------------------------------------
 """
-    shareLoad(nModels, nMatlab, verbose)
+    shareLoad(nModels, nMatlab, printLevel)
 
 Function shares the number of `nModels` across `nMatlab` sessions (Euclidian division)
 
@@ -18,7 +18,7 @@ Function shares the number of `nModels` across `nMatlab` sessions (Euclidian div
 # OPTIONAL INPUTS
 
 - `nMatlab`:         Number of desired MATLAB sessions (default: 2)
-- `verbose`:         Verbose mode, set `false` for quiet load sharing (default: true)
+- `printLevel`:     Verbose level (default: 1). Mute all output with `printLevel = 0`.
 
 # OUTPUTS
 
@@ -42,11 +42,11 @@ See also: `createPool()` and `PALM`
 
 """
 
-function shareLoad(nModels::Int, nMatlab::Int = 2, verbose::Bool = true)
+function shareLoad(nModels::Int, nMatlab::Int = 2, printLevel::Int=1)
 
     # Make sure that not more processes are launched than there are models (load ratio >= 1)
     if nMatlab > nModels
-        if verbose
+        if printLevel > 0
             warn("Number of workers ($nMatlab) exceeds the number of models ($nModels).")
         end
 
@@ -57,7 +57,7 @@ function shareLoad(nModels::Int, nMatlab::Int = 2, verbose::Bool = true)
             rmprocs(k)
         end
 
-        if verbose
+        if printLevel > 0
             warn("Number of workers reduced to number of models for ideal load distribution.\n")
         end
     end
@@ -70,36 +70,34 @@ function shareLoad(nModels::Int, nMatlab::Int = 2, verbose::Bool = true)
     remainderModels = 0
 
     if nModels%nWorkers > 0
-        if verbose
+        if printLevel > 0
             println(" >> Every worker (#", wrks[1], " - #", wrks[end - 1], ") will solve ", quotientModels, " model(s).")
         end
 
-        #remainderModels = Int(nModels - (nWorkers) * quotientModels)
         remainderModels = Int(nModels - (nWorkers - 1) * quotientModels)
         if remainderModels > 0
-            if verbose
-                #println(" >> Worker #", wrks[end-1], " will solve ", quotientModels + remainderModels, " model(s).")
+            if printLevel > 0
                 println(" >> Worker #", wrks[end-1], " will solve ", quotientModels + remainderModels, " model(s).")
             end
         end
 
         if quotientModels < remainderModels - 1 || remainderModels < 1
-            if verbose
+            if printLevel > 0
                 print_with_color(:red, "\n >> Load sharing is not fair. Consider adjusting the maximum poolsize.\n")
             end
         else
-            if verbose
+            if printLevel > 0
                 print_with_color(:yellow, "\n >> Load sharing is almost ideal.\n")
             end
         end
     else
-        if verbose
+        if printLevel > 0
             println(" >> Every worker will run ", quotientModels, " model(s).")
             print_with_color(:green, " >> Load sharing is ideal.\n")
         end
     end
 
-    if verbose
+    if printLevel > 0
         println("\n -- Load distribution --\n")
         println(" - Number of models:                 $nModels")
         println(" - Number of workers:                $nWorkers")
@@ -113,7 +111,7 @@ end
 
 #-------------------------------------------------------------------------------------------
 """
-    loopModels(dir, p, scriptName, dirContent, startIndex, endIndex, varsCharact)
+    loopModels(dir, p, scriptName, dirContent, startIndex, endIndex, varsCharact, printLevel)
 
 Function `loopModels` is generally called in a loop from `PALM()` on worker `p`.
 Runs `scriptName` for all models with an index in `dirContent` between `startIndex` and `endIndex`.
@@ -129,6 +127,10 @@ is computed as `nModels = endIndex - startIndex + 1`.
 - `startIndex`:     Index of the first model in `dirContent` to be used on worker `p`
 - `endIndex`:       Index of the last model in `dirContent` to be used on worker `p`
 - `varsCharact`:    Array with the names of variables to be retrieved from the MATLAB session on worker `p`
+
+# OPTIONAL INPUTS
+
+- `printLevel`:     Verbose level (default: 1). Mute all output with `printLevel = 0`.
 
 # OUTPUTS
 
@@ -146,15 +148,13 @@ See also: `PALM()`
 
 """
 
-function loopModels(dir, p, scriptName, dirContent, startIndex, endIndex, varsCharact, localnModels)
+function loopModels(dir, p, scriptName, dirContent, startIndex, endIndex, varsCharact, localnModels, printLevel::Int=1)
 
     # determine the lengt of the number of variables
     nCharacteristics = length(varsCharact)
 
     #local nModels
     if endIndex >= startIndex
-        #nModels = endIndex - startIndex + 1
-
         # declaration of local data array
         data = Array{Union{Int,Float64,AbstractString}}(localnModels, nCharacteristics + 1)
 
@@ -162,6 +162,7 @@ function loopModels(dir, p, scriptName, dirContent, startIndex, endIndex, varsCh
             PALM_iModel = k #+ (p - 1) * nModels
             PALM_modelFile = dirContent[startIndex+k-1]
             PALM_dir = dir
+            PALM_printLevel = printLevel
 
             # save the modelName
             data[k, 1] = PALM_modelFile
@@ -169,6 +170,7 @@ function loopModels(dir, p, scriptName, dirContent, startIndex, endIndex, varsCh
             MATLAB.@mput PALM_iModel
             MATLAB.@mput PALM_modelFile
             MATLAB.@mput PALM_dir
+            MATLAB.@mput PALM_printLevel
             eval(parse("MATLAB.mat\"run('$scriptName')\""))
 
             for i = 1:nCharacteristics
@@ -176,7 +178,9 @@ function loopModels(dir, p, scriptName, dirContent, startIndex, endIndex, varsCh
             end
         end
 
-        @show data
+        if printLevel > 0
+            @show data
+        end
 
         return data
     else
@@ -186,7 +190,7 @@ end
 
 #-------------------------------------------------------------------------------------------
 """
-    PALM(dir, scriptName, nMatlab, outputFile, cobraToolboxDir)
+    PALM(dir, scriptName, nMatlab, outputFile, cobraToolboxDir, printLevel)
 
 Function reads the directory `dir`, and launches `nMatlab` sessions to run `scriptName`.
 Results are saved in the `outputFile`.
@@ -201,6 +205,7 @@ Results are saved in the `outputFile`.
 - `nMatlab`:         Number of desired MATLAB sessions (default: 2)
 - `outputFile`:      Name of `.mat` file to save the result table named "summaryData" (default name: "PALM_data.mat")
 - `cobraToolboxDir`: Directory of the COBRA Toolbox (default: "~/cobratoolbox")
+- `printLevel`:     Verbose level (default: 1). Mute all output with `printLevel = 0`.
 
 # OUTPUTS
 
@@ -222,12 +227,14 @@ See also: `loopModels()` and `shareLoad()`
 
 """
 
-function PALM(dir, scriptName, nMatlab::Int=2, outputFile::AbstractString="PALM_data.mat", varsCharact=[], cobraToolboxDir=ENV["HOME"]*Base.Filesystem.path_separator*"cobratoolbox")
+function PALM(dir, scriptName, nMatlab::Int=2, outputFile::AbstractString="PALM_data.mat", varsCharact=[], cobraToolboxDir=ENV["HOME"]*Base.Filesystem.path_separator*"cobratoolbox", printLevel::Int=1)
 
     # read the content of the directory
     dirContent = readdir(dir)
 
-    info("Directory with $(length(dirContent)) models read successfully.")
+    if printLevel > 0
+        info("Directory with $(length(dirContent)) models read successfully.")
+    end
 
     nWorkers, quotientModels, remainderModels = shareLoad(length(dirContent), nMatlab)
 
@@ -263,22 +270,27 @@ function PALM(dir, scriptName, nMatlab::Int=2, outputFile::AbstractString="PALM_
     # launch the function loopModels on every worker
     @sync for (p, pid) in enumerate(workers())
 
-        info("Launching MATLAB session on worker $(p+1).")
+        if printLevel > 0
+            info("Launching MATLAB session on worker $(p+1).")
+        end
 
+        # adding the model directory and eventual subdirectories to the MATLAB path
+        # Note: the fileseparator `/` also works on Windows systems if git Bash has been installed
         @async R[p] = @spawnat (p+1) begin
-            # adding the model directory and eventual subdirectories to the MATLAB path
             eval(parse("mat\"addpath(genpath('/tmp/test-ct-$p'))\""))
-            eval(parse("mat\"run('/tmp/test-ct-$p/initCobraToolbox.m');\"")) #*Base.Filesystem.path_separator*
-            # add the path with the models
-            #eval(parse("mat\"addpath('$dir');\""))
+            eval(parse("mat\"run('/tmp/test-ct-$p/initCobraToolbox.m');\""))
         end
 
     end
 
-    info("> MATLAB sessions initializing")
+    # print an informative message
+    if printLevel > 0
+        info("> MATLAB sessions initializing")
+    end
 
     @sync for (p, pid) in enumerate(workers())
 
+        # determine the starting index
         startIndex = Int((p - 1) * quotientModels + 1)
 
         # save the startIndex for each worker
@@ -292,8 +304,9 @@ function PALM(dir, scriptName, nMatlab::Int=2, outputFile::AbstractString="PALM_
 
             localnModels = quotientModels
 
-            info("(case1): Worker $(p+1) runs $localnModels models: from $startIndex to $endIndex")
-
+            if printLevel > 0
+                info("(case1): Worker $(p+1) runs $localnModels models: from $startIndex to $endIndex")
+            end
         else
             endIndex = Int((p+1) * quotientModels + remainderModels)
 
@@ -306,8 +319,9 @@ function PALM(dir, scriptName, nMatlab::Int=2, outputFile::AbstractString="PALM_
 
             localnModels = endIndex - startIndex + 1
 
-            info("(case 2): Worker $(p+1) runs $localnModels models: from $startIndex to $endIndex")
-
+            if printLevel > 0
+                info("(case 2): Worker $(p+1) runs $localnModels models: from $startIndex to $endIndex")
+            end
         end
 
         @async R[p] = @spawnat (p+1) begin

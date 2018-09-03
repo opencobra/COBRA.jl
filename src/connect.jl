@@ -30,6 +30,7 @@ Function used to create a pool of parallel workers that are either local or conn
 - `connectSSH`:     Boolean that indicates whether additional nodes should be connected via SSH.
                     (default: `false`)
 - `connectionFile`  Name of the file with the SSH connection details (default: config/sshCfg.jl in the `COBRA` package installation folder)
+- `printLevel`:     Verbose level (default: 1). Mute all output with `printLevel = 0`.
 
 # OUTPUTS
 
@@ -53,15 +54,22 @@ See also: `workers()`, `nprocs()`, `addprocs()`, `gethostname()`
 
 """
 
-function createPool(localWorkers::Int, connectSSH::Bool=false, connectionFile::String="$(Pkg.dir("COBRA"))/config/sshCfg.jl")
+function createPool(localWorkers::Int, connectSSH::Bool=false, connectionFile::String="$(Pkg.dir("COBRA"))/config/sshCfg.jl", printLevel::Int=1)
 
     # load cores on remote nodes
     if connectSSH
         # load the SSH configuration
         if isfile(connectionFile)
-            print("Loading SSH connection details from $connectionFile ...")
-            include(connectionFile)
-            print_with_color(:green, "Done.\n")
+            if printLevel > 0
+                print("Loading SSH connection details from $connectionFile ...")
+            end
+
+            # include the file with the connection details
+                include(connectionFile)
+
+            if printLevel > 0
+                print_with_color(:green, "Done.\n")
+            end
         else
             error("Connection file (filename: `$connectionFile`) is unreadable or not accessible.")
         end
@@ -82,29 +90,40 @@ function createPool(localWorkers::Int, connectSSH::Bool=false, connectionFile::S
 
     # connect all required workers
     if nWorkers <= 1
-        info("Sequential version - Depending on the model size, expect long execution times.")
-
+        if printLevel > 0
+            info("Sequential version - Depending on the model size, expect long execution times.")
+        end
     else
-        info("Parallel version - Connecting the $nWorkers workers ...")
+        if printLevel > 0
+            info("Parallel version - Connecting the $nWorkers workers ...")
+        end
 
         # print a warning for already connected threads
         if nprocs() > nWorkers
-            print_with_color(:blue, "$nWorkers workers already connected. No further workers to connect.\n")
+            if printLevel > 0
+                print_with_color(:blue, "$nWorkers workers already connected. No further workers to connect.\n")
+            end
         end
 
         # add local threads
         if localWorkers > 0 && nworkers() < nWorkers
             addprocsCOBRA(localWorkers, topology = :master_slave)
-            print_with_color(:blue, "$(nworkers()) local workers are connected. (+1) on host: $(gethostname())\n")
+            if printLevel > 0
+                print_with_color(:blue, "$(nworkers()) local workers are connected. (+1) on host: $(gethostname())\n")
+            end
         end
 
         # add remote threads
         if connectSSH && nworkers() < nWorkers && isfile(connectionFile)
-            info("Connecting SSH nodes ...")
+            if printLevel > 0
+                info("Connecting SSH nodes ...")
+            end
 
             # loop through the workers to be connected
             for i = 1:length(sshWorkers)
-                println(" >> Connecting ", sshWorkers[i]["procs"], " workers on ", sshWorkers[i]["usernode"])
+                if printLevel > 0
+                    println(" >> Connecting ", sshWorkers[i]["procs"], " workers on ", sshWorkers[i]["usernode"])
+                end
 
                 try
                     if !is_windows()
@@ -118,7 +137,9 @@ function createPool(localWorkers::Int, connectSSH::Bool=false, connectionFile::S
                                           exeflags=`--depwarn=no`, exename = sshWorkers[i]["exename"])
 
                             # return a status update
-                            info("Connected ", sshWorkers[i]["procs"], " workers on ",  sshWorkers[i]["usernode"])
+                            if printLevel > 0
+                                info("Connected ", sshWorkers[i]["procs"], " workers on ",  sshWorkers[i]["usernode"])
+                            end
 
                             # increase the counter of remote workers
                             remoteWorkers += sshWorkers[i]["procs"]

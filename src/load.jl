@@ -36,7 +36,7 @@ end
 
 #-------------------------------------------------------------------------------------------
 """
-    loadModel(fileName, matrixAS, modelName, modelFields)
+    loadModel(fileName, matrixAS, modelName, modelFields, printLevel)
 
 Function used to load a COBRA model from an existing .mat file
 
@@ -49,6 +49,7 @@ Function used to load a COBRA model from an existing .mat file
 - `matrixAS`:       String to distinguish the name of stoichiometric matrix ("S" or "A", default: "S")
 - `modelName`:      String with the name of the model structure (default: "model")
 - `modelFields`:    Array with strings of fields of the model structure (default: ["ub", "lb", "osense", "c", "b", "csense", "rxns", "mets"])
+- `printLevel`:     Verbose level (default: 1). Mute all output with `printLevel = 0`.
 
 # OUTPUTS
 
@@ -74,7 +75,7 @@ julia> model = loadModel("myModel.mat", "A", "myModelName", ["ub","lb","osense",
 See also: `MAT.jl`, `matopen()`, `matread()`
 """
 
-function loadModel(fileName::String, matrixAS::String="S", modelName::String="model", modelFields::Array{String,1}=["ub", "lb", "osense", "c", "b", "csense", "rxns", "mets"])
+function loadModel(fileName::String, matrixAS::String="S", modelName::String="model", modelFields::Array{String,1}=["ub", "lb", "osense", "c", "b", "csense", "rxns", "mets"], printLevel::Int=1)
 
     file = matopen(fileName)
     vars = matread(fileName)
@@ -115,7 +116,9 @@ function loadModel(fileName::String, matrixAS::String="S", modelName::String="mo
             osense = model[modelFields[3]]
         else
             osense = -1
-            info("The model objective is set to be maximized.\n")
+            if printLevel > 0
+                info("The model objective is set to be maximized.\n")
+            end
         end
 
         # load the upper bound vector c
@@ -140,7 +143,9 @@ function loadModel(fileName::String, matrixAS::String="S", modelName::String="mo
                 csense[i] = model[modelFields[6]][i][1] #convert to chars
             end
         else
-            info("All constraints assumed equality constaints.\n")
+            if printLevel > 0
+                info("All constraints assumed equality constaints.\n")
+            end
         end
 
         # load the reaction names vector
@@ -157,16 +162,13 @@ function loadModel(fileName::String, matrixAS::String="S", modelName::String="mo
             error("The vector `$(modelFields[8])` does not exist in `$modelName`.")
         end
 
-        #determine the size of S
+        # determine the size of S
         nMets = size(S,1)
         nRxns = size(S,2)
 
         return LPproblem(S, b[1:nMets], c[1:nRxns], lb[1:nRxns], ub[1:nRxns], osense, csense[1:nMets], rxns, mets)
-
     else
-
         error("The variable named `$modelName` does not exist. Please set `$modelName` to a known variable in the `.mat` file.")
-
     end
 
 end

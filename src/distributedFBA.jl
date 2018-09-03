@@ -7,7 +7,7 @@
 
 #-------------------------------------------------------------------------------------------
 """
-    preFBA!(model, solver, optPercentage, osenseStr, rxnsList)
+    preFBA!(model, solver, optPercentage, osenseStr, rxnsList, printLevel)
 
 Function that solves the original FBA, adds the objective value as a constraint to the
 stoichiometric matrix of the model, and changes the RHS vector `b`. Note that the `model` object is changed.
@@ -23,6 +23,7 @@ stoichiometric matrix of the model, and changes the RHS vector `b`. Note that th
 - `optPercentage`:  Only consider solutions that give you at least a certain percentage of the optimal solution (default: 0%)
 - `osenseStr`:      Sets the optimization mode of the original FBA ("max" or "min", default: "max")
 - `rxnsList`:       List of reactions to analyze (default: all reactions)
+- `printLevel`:     Verbose level (default: 1). Mute all output with `printLevel = 0`.
 
 # OUTPUTS
 
@@ -46,7 +47,7 @@ See also: `solveCobraLP()`, `distributedFBA()`
 """
 
 function preFBA!(model, solver, optPercentage::Float64=0.0, osenseStr::String="max",
-                 rxnsList::Array{Int, 1}=ones(Int, length(model.rxns)))
+                 rxnsList::Array{Int, 1}=ones(Int, length(model.rxns)), printLevel::Int=1)
 
     # constants
     OPT_PERCENTAGE = 90.0
@@ -54,14 +55,18 @@ function preFBA!(model, solver, optPercentage::Float64=0.0, osenseStr::String="m
 
     # determine the size of the stoichiometric matrix
     (nMets, nRxns) = size(model.S)
-    println("\n >> Size of stoichiometric matrix: ($nMets, $nRxns)\n")
+    if printLevel > 0
+        println("\n >> Size of stoichiometric matrix: ($nMets, $nRxns)\n")
+    end
 
     # determine the number of reactions that shall be considered
     nRxnsList = length(rxnsList)
 
     # provide a warning when the optPercentage is higher than 90%
     if optPercentage > OPT_PERCENTAGE
-        print_with_color(:cyan, "The value of optPercentage is higher than 90%. The solution process might take longer than expected.\n\n")
+        if printLevel > 0
+            print_with_color(:cyan, "The value of optPercentage is higher than 90%. The solution process might take longer than expected.\n\n")
+        end
     end
 
     # determine constraints for the correct space (0-100% of the full space)
@@ -93,7 +98,9 @@ function preFBA!(model, solver, optPercentage::Float64=0.0, osenseStr::String="m
 
     # add a condition if the LP has an extra condition based on the FBA solution
     if hasObjective
-        print_with_color(:blue, "preFBA! [osenseStr = $osenseStr]: FBAobj = $FBAobj, optPercentage = $optPercentage, objValue = optPercentage * FBAobj = $objValue, norm(fbaSol) = $(norm(fbaSol)).\n\n")
+        if printLevel > 0
+            print_with_color(:blue, "preFBA! [osenseStr = $osenseStr]: FBAobj = $FBAobj, optPercentage = $optPercentage, objValue = optPercentage * FBAobj = $objValue, norm(fbaSol) = $(norm(fbaSol)).\n\n")
+        end
 
         # add a row in the stoichiometric matrix
         model.S = [model.S; model.c']
@@ -110,7 +117,9 @@ function preFBA!(model, solver, optPercentage::Float64=0.0, osenseStr::String="m
 
         return FBAobj, fbaSol
     else
-        print_with_color(:blue, "No objective set (`c` is zero). objValue and fbaSol not defined. optPercentage = $optPercentage.\n\n")
+        if printLevel > 0
+            print_with_color(:blue, "No objective set (`c` is zero). objValue and fbaSol not defined. optPercentage = $optPercentage.\n\n")
+        end
         return nothing
     end
 
@@ -118,7 +127,7 @@ end
 
 #-------------------------------------------------------------------------------------------
 """
-    splitRange(model, rxnsList, nWorkers, strategy)
+    splitRange(model, rxnsList, nWorkers, strategy, printLevel)
 
 Function splits a reaction list in blocks for a certain number of workers according to
 a selected strategy. Generally , `splitRange()` is called before the FBAs are distributed.
@@ -136,6 +145,7 @@ a selected strategy. Generally , `splitRange()` is called before the FBAs are di
     - 0: Blind splitting: default random distribution
     - 1: Extremal dense-and-sparse splitting: every worker receives dense and sparse reactions, starting from both extremal indices of the sorted column density vector
     - 2: Central dense-and-sparse splitting: every worker receives dense and sparse reactions, starting from the beginning and center indices of the sorted column density vector
+- `printLevel`:     Verbose level (default: 1). Mute all output with `printLevel = 0`.
 
 # OUTPUTS
 
@@ -157,7 +167,7 @@ See also: `distributeFBA()`
 
 """
 
-function splitRange(model, rxnsList, nWorkers::Int=1, strategy::Int=0)
+function splitRange(model, rxnsList, nWorkers::Int=1, strategy::Int=0, printLevel::Int=1)
 
     # determine number of reactions for each worker
     pRxnsWorker = convert(Int, ceil(length(rxnsList) / nWorkers))
@@ -166,8 +176,10 @@ function splitRange(model, rxnsList, nWorkers::Int=1, strategy::Int=0)
     NrxnsList = length(rxnsList)
 
     # output the average load per worker and the splitting strategy
-    print_with_color(:blue, "Average load per worker: $pRxnsWorker reactions ($nWorkers workers).\n")
-    print_with_color(:blue, "Splitting strategy is $strategy.\n\n")
+    if printLevel > 0
+        print_with_color(:blue, "Average load per worker: $pRxnsWorker reactions ($nWorkers workers).\n")
+        print_with_color(:blue, "Splitting strategy is $strategy.\n\n")
+    end
 
     # define indices for each worker p
     istart      = zeros(Int, nWorkers)
@@ -276,7 +288,7 @@ end
 
 #-------------------------------------------------------------------------------------------
 """
-    loopFBA(m, rxnsList, nRxns, rxnsOptMode, iRound, pid, resultsDir, logFiles, onlyFluxes)
+    loopFBA(m, rxnsList, nRxns, rxnsOptMode, iRound, pid, resultsDir, logFiles, onlyFluxes, printLevel)
 
 Function used to perform a loop of a series of FBA problems using the CPLEX solver
 Generally, `loopFBA` is called in a loop over multiple workers and makes use of the
@@ -303,6 +315,7 @@ Generally, `loopFBA` is called in a loop over multiple workers and makes use of 
 - `resultsDir`:     Path to results folder (default is a `results` folder in the Julia package directory)
 - `logFiles`:       (only available for CPLEX) Boolean to write a solver logfile of each optimization (default: false)
 - `onlyFluxes`:     Save only minFlux and maxFlux if true and will return placeholders for `fvamin`, `fvamax`, `statussolmin`, or `statussolmax` (applicable for quick checks of large models, default: false)
+- `printLevel`:     Verbose level (default: 1). Mute all output with `printLevel = 0`.
 
 # OUTPUTS
 
@@ -330,7 +343,7 @@ See also: `distributeFBA()`, `MathProgBase.HighLevelInterface`
 """
 
 function loopFBA(m, rxnsList, nRxns::Int, rxnsOptMode=2 + zeros(Int, length(rxnsList)), iRound::Int=0, pid::Int=1,
-                 resultsDir::String="$(Pkg.dir("COBRA"))/results", logFiles::Bool=false, onlyFluxes::Bool=false)
+                 resultsDir::String="$(Pkg.dir("COBRA"))/results", logFiles::Bool=false, onlyFluxes::Bool=false, printLevel::Int=1)
 
     # initialize vectors and counters
     retObj = zeros(nRxns)
@@ -359,10 +372,14 @@ function loopFBA(m, rxnsList, nRxns::Int, rxnsOptMode=2 + zeros(Int, length(rxns
             if j == 1
                 if iRound == 0
                     MathProgBase.HighLevelInterface.setsense!(m, :Min)
-                    println(" -- Minimization (iRound = $iRound). Block $pid [$(length(rxnsList))/$nRxns].")
+                    if printLevel > 0
+                        println(" -- Minimization (iRound = $iRound). Block $pid [$(length(rxnsList))/$nRxns].")
+                    end
                 else
                     MathProgBase.HighLevelInterface.setsense!(m, :Max)
-                    println(" -- Maximization (iRound = $iRound). Block $pid [$(length(rxnsList))/$nRxns].")
+                    if printLevel > 0
+                        println(" -- Maximization (iRound = $iRound). Block $pid [$(length(rxnsList))/$nRxns].")
+                    end
                 end
             end
 
@@ -429,7 +446,7 @@ end
 
 # ------------------------------------------------------------------------------------------
 """
-    distributedFBA(model, solver, nWorkers, optPercentage, objective, rxnsList, strategy, rxnsOptMode, preFBA, saveChunks, resultsDir, logFiles, onlyFluxes)
+    distributedFBA(model, solver, nWorkers, optPercentage, objective, rxnsList, strategy, rxnsOptMode, preFBA, saveChunks, resultsDir, logFiles, onlyFluxes, printLevel)
 
 Function to distribute a series of FBA problems across one or more workers that have been
 initialized using the `createPool` function (or similar).
@@ -460,6 +477,7 @@ initialized using the `createPool` function (or similar).
 - `resultsDir`:     Path to results folder (default is a `results` folder in the Julia package directory)
 - `logFiles`:       Boolean to write a solver logfile of each optimization (folder `resultsDir/logs` is automatically created. default: false)
 - `onlyFluxes`:     Save only minFlux and maxFlux if true and will return placeholders for `fvamin`, `fvamax`, `statussolmin`, or `statussolmax` (applicable for quick checks of large models, default: false)
+- `printLevel`:     Verbose level (default: 1). Mute all output with `printLevel = 0`.
 
 # OUTPUTS
 
@@ -507,7 +525,7 @@ See also: `preFBA!()`, `splitRange()`, `buildCobraLP()`, `loopFBA()`, or `fetch(
 function distributedFBA(model, solver; nWorkers::Int=1, optPercentage::Union{Float64, Int64}=0.0, objective::String="max",
                         rxnsList=1:length(model.rxns), strategy::Int=0, rxnsOptMode=2 + zeros(Int, length(model.rxns)),
                         preFBA::Bool=false, saveChunks::Bool=false, resultsDir::String="$(Pkg.dir("COBRA"))/results",
-                        logFiles::Bool=false, onlyFluxes::Bool=false)
+                        logFiles::Bool=false, onlyFluxes::Bool=false, printLevel::Int=1)
 
     # convert type of optPercentage
     if typeof(optPercentage) != Float64
@@ -520,7 +538,9 @@ function distributedFBA(model, solver; nWorkers::Int=1, optPercentage::Union{Flo
         startTime = time()
         optSol, fbaSol = preFBA!(model, solver, optPercentage, objective)
         solTime = time() - startTime
-        print_with_color(:green, "Original FBA solved. Solution time: $solTime s.\n\n")
+        if printLevel > 0
+            print_with_color(:green, "Original FBA solved. Solution time: $solTime s.\n\n")
+        end
     else
         # throw a warning message if preFBA = false and optPercentage > 0%
         if optPercentage > 0.0
@@ -530,7 +550,9 @@ function distributedFBA(model, solver; nWorkers::Int=1, optPercentage::Union{Flo
         # define the optSol and fbaSol variables
         optSol = NaN
         fbaSol = NaN * zeros(length(model.rxns))
-        print_with_color(:blue, "Original FBA. No additional constraints have been added.\n")
+        if printLevel > 0
+            print_with_color(:blue, "Original FBA. No additional constraints have been added.\n")
+        end
     end
 
     # determine the number of reactions and metabolites
@@ -547,12 +569,14 @@ function distributedFBA(model, solver; nWorkers::Int=1, optPercentage::Union{Flo
     # sanity check for very large models
     if nRxns > 60000 && !saveChunks && !onlyFluxes
         saveChunks = true
-        info("Trying to solve a model of $nRxns reactions. `saveChunks` has been set to `true`.")
+        if printLevel > 0
+            info("Trying to solve a model of $nRxns reactions. `saveChunks` has been set to `true`.")
+        end
     end
 
     # set saveChunks to false when only the maxFlux and minFlux arguments are requested
     if saveChunks && onlyFluxes
-        saveChunks = false;
+        saveChunks = false
         warn("`saveChunks` has been set to `false`.\n")
     end
 
@@ -560,16 +584,22 @@ function distributedFBA(model, solver; nWorkers::Int=1, optPercentage::Union{Flo
         # create a folder for storing the results
         if !isdir("$resultsDir")
             mkdir("$resultsDir")
-            print_with_color(:green, "Directory `$resultsDir` created.\n")
+            if printLevel > 0
+                print_with_color(:green, "Directory `$resultsDir` created.\n")
+            end
         else
-            print_with_color(:cyan, "Directory `$resultsDir` already exists.\n")
+            if printLevel > 0
+                print_with_color(:cyan, "Directory `$resultsDir` already exists.\n")
+            end
         end
     end
 
     # create a folder for log files
     if logFiles && !isdir("$resultsDir/logs")
         mkdir("$resultsDir/logs")
-        print_with_color(:green, "Directory `$resultsDir/logs` created.\n")
+        if printLevel > 0
+            print_with_color(:green, "Directory `$resultsDir/logs` created.\n")
+        end
     end
 
     # initialize the flux matrices
@@ -591,7 +621,9 @@ function distributedFBA(model, solver; nWorkers::Int=1, optPercentage::Union{Flo
     else
         fvamin = NaN * zeros(1, 1)
         fvamax = NaN * zeros(1, 1)
-        info("Only the `minFlux` and `maxFlux` vectors will be calculated (solver solution status available in `statussolmin` and `statussolmax`).\n")
+        if printLevel > 0
+            info("Only the `minFlux` and `maxFlux` vectors will be calculated (solver solution status available in `statussolmin` and `statussolmax`).\n")
+        end
     end
 
     # initialize the vectors to report the solution status
@@ -601,30 +633,39 @@ function distributedFBA(model, solver; nWorkers::Int=1, optPercentage::Union{Flo
     # perform sanity checks
     if nRxnsList > nRxns
         rxnsList = 1:nRxns
-        warn("The `rxnsList` has more reactions than in the model. `rxnsList` shorted to the maximum number of reactions.")
+        if printLevel > 0
+            warn("The `rxnsList` has more reactions than in the model. `rxnsList` shorted to the maximum number of reactions.")
+        end
     end
 
     if nRxns != nRxnsList
-        println(" >> Only $nRxnsList ", (nRxnsList == 1) ? "reaction" : "reactions", " of $nRxns will be solved (~ $(nRxnsList * 100 / nRxns) \%).\n")
+            if printLevel > 0
+                println(" >> Only $nRxnsList ", (nRxnsList == 1) ? "reaction" : "reactions", " of $nRxns will be solved (~ $(nRxnsList * 100 / nRxns) \%).\n")
+            end
     else
-        println(" >> All $nRxns reactions of the model will be solved (100 \%).\n")
+        if printLevel > 0
+            println(" >> All $nRxns reactions of the model will be solved (100 \%).\n")
+        end
     end
 
     # sanity checks for large models
     if nRxnsList > 20000 && nWorkers <= 4
-        warn("\nTrying to solve more than 20000 optimization problems on fewer than 4 workers. Memory might be limited.")
-        info(" >> Try running this analysis on a cluster, or use a larger parallel pool.\n")
+        if printLevel > 0
+            warn("\nTrying to solve more than 20000 optimization problems on fewer than 4 workers. Memory might be limited.")
+            info(" >> Try running this analysis on a cluster, or use a larger parallel pool.\n")
+        end
     end
 
     # sanity check for few reactions on a large pool
     if nRxnsList < nWorkers
-        warn("\nThe parallel pool of workers is larger than the number of reactions being solved.")
-        info(" >> Consider reducing the size of the parallel pool to free system resources.\n")
+        if printLevel > 0
+            warn("\nThe parallel pool of workers is larger than the number of reactions being solved.")
+            info(" >> Consider reducing the size of the parallel pool to free system resources.\n")
+        end
     end
 
     # perform maximizations and minimizations in parallel
     if nWorkers > 1
-
         # partition and split the reactions among workers
         rxnsKey = splitRange(model, rxnsList, nWorkers, strategy)
 
@@ -641,7 +682,7 @@ function distributedFBA(model, solver; nWorkers::Int=1, optPercentage::Union{Flo
                     autoTuneSolver(m, nMets, nRxns, solver, pid)
 
                     # start the loop of FBA
-                    loopFBA(m, rxnsList[rxnsKey[p]], nRxns, rxnsOptMode[rxnsKey[p]], iRound, pid, resultsDir, logFiles, onlyFluxes)
+                    loopFBA(m, rxnsList[rxnsKey[p]], nRxns, rxnsOptMode[rxnsKey[p]], iRound, pid, resultsDir, logFiles, onlyFluxes, printLevel)
                 end
             end
         end
@@ -656,8 +697,10 @@ function distributedFBA(model, solver; nWorkers::Int=1, optPercentage::Union{Flo
             # save the fluxes of each reaction
             if !onlyFluxes
                 if saveChunks
-                    if p == 1 println() end
-                    print(" Saving the minimum and maximum fluxes for reactions $(rxnsList[rxnsKey[p]]) from worker $p ... ")
+                    if printLevel > 0
+                        if p == 1 println() end
+                        print(" Saving the minimum and maximum fluxes for reactions $(rxnsList[rxnsKey[p]]) from worker $p ... ")
+                    end
 
                     # open 2 file streams
                     filemin = matopen("$resultsDir/fvamin/fvamin_$p.mat", "w")
@@ -699,8 +742,8 @@ function distributedFBA(model, solver; nWorkers::Int=1, optPercentage::Union{Flo
         # adjust the solver parameters based on the model
         autoTuneSolver(m, nMets, nRxns, solver)
 
-        minFlux, fvamin, statussolmin = loopFBA(m, rxnsList, nRxns, rxnsOptMode, 0, 1, resultsDir, logFiles, onlyFluxes)
-        maxFlux, fvamax, statussolmax = loopFBA(m, rxnsList, nRxns, rxnsOptMode, 1, 1, resultsDir, logFiles, onlyFluxes)
+        minFlux, fvamin, statussolmin = loopFBA(m, rxnsList, nRxns, rxnsOptMode, 0, 1, resultsDir, logFiles, onlyFluxes, printLevel)
+        maxFlux, fvamax, statussolmax = loopFBA(m, rxnsList, nRxns, rxnsOptMode, 1, 1, resultsDir, logFiles, onlyFluxes, printLevel)
     end
 
     return minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax
@@ -709,7 +752,7 @@ end
 
 #-------------------------------------------------------------------------------------------
 """
-    printSolSummary(testFile, optSol, maxFlux, minFlux, solTime, nWorkers, solverName, strategy, saveChunks)
+    printSolSummary(testFile, optSol, maxFlux, minFlux, solTime, nWorkers, solverName, strategy, saveChunks, printLevel)
 
 Output a solution summary
 
@@ -736,44 +779,45 @@ See also: `norm()`, `maximum()`, `minimum()`
 
 """
 
-function printSolSummary(testFile::String, optSol, maxFlux, minFlux, solTime, nWorkers, solverName, strategy=0, saveChunks=false)
+function printSolSummary(testFile::String, optSol, maxFlux, minFlux, solTime, nWorkers, solverName, strategy=0, saveChunks=false, printLevel::Int=1)
 
     # print a solution summary
-    println("\n-- Solution summary --\n")
-    print_with_color(:blue, "$testFile\n")
+    if printLevel > 0
+        println("\n-- Solution summary --\n")
+        print_with_color(:blue, "$testFile\n")
 
-    if !isnan(optSol)  println(" Original FBA obj.val         ", optSol)  end
+        if !isnan(optSol)  println(" Original FBA obj.val         ", optSol)  end
 
-    tmp = maximum(maxFlux)
-    if !isnan(tmp)  println(" Maximum of maxFlux:          ", tmp)  end
+        tmp = maximum(maxFlux)
+        if !isnan(tmp)  println(" Maximum of maxFlux:          ", tmp)  end
 
-    tmp = minimum(maxFlux)
-    if !isnan(tmp)  println(" Minimum of maxFlux:          ", tmp)  end
+        tmp = minimum(maxFlux)
+        if !isnan(tmp)  println(" Minimum of maxFlux:          ", tmp)  end
 
-    tmp = maximum(minFlux)
-    if !isnan(tmp)  println(" Maximum of minFlux:          ", tmp)  end
+        tmp = maximum(minFlux)
+        if !isnan(tmp)  println(" Maximum of minFlux:          ", tmp)  end
 
-    tmp = minimum(minFlux)
-    if !isnan(tmp)  println(" Minimum of minFlux:          ", tmp)  end
+        tmp = minimum(minFlux)
+        if !isnan(tmp)  println(" Minimum of minFlux:          ", tmp)  end
 
-    tmp = norm(maxFlux)
-    if !isnan(tmp)  println(" Norm of maxFlux:             ", tmp)  end
+        tmp = norm(maxFlux)
+        if !isnan(tmp)  println(" Norm of maxFlux:             ", tmp)  end
 
-    tmp = norm(minFlux)
-    if !isnan(tmp)  println(" Norm of minFlux:             ", tmp)  end
+        tmp = norm(minFlux)
+        if !isnan(tmp)  println(" Norm of minFlux:             ", tmp)  end
 
-    println(" Solution time [s]:           ", solTime)
-    println(" Number of workers:           ", nWorkers)
-    println(" Solver:                      ", solverName)
-    println(" Distribution strategy:       ", strategy)
-    println(" Saving individual files:     ", saveChunks)
-    println()
-
+        println(" Solution time [s]:           ", solTime)
+        println(" Number of workers:           ", nWorkers)
+        println(" Solver:                      ", solverName)
+        println(" Distribution strategy:       ", strategy)
+        println(" Saving individual files:     ", saveChunks)
+        println()
+    end
 end
 
 #------------------------------------------------------------------------------------------
 """
-    saveDistributedFBA(fileName::String, vars)
+    saveDistributedFBA(fileName::String, vars, printLevel)
 
 Output a file with all the output variables of `distributedFBA()` and `rxnsList`
 
@@ -810,7 +854,7 @@ julia> saveDistributedFBA(ENV["HOME"]*"/myResults.mat", ["minFlux", "maxFlux"])
 
 """
 
-function saveDistributedFBA(fileName::String, vars::Array{String,1} = ["minFlux", "maxFlux", "optSol", "fbaSol", "fvamin", "fvamax", "statussolmin", "statussolmax", "rxnsList"])
+function saveDistributedFBA(fileName::String, vars::Array{String,1} = ["minFlux", "maxFlux", "optSol", "fbaSol", "fvamin", "fvamax", "statussolmin", "statussolmax", "rxnsList"], printLevel::Int=1)
 
     # open a file with a give filename
     file = matopen(fileName, "w")
@@ -821,7 +865,9 @@ function saveDistributedFBA(fileName::String, vars::Array{String,1} = ["minFlux"
     # loop through the list of variables
     for i = 1:length(vars)
         if isdefined(Main, Symbol(vars[i]))
-            print("Saving $(vars[i]) (T:> $(typeof(eval(Main, Symbol(vars[i]))))) ...")
+            if printLevel > 0
+                print("Saving $(vars[i]) (T:> $(typeof(eval(Main, Symbol(vars[i]))))) ...")
+            end
 
             # write the variable to the file
             write(file, "$(vars[i])", convertUnitRange( eval(Main, Symbol(vars[i])) ))
@@ -829,7 +875,9 @@ function saveDistributedFBA(fileName::String, vars::Array{String,1} = ["minFlux"
             # increment the counter
             countSavedVars = countSavedVars + 1
 
-            print_with_color(:green, "Done.\n")
+            if printLevel > 0
+                print_with_color(:green, "Done.\n")
+            end
         end
     end
 
@@ -838,11 +886,12 @@ function saveDistributedFBA(fileName::String, vars::Array{String,1} = ["minFlux"
 
     # print a status message
     if countSavedVars > 0
-        print_with_color(:green, "All available variables saved to $fileName.\n")
+        if printLevel > 0
+            print_with_color(:green, "All available variables saved to $fileName.\n")
+        end
     else
         warn("No variables saved.")
     end
-
 end
 
 export preFBA!, splitRange, loopFBA, distributedFBA, printSolSummary, saveDistributedFBA
