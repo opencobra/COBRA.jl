@@ -65,7 +65,7 @@ end
 
 #-------------------------------------------------------------------------------------------
 """
-    changeCobraSolver(name, params)
+    changeCobraSolver(name, params, printLevel)
 
 Function used to change the solver and include the respective solver interfaces
 
@@ -76,6 +76,7 @@ Function used to change the solver and include the respective solver interfaces
 # OPTIONAL INPUT
 
 - `params`:         Solver parameters as a row vector with tuples
+- `printLevel`:     Verbose level (default: 1). Mute all output with `printLevel = 0`.
 
 # OUTPUT
 
@@ -91,7 +92,7 @@ julia> changeCobraSolver("CPLEX", cpxControl)
 See also: `MathProgBase.jl`
 """
 
-function changeCobraSolver(name, params=[])
+function changeCobraSolver(name, params=[]; printLevel::Int=1)
 
     # convert type of name
     if typeof(name) != :String
@@ -122,11 +123,19 @@ function changeCobraSolver(name, params=[])
 
     elseif name == "Gurobi"
         try
-            if length(params) > 1
-                solver.handle = GurobiSolver(Method=params[1], OutputFlag=params[2])
-            else
-                solver.handle = GurobiSolver()
+            # define default parameters
+            if isempty(params)
+                push!(params, -1) # default (ref: http://www.gurobi.com/documentation/8.0/refman/method.html#parameter:Method)
+                push!(params, 1) # default (ref: http://www.gurobi.com/documentation/8.0/refman/outputflag.html)
             end
+
+            # set the output flag depending on the printLevel
+            if printLevel != 1
+                params[2] = printLevel
+            end
+
+            # define the solver handle
+            solver.handle = GurobiSolver(Method=params[1], OutputFlag=params[2])
         catch
             error("The solver `Gurobi` cannot be set using `changeCobraSolver()`.")
         end
