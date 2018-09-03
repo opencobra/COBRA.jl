@@ -1,0 +1,3 @@
+*.html  linguist-documentation=true
+*.html  linguist-vendored=true
+*.m     linguist-vendored=true
