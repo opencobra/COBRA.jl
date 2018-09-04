@@ -57,8 +57,8 @@ if sizeof(Pkg.installed("MATLAB")) > 0
     # load sharing with exceeding number of workers (Note: dry-run load sharing)
     nWorkers, quotientModels, remainderModels =  COBRA.shareLoad(4, 8, 0, true)
 
-    @test nWorkers === 2
-    @test quotientModels == 2
+    @test nWorkers === 4 # original number of workers
+    @test quotientModels == 1
     @test remainderModels == 0
 
     # load sharing that is almost ideal (Note: dry-run load sharing)
