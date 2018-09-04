@@ -27,6 +27,7 @@ end
 using COBRA
 using Base.Test
 using Requests
+using Suppressor
 
 # download the ecoli_core_model
 include("getTestModel.jl")
@@ -46,14 +47,41 @@ if sizeof(Pkg.installed("MATLAB")) > 0
     @test quotientModels == 1
     @test remainderModels == -1
 
+    # load sharing that is fair (Note: dry-run load sharing)
+    nWorkers, quotientModels, remainderModels =  COBRA.shareLoad(4, 2, 0, true)
+
+    @test nWorkers === 2
+    @test quotientModels == 2
+    @test remainderModels == 0
+
+    # load sharing with exceeding number of workers (Note: dry-run load sharing)
+    nWorkers, quotientModels, remainderModels =  COBRA.shareLoad(4, 8, 0, true)
+
+    @test nWorkers === 4 # original number of workers
+    @test quotientModels == 1
+    @test remainderModels == 0
+
+    # load sharing that is almost ideal (Note: dry-run load sharing)
+    nWorkers, quotientModels, remainderModels =  COBRA.shareLoad(8, 3, 1, true)
+
+    @test nWorkers === 3
+    @test quotientModels == 3
+    @test remainderModels == 2
+
+    # load sharing that is not fair (Note: dry-run load sharing)
+    nWorkers, quotientModels, remainderModels =  COBRA.shareLoad(4, 3, 1, true)
+
+    @test nWorkers === 3
+    @test quotientModels == 2
+    @test remainderModels == 0
+
     # prepare a directory with 2 models
     rm(joinpath(TESTDIR, "testModels"), force=true, recursive=true)
     cd(TESTDIR)
     mkdir("testModels")
-    cp("ecoli_core_model.mat", "testModels/ecoli_core_model_1.mat")
-    cp("ecoli_core_model.mat", "testModels/ecoli_core_model_2.mat")
-    cp("ecoli_core_model.mat", "testModels/ecoli_core_model_3.mat")
-    cp("ecoli_core_model.mat", "testModels/ecoli_core_model_4.mat")
+    for k = 1:4
+        cp("ecoli_core_model.mat", "testModels/ecoli_core_model_$k.mat")
+    end
 
     varsCharact = ["nMets",
                    "nRxns",
