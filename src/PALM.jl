@@ -35,7 +35,7 @@ julia> shareLoad(nModels)
 
 - Determination of the load of 4 models in 2 MATLAB sessions
 ```julia
-julia> shareLoad(4, 2, false)
+julia> shareLoad(4, 2, 1)
 ```
 
 See also: `createPool()` and `PALM`
