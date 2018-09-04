@@ -105,7 +105,10 @@ function changeCobraSolver(name, params=[]; printLevel::Int=1)
     # define the solver handle
     if name == "CPLEX"
         try
-            solver.handle = CplexSolver(params)
+            if abs(printLevel) > 1
+                printLevel = 1
+            end
+            solver.handle = CplexSolver(CPX_PARAM_SCRIND=printLevel)
         catch
             error("The solver `CPLEX` cannot be set using `changeCobraSolver()`.")
         end
