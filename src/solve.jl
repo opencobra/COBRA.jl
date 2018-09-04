@@ -152,7 +152,10 @@ function changeCobraSolver(name, params=[]; printLevel::Int=1)
 
     elseif name == "Mosek"
         try
-            solver.handle = MosekSolver()
+            if printLevel == 1
+                printLevel = 10 # default value: https://docs.mosek.com/7.1/toolbox/MSK_IPAR_LOG.html
+            end
+            solver.handle = MosekSolver(MSK_IPAR_LOG=printLevel)
         catch
           error("The solver `Mosek` cannot be set using `changeCobraSolver()`.")
         end
