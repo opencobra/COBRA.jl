@@ -17,8 +17,9 @@ Function shares the number of `nModels` across `nMatlab` sessions (Euclidian div
 
 # OPTIONAL INPUTS
 
-- `nMatlab`:         Number of desired MATLAB sessions (default: 2)
+- `nMatlab`:        Number of desired MATLAB sessions (default: 2)
 - `printLevel`:     Verbose level (default: 1). Mute all output with `printLevel = 0`.
+- `dryRun`:         Test load sharing without changing the parpool (default: false)
 
 # OUTPUTS
 
@@ -35,14 +36,18 @@ julia> shareLoad(nModels)
 
 - Determination of the load of 4 models in 2 MATLAB sessions
 ```julia
-julia> shareLoad(4, 2, false)
+julia> shareLoad(4, 2, 1)
 ```
 
 See also: `createPool()` and `PALM`
 
 """
 
-function shareLoad(nModels::Int, nMatlab::Int = 2, printLevel::Int=1)
+function shareLoad(nModels::Int, nMatlab::Int = 2, printLevel::Int=1, dryRun::Bool=false)
+
+    if printLevel > 0 && dryRun
+        info("Load sharing is determined without actively changing the number of connected workers (dryRun = true).")
+    end
 
     # Make sure that not more processes are launched than there are models (load ratio >= 1)
     if nMatlab > nModels
@@ -53,8 +58,10 @@ function shareLoad(nModels::Int, nMatlab::Int = 2, printLevel::Int=1)
         nMatlab = nModels
 
         # remove the last workers in the pool
-        for k = length(workers()):-1:nModels
-            rmprocs(k)
+        if !dryRun
+            for k = length(workers()):-1:nModels
+                rmprocs(k)
+            end
         end
 
         if printLevel > 0
@@ -63,7 +70,11 @@ function shareLoad(nModels::Int, nMatlab::Int = 2, printLevel::Int=1)
     end
 
     # Definition of workers and load distribution
-    wrks = workers()
+    if dryRun
+        wrks = [1:nMatlab;]
+    else
+        wrks = workers()
+    end
     nWorkers = length(wrks)
     quotientModels = Int(ceil(nModels / nWorkers))
 
@@ -71,7 +82,7 @@ function shareLoad(nModels::Int, nMatlab::Int = 2, printLevel::Int=1)
 
     if nModels%nWorkers > 0
         if printLevel > 0
-            println(" >> Every worker (#", wrks[1], " - #", wrks[end - 1], ") will solve ", quotientModels, " model(s).")
+            println(" >> Every worker (#", wrks[1], " - #", wrks[end - 1], ") will run (at least) ", quotientModels, " model(s).")
         end
 
         remainderModels = Int(nModels - (nWorkers - 1) * quotientModels)
