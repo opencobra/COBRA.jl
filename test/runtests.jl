@@ -27,6 +27,7 @@ end
 using COBRA
 using Base.Test
 using Requests
+using Suppressor
 
 # download the ecoli_core_model
 include("getTestModel.jl")
@@ -50,10 +51,9 @@ if sizeof(Pkg.installed("MATLAB")) > 0
     rm(joinpath(TESTDIR, "testModels"), force=true, recursive=true)
     cd(TESTDIR)
     mkdir("testModels")
-    cp("ecoli_core_model.mat", "testModels/ecoli_core_model_1.mat")
-    cp("ecoli_core_model.mat", "testModels/ecoli_core_model_2.mat")
-    cp("ecoli_core_model.mat", "testModels/ecoli_core_model_3.mat")
-    cp("ecoli_core_model.mat", "testModels/ecoli_core_model_4.mat")
+    for k = 1:4
+        cp("ecoli_core_model.mat", "testModels/ecoli_core_model_$k.mat")
+    end
 
     varsCharact = ["nMets",
                    "nRxns",

@@ -17,9 +17,7 @@ Function checks whether a package is installed properly or not and returns a boo
 
 # OPTIONAL INPUTS
 
-- `verbose`:        Verbose mode:
-    - 0: off (quiet)
-    - 1: on (default)
+- `printLevel`:     Verbose level (default: 1). Mute all output with `printLevel = 0`.
 
 # OUTPUTS
 
@@ -29,13 +27,13 @@ See also: `using`, `isdir()`
 
 """
 
-function checkPackage(pkgName, verbose = 1)
+function checkPackage(pkgName, printLevel::Int=1)
 
     try
         eval(Expr(:using, pkgName))
         return true
     catch
-        if verbose == 1
+        if printLevel > 0
             print_with_color(:yellow, "Package ",string(pkgName), " is not installed. ",
                              "In order to use $pkgName, you must first run `Pkg.add(\"$pkgName\")`\n")
         end
@@ -46,16 +44,14 @@ end
 
 #-------------------------------------------------------------------------------------------
 """
-    checkSysConfig()
+    checkSysConfig(printLevel)
 
 Function evaluates whether the LP solvers of MathProgBase are installed on the system or not and
 returns a list of these packages. `MathProgBase.jl` must be installed.
 
 # OPTIONAL INPUTS
 
-- `verbose`:        Verbose mode:
-    - 0: off (quiet)
-    - 1: on (default)
+- `printLevel`:     Verbose level (default: 1). Mute all output with `printLevel = 0`.
 
 # OUTPUTS
 
@@ -65,9 +61,9 @@ See also: `MathProgBase`, `checkPackage()`
 
 """
 
-function checkSysConfig(verbose = 1)
+function checkSysConfig(printLevel::Int=1)
 
-    if verbose == 1
+    if printLevel > 0
         print_with_color(:yellow, "\n >> Checking the system's configuration ...\n\n")
     end
 
@@ -77,14 +73,14 @@ function checkSysConfig(verbose = 1)
     # initialize a vector with supported LP solvers
     LPsolvers = [:Clp, :GLPKMathProgInterface, :Gurobi, :CPLEX, :Mosek]
 
-    if checkPackage(:MathProgBase, verbose)
+    if checkPackage(:MathProgBase, printLevel)
 
         # loop through all implemented interfaces
         for s in 1:length(LPsolvers)
             pkgName = LPsolvers[s]
 
-            if checkPackage(pkgName, verbose)
-                if verbose == 1
+            if checkPackage(pkgName, printLevel)
+                if printLevel > 0
                     print_with_color(:green, string(pkgName), " is installed.\n")
                 end
                 push!(packages, pkgName)
@@ -92,7 +88,7 @@ function checkSysConfig(verbose = 1)
 
             # load an additional package for GLPK
             if string(pkgName) == "GLPKMathProgInterface"
-                checkPackage(:GLPK, verbose)
+                checkPackage(:GLPK, printLevel)
             end
         end
 
@@ -104,7 +100,7 @@ function checkSysConfig(verbose = 1)
 
     # print a success message if the solver is installed
     catch
-        if verbose == 1
+        if printLevel > 0
             print_with_color(:green, "\n >> Done. $(length(packages)) solvers are installed and ready to use.\n")
         end
 

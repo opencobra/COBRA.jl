@@ -65,7 +65,7 @@ end
 
 #-------------------------------------------------------------------------------------------
 """
-    changeCobraSolver(name, params)
+    changeCobraSolver(name, params, printLevel)
 
 Function used to change the solver and include the respective solver interfaces
 
@@ -76,6 +76,7 @@ Function used to change the solver and include the respective solver interfaces
 # OPTIONAL INPUT
 
 - `params`:         Solver parameters as a row vector with tuples
+- `printLevel`:     Verbose level (default: 1). Mute all output with `printLevel = 0`.
 
 # OUTPUT
 
@@ -91,7 +92,7 @@ julia> changeCobraSolver("CPLEX", cpxControl)
 See also: `MathProgBase.jl`
 """
 
-function changeCobraSolver(name, params=[])
+function changeCobraSolver(name, params=[]; printLevel::Int=1)
 
     # convert type of name
     if typeof(name) != :String
@@ -104,7 +105,10 @@ function changeCobraSolver(name, params=[])
     # define the solver handle
     if name == "CPLEX"
         try
-            solver.handle = CplexSolver(params)
+            if abs(printLevel) > 1
+                printLevel = 1
+            end
+            solver.handle = CplexSolver(CPX_PARAM_SCRIND=printLevel)
         catch
             error("The solver `CPLEX` cannot be set using `changeCobraSolver()`.")
         end
@@ -122,11 +126,19 @@ function changeCobraSolver(name, params=[])
 
     elseif name == "Gurobi"
         try
-            if length(params) > 1
-                solver.handle = GurobiSolver(Method=params[1], OutputFlag=params[2])
-            else
-                solver.handle = GurobiSolver()
+            # define default parameters
+            if isempty(params)
+                push!(params, -1) # default (ref: http://www.gurobi.com/documentation/8.0/refman/method.html#parameter:Method)
+                push!(params, 1) # default (ref: http://www.gurobi.com/documentation/8.0/refman/outputflag.html)
             end
+
+            # set the output flag depending on the printLevel
+            if printLevel != 1
+                params[2] = printLevel
+            end
+
+            # define the solver handle
+            solver.handle = GurobiSolver(Method=params[1], OutputFlag=params[2])
         catch
             error("The solver `Gurobi` cannot be set using `changeCobraSolver()`.")
         end
@@ -140,7 +152,10 @@ function changeCobraSolver(name, params=[])
 
     elseif name == "Mosek"
         try
-            solver.handle = MosekSolver()
+            if printLevel == 1
+                printLevel = 10 # default value: https://docs.mosek.com/7.1/toolbox/MSK_IPAR_LOG.html
+            end
+            solver.handle = MosekSolver(MSK_IPAR_LOG=printLevel)
         catch
           error("The solver `Mosek` cannot be set using `changeCobraSolver()`.")
         end
@@ -233,7 +248,7 @@ julia> autoTuneSolver(env, nMets, nRxns, solver)
 See also: `MathProgBase.linprog()`
 """
 
-function autoTuneSolver(m, nMets, nRxns, solver, pid::Int = 1)
+function autoTuneSolver(m, nMets, nRxns, solver, pid::Int=1)
 
     # turn scaling off in CPLEX when solving coupled models or models with more metabolites that reactions in the stoichiometric matrix
     if isdefined(m, :inner) && (nMets >= nRxns || nRxns >= 50000) && solver.name == "CPLEX"
