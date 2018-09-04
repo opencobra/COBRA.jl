@@ -46,16 +46,24 @@ include("$(Pkg.dir("COBRA"))/config/solverCfg.jl")
 model = loadModel("$(Pkg.dir("COBRA"))/test/ecoli_core_model.mat", "S", "model")
 
 # test that no output is produced with printLevel = 0 (only for Gurobi)
-if string(solverName) == "Gurobi"
-    info(" > Testing silent Gurobi")
-    solver = changeCobraSolver(solverName, printLevel=0)
-    output = @capture_out minFlux, maxFlux = distributedFBA(model, solver, nWorkers=nWorkers, printLevel=0, rxnsList=1:4)
-    @test length(matchall(r"From worker ", output)) == 2*nWorkers
-elseif string(solverName) == "CPLEX"
-    info(" > Testing silent CPLEX")
+if string(solverName) == "Mosek"
+    info(" > Testing silent Mosek ...")
     solver = changeCobraSolver(solverName, printLevel=0)
     output = @capture_out minFlux, maxFlux = distributedFBA(model, solver, nWorkers=nWorkers, printLevel=0, rxnsList=1:4)
     @test length(output) == 0
+    info(" > Done testing silent Mosek.")
+elseif string(solverName) == "Gurobi"
+    info(" > Testing silent Gurobi ...")
+    solver = changeCobraSolver(solverName, printLevel=0)
+    output = @capture_out minFlux, maxFlux = distributedFBA(model, solver, nWorkers=nWorkers, printLevel=0, rxnsList=1:4)
+    @test length(matchall(r"From worker ", output)) == 2*nWorkers
+    info(" > Done testing silent Gurobi.")
+elseif string(solverName) == "CPLEX"
+    info(" > Testing silent CPLEX ...")
+    solver = changeCobraSolver(solverName, printLevel=0)
+    output = @capture_out minFlux, maxFlux = distributedFBA(model, solver, nWorkers=nWorkers, printLevel=0, rxnsList=1:4)
+    @test length(output) == 0
+    info(" > Done testing silent CPLEX.")
 end
 
 # change the COBRA solver
