@@ -45,8 +45,14 @@ include("$(Pkg.dir("COBRA"))/config/solverCfg.jl")
 # load an external mat file
 model = loadModel("$(Pkg.dir("COBRA"))/test/ecoli_core_model.mat", "S", "model")
 
-# test that no output is produced with printLevel = 0 (only for Gurobi)
-if string(solverName) == "Mosek"
+# test that no output is produced with printLevel = 0
+if string(solverName) == "Clp"
+    info(" > Testing silent Clp ...")
+    solver = changeCobraSolver(solverName, printLevel=0)
+    output = @capture_out minFlux, maxFlux = distributedFBA(model, solver, nWorkers=nWorkers, printLevel=0, rxnsList=1:4)
+    @test length(output) == 0
+    info(" > Done testing silent Clp.")
+elseif string(solverName) == "Mosek"
     info(" > Testing silent Mosek ...")
     solver = changeCobraSolver(solverName, printLevel=0)
     output = @capture_out minFlux, maxFlux = distributedFBA(model, solver, nWorkers=nWorkers, printLevel=0, rxnsList=1:4)
