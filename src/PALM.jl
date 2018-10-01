@@ -238,7 +238,7 @@ See also: `loopModels()` and `shareLoad()`
 
 """
 
-function PALM(dir, scriptName, nMatlab::Int=2, outputFile::AbstractString="PALM_data.mat", varsCharact=[], cobraToolboxDir=ENV["HOME"]*Base.Filesystem.path_separator*"cobratoolbox", printLevel::Int=1)
+function PALM(dir, scriptName; nMatlab::Int=2, outputFile::AbstractString="PALM_data.mat", varsCharact=[], cobraToolboxDir=ENV["HOME"]*Base.Filesystem.path_separator*"cobratoolbox", printLevel::Int=1, cloneCT::Bool=true)
 
     # read the content of the directory
     dirContent = readdir(dir)
@@ -269,11 +269,13 @@ function PALM(dir, scriptName, nMatlab::Int=2, outputFile::AbstractString="PALM_
     # declare an empty array for storing a summary of all data
     summaryData = Array{Union{Int,Float64,AbstractString}}(nModels + 1, nCharacteristics + 1)
 
-    for (p, pid) in enumerate(workers())
-        @spawnat (p + 1) begin
-            # clone a copy to a tmp folder as the cobtratoolbox is updated at runtime
-            if !isdir("/tmp/test-ct-$p")
-                run(`git clone $cobraToolboxDir /tmp/test-ct-$p`)
+    if cloneCT
+        for (p, pid) in enumerate(workers())
+            @spawnat (p + 1) begin
+                # clone a copy to a tmp folder as the cobtratoolbox is updated at runtime
+                if !isdir("/tmp/test-ct-$p")
+                    run(`git clone $cobraToolboxDir /tmp/test-ct-$p`)
+                end
             end
         end
     end
@@ -285,13 +287,14 @@ function PALM(dir, scriptName, nMatlab::Int=2, outputFile::AbstractString="PALM_
             info("Launching MATLAB session on worker $(p+1).")
         end
 
-        # adding the model directory and eventual subdirectories to the MATLAB path
-        # Note: the fileseparator `/` also works on Windows systems if git Bash has been installed
-        @async R[p] = @spawnat (p+1) begin
-            eval(parse("mat\"addpath(genpath('/tmp/test-ct-$p'))\""))
-            eval(parse("mat\"run('/tmp/test-ct-$p/initCobraToolbox.m');\""))
+        if cloneCT
+            # adding the model directory and eventual subdirectories to the MATLAB path
+            # Note: the fileseparator `/` also works on Windows systems if git Bash has been installed
+            @async R[p] = @spawnat (p+1) begin
+                eval(parse("mat\"addpath(genpath('/tmp/test-ct-$p'))\""))
+                eval(parse("mat\"run('/tmp/test-ct-$p/initCobraToolbox.m');\""))
+            end
         end
-
     end
 
     # print an informative message
