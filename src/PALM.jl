@@ -238,7 +238,7 @@ See also: `loopModels()` and `shareLoad()`
 
 """
 
-function PALM(dir, scriptName; nMatlab::Int=2, outputFile::AbstractString="PALM_data.mat", varsCharact=[], cobraToolboxDir=ENV["HOME"]*Base.Filesystem.path_separator*"cobratoolbox", printLevel::Int=1, cloneCT::Bool=true)
+function PALM(dir, scriptName; nMatlab::Int=2, outputFile::AbstractString="PALM_data.mat", varsCharact=[], cobraToolboxDir=ENV["HOME"]*Base.Filesystem.path_separator*"cobratoolbox", printLevel::Int=1, useCOBRA::Bool=true)
 
     # read the content of the directory
     dirContent = readdir(dir)
@@ -269,7 +269,7 @@ function PALM(dir, scriptName; nMatlab::Int=2, outputFile::AbstractString="PALM_
     # declare an empty array for storing a summary of all data
     summaryData = Array{Union{Int,Float64,AbstractString}}(nModels + 1, nCharacteristics + 1)
 
-    if cloneCT
+    if useCOBRA
         for (p, pid) in enumerate(workers())
             @spawnat (p + 1) begin
                 # clone a copy to a tmp folder as the cobtratoolbox is updated at runtime
@@ -287,7 +287,7 @@ function PALM(dir, scriptName; nMatlab::Int=2, outputFile::AbstractString="PALM_
             info("Launching MATLAB session on worker $(p+1).")
         end
 
-        if cloneCT
+        if useCOBRA
             # adding the model directory and eventual subdirectories to the MATLAB path
             # Note: the fileseparator `/` also works on Windows systems if git Bash has been installed
             @async R[p] = @spawnat (p+1) begin
