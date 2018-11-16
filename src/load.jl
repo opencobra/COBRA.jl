@@ -213,7 +213,8 @@ function loadModel(fileName::String, modelName::String="model", printLevel::Int=
 
 end
 
-#loadModel(fileName::String, matrixAS::String="S", modelName::String="model", modelFields::Array{String,1}=["ub", "lb", "osense", "c", "b", "csense", "rxns", "mets"], printLevel::Int=1) =
+# keep legacy signature
+loadModel(fileName, matrixAS::String="S", modelName::String="model", modelFields::Array{String,1}=["ub", "lb", "osense", "c", "b", "csense", "rxns", "mets"], printLevel::Int=1) = loadModel(fileName, modelName, printLevel)
 
 export loadModel
 #-------------------------------------------------------------------------------------------
