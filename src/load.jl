@@ -36,7 +36,7 @@ end
 
 #-------------------------------------------------------------------------------------------
 """
-    loadModel(fileName, matrixAS, modelName, modelFields, printLevel)
+    loadModel(fileName, modelName::String="model", printLevel)
 
 Function used to load a COBRA model from an existing .mat file
 
@@ -46,9 +46,7 @@ Function used to load a COBRA model from an existing .mat file
 
 # OPTIONAL INPUTS
 
-- `matrixAS`:       String to distinguish the name of stoichiometric matrix ("S" or "A", default: "S")
 - `modelName`:      String with the name of the model structure (default: "model")
-- `modelFields`:    Array with strings of fields of the model structure (default: ["ub", "lb", "osense", "c", "b", "csense", "rxns", "mets"])
 - `printLevel`:     Verbose level (default: 1). Mute all output with `printLevel = 0`.
 
 # OUTPUTS
@@ -64,18 +62,12 @@ julia> loadModel("myModel.mat")
 
 - Full input/output example
 ```julia
-julia> model = loadModel("myModel.mat", "A", "myModelName", ["ub","lb","osense","c","b","csense","rxns","mets"]);
+julia> model = loadModel("myModel.mat", "myModelName", 2);
 ```
-
-# Notes
-
-- `osense` is set to "max" (osense = -1) by default
-- All entries of `A`, `b`, `c`, `lb`, `ub` are of type float
 
 See also: `MAT.jl`, `matopen()`, `matread()`
 """
-
-function loadModel(fileName::String, matrixAS::String="S", modelName::String="model", modelFields::Array{String,1}=["ub", "lb", "osense", "c", "b", "csense", "rxns", "mets"], printLevel::Int=1)
+function loadModel(fileName::String, modelName::String="model", printLevel::Int=1)
 
     file = matopen(fileName)
     vars = matread(fileName)
@@ -84,17 +76,46 @@ function loadModel(fileName::String, matrixAS::String="S", modelName::String="mo
 
         model     = vars[modelName]
         modelKeys = keys(model)
+        cdPresent = false
+        coupledModel = false
 
-        # load the stoichiometric matrix A or S
-        if matrixAS == "A" || matrixAS == "S"
-            if matrixAS in modelKeys
-                S = model[matrixAS]
+        # set the model fields
+        modelFields = ["ub", "lb", "osense", "c", "b", "csense", "rxns", "mets"]
+
+        # determine if the model file contains a coupled model or not, i.e. if a C matrix is present
+        if "C" in modelKeys && "d" in modelKeys
+            if size(model["C"]) > (0, 0) && size(model["d"]) > (0, 0)
+                # model is a coupled model
+                if printLevel > 0
+                    info("The model named $modelName loaded from $fileName is a coupled model.")
+                end
+                cdPresent = true
+                coupledModel = true
+                S = [model["S"]; model["C"]]
             else
-                S = model[(matrixAS == "S") ? "A" : "S"]
-                error("Matrix `$matrixAS` does not exist in `$modelName`, but matrix `S` exists. Set `matrixAS = S` if you want to use `S`.")
+                error("The fields C and d are present in the loaded model structure $modelName in the $fileName, but are not of the right size.")
+            end
+
+            # set the model fields
+            push!(modelFields, "d", "dsense")
+
+            # load the ector d
+            if modelFields[9] in modelKeys
+                d = squeeze(model[modelFields[9]], 2)
+            else
+                error("The vector `$(modelFields[9])` does not exist in `$modelName`.")
             end
         else
-            error("Matrix `$matrixAS` does not exist in `$modelName`.")
+            if "A" in modelKeys
+                # legacy structure if a matrix A is present
+                coupledModel = true
+                S = model["A"]
+                warn("The named $modelName loaded from $fileName is a coupled model, but has a legacy structure.")
+            else
+                # model is an uncoupled model
+                coupledModel = false
+                S = model["S"]
+            end
         end
 
         # load the upper bound vector ub
@@ -121,26 +142,41 @@ function loadModel(fileName::String, matrixAS::String="S", modelName::String="mo
             end
         end
 
-        # load the upper bound vector c
+        # load the objective vector c
         if modelFields[4] in modelKeys && osense != 0
             c = squeeze(model[modelFields[4]], 2)
         else
             error("The vector `$(modelFields[4])` does not exist in `$modelName`.")
         end
 
-        # load the upper bound vector c
+        # load the right hand side vector b
         if modelFields[5] in modelKeys
             b = squeeze(model[modelFields[5]], 2)
+
+            # append the d vector for a coupled model
+            if coupledModel
+                b = [b; d]
+            end
         else
             b = zeros(length(c))
             error("The vector `$(modelFields[5])` does not exist in `$modelName`.")
         end
 
         # load the constraint senses
-        csense = fill('E',length(b)) #assume all equality constraints
+        csense = fill('E',length(b)) # assume all equality constraints
+        dsense = fill('E',length(d))
         if modelFields[6] in modelKeys
             for i = 1:length(csense)
                 csense[i] = model[modelFields[6]][i][1] #convert to chars
+            end
+
+            # append the dsense vector for a coupled model
+            if coupledModel
+                for i = 1:length(dsense)
+                    dsense[i] = model[modelFields[10]][i][1] #convert to chars
+                end
+
+                #csense = [csense; dsense]
             end
         else
             if printLevel > 0
@@ -172,6 +208,8 @@ function loadModel(fileName::String, matrixAS::String="S", modelName::String="mo
     end
 
 end
+
+#loadModel(fileName::String, matrixAS::String="S", modelName::String="model", modelFields::Array{String,1}=["ub", "lb", "osense", "c", "b", "csense", "rxns", "mets"], printLevel::Int=1) =
 
 export loadModel
 #-------------------------------------------------------------------------------------------
