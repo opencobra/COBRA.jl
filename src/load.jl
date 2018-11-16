@@ -125,7 +125,7 @@ function loadModel(fileName::String, modelName::String="model", printLevel::Int=
             error("The vector `$(modelFields[1])` does not exist in `$modelName`.")
         end
 
-        # load the upper bound vector lb
+        # load the lower bound vector lb
         if modelFields[2] in modelKeys
             lb = squeeze(model[modelFields[2]], 2)
         else
@@ -152,11 +152,6 @@ function loadModel(fileName::String, modelName::String="model", printLevel::Int=
         # load the right hand side vector b
         if modelFields[5] in modelKeys
             b = squeeze(model[modelFields[5]], 2)
-
-            # append the d vector for a coupled model
-            if coupledModel
-                b = [b; d]
-            end
         else
             b = zeros(length(c))
             error("The vector `$(modelFields[5])` does not exist in `$modelName`.")
@@ -164,24 +159,33 @@ function loadModel(fileName::String, modelName::String="model", printLevel::Int=
 
         # load the constraint senses
         csense = fill('E',length(b)) # assume all equality constraints
-        dsense = fill('E',length(d))
+
+        # initialize the dsense vector for the case of a coupled model
+        if coupledModel
+            dsense = fill('E',length(d))
+        end
+
         if modelFields[6] in modelKeys
             for i = 1:length(csense)
-                csense[i] = model[modelFields[6]][i][1] #convert to chars
+                csense[i] = model[modelFields[6]][i][1] # convert to chars
             end
 
-            # append the dsense vector for a coupled model
+            # retrieve the dsense vector for a coupled model
             if coupledModel
                 for i = 1:length(dsense)
-                    dsense[i] = model[modelFields[10]][i][1] #convert to chars
+                    dsense[i] = model[modelFields[10]][i][1] # convert to chars
                 end
-
-                #csense = [csense; dsense]
             end
         else
             if printLevel > 0
                 info("All constraints assumed equality constaints.\n")
             end
+        end
+
+        # append the d and dsense vectors for a coupled model
+        if coupledModel
+            b = [b; d]
+            csense = [csense; dsense]
         end
 
         # load the reaction names vector
