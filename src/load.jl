@@ -77,7 +77,6 @@ function loadModel(fileName::String, modelName::String="model", printLevel::Int=
         model     = vars[modelName]
         modelKeys = keys(model)
         cdPresent = false
-        coupledModel = false
 
         # set the model fields
         modelFields = ["ub", "lb", "osense", "c", "b", "csense", "rxns", "mets"]
@@ -90,7 +89,6 @@ function loadModel(fileName::String, modelName::String="model", printLevel::Int=
                     info("The model named $modelName loaded from $fileName is a coupled model.")
                 end
                 cdPresent = true
-                coupledModel = true
                 S = [model["S"]; model["C"]]
             else
                 error("The fields C and d are present in the loaded model structure $modelName in the $fileName, but are not of the right size.")
@@ -108,13 +106,16 @@ function loadModel(fileName::String, modelName::String="model", printLevel::Int=
         else
             if "A" in modelKeys
                 # legacy structure if a matrix A is present
-                coupledModel = true
                 S = model["A"]
-                warn("The named $modelName loaded from $fileName is a coupled model, but has a legacy structure.")
+                if printLevel > 0
+                    warn("The named $modelName loaded from $fileName is a coupled model, but has a legacy structure.")
+                end
             else
                 # model is an uncoupled model
-                coupledModel = false
                 S = model["S"]
+                if printLevel > 0
+                    info("The model named $modelName loaded from $fileName is a uncoupled model.")
+                end
             end
         end
 
@@ -165,7 +166,7 @@ function loadModel(fileName::String, modelName::String="model", printLevel::Int=
         csense = fill('E',length(b)) # assume all equality constraints
 
         # initialize the dsense vector for the case of a coupled model
-        if coupledModel
+        if cdPresent
             dsense = fill('E',length(d))
         end
 
@@ -175,7 +176,7 @@ function loadModel(fileName::String, modelName::String="model", printLevel::Int=
             end
 
             # retrieve the dsense vector for a coupled model
-            if coupledModel
+            if cdPresent
                 for i = 1:length(dsense)
                     dsense[i] = model[modelFields[10]][i][1] # convert to chars
                 end
@@ -200,15 +201,15 @@ function loadModel(fileName::String, modelName::String="model", printLevel::Int=
             error("The vector `$(modelFields[8])` does not exist in `$modelName`.")
         end
 
-        # load the contraints vector
-        if modelFields[8] in modelKeys
-            ctrs = squeeze(model[modelFields[11]], 2)
-        else
-            error("The vector `$(modelFields[11])` does not exist in `$modelName`.")
-        end
+        if cdPresent
+            # load the contraints vector
+            if modelFields[8] in modelKeys
+                ctrs = squeeze(model[modelFields[11]], 2)
+            else
+                error("The vector `$(modelFields[11])` does not exist in `$modelName`.")
+            end
 
-        # append the d, dsense, and mets vectors for a coupled model
-        if coupledModel
+            # append the d, dsense, and mets vectors for a coupled model
             b = [b; d]
             csense = [csense; dsense]
             mets = [mets; ctrs]
