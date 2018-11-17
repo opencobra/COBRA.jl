@@ -97,7 +97,7 @@ function loadModel(fileName::String, modelName::String="model", printLevel::Int=
             end
 
             # set the model fields
-            push!(modelFields, "d", "dsense")
+            push!(modelFields, "d", "dsense", "ctrs")
 
             # load the ector d
             if modelFields[9] in modelKeys
@@ -117,6 +117,10 @@ function loadModel(fileName::String, modelName::String="model", printLevel::Int=
                 S = model["S"]
             end
         end
+
+        # determine the size of S
+        nMets = size(S,1)
+        nRxns = size(S,2)
 
         # load the upper bound vector ub
         if modelFields[1] in modelKeys
@@ -182,12 +186,6 @@ function loadModel(fileName::String, modelName::String="model", printLevel::Int=
             end
         end
 
-        # append the d and dsense vectors for a coupled model
-        if coupledModel
-            b = [b; d]
-            csense = [csense; dsense]
-        end
-
         # load the reaction names vector
         if modelFields[7] in modelKeys
             rxns = squeeze(model[modelFields[7]], 2)
@@ -195,16 +193,26 @@ function loadModel(fileName::String, modelName::String="model", printLevel::Int=
             error("The vector `$(modelFields[7])` does not exist in `$modelName`.")
         end
 
-        # load the reaction names vector
+        # load the metabolites vector
         if modelFields[8] in modelKeys
             mets = squeeze(model[modelFields[8]], 2)
         else
             error("The vector `$(modelFields[8])` does not exist in `$modelName`.")
         end
 
-        # determine the size of S
-        nMets = size(S,1)
-        nRxns = size(S,2)
+        # load the contraints vector
+        if modelFields[8] in modelKeys
+            ctrs = squeeze(model[modelFields[11]], 2)
+        else
+            error("The vector `$(modelFields[11])` does not exist in `$modelName`.")
+        end
+
+        # append the d, dsense, and mets vectors for a coupled model
+        if coupledModel
+            b = [b; d]
+            csense = [csense; dsense]
+            mets = [mets; ctrs]
+        end
 
         return LPproblem(S, b[1:nMets], c[1:nRxns], lb[1:nRxns], ub[1:nRxns], osense, csense[1:nMets], rxns, mets)
     else
