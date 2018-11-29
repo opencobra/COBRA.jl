@@ -1,0 +1,3 @@
+[submodule "papers"]
+	path = papers
+	url = https://github.com/opencobra/COBRA.papers.git
