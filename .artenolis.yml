@@ -10,13 +10,13 @@ script:
 
     # add MATLAB to the path
     - if [ "$ARCH" == "Linux" ]; then
-         export PATH="/mnt/prince-data/MATLAB/$MATLAB_VER/bin:$PATH";
+          export PATH="$PATH:$ARTENOLIS_SOFT_PATH/MATLAB/$MATLAB_VER/bin";
       fi
 
     # clone the COBRA Toolbox
-    - rm -rf /tmp/cobratoolbox-cobrajl
-    - git clone https://github.com/opencobra/cobratoolbox.git /tmp/cobratoolbox-cobrajl --depth=1
-    - cd /tmp/cobratoolbox-cobrajl
+    - rm -rf $ARTENOLIS_DATA_PATH/scratch/cobratoolbox-cobrajl
+    - git clone git@github.com:opencobra/cobratoolbox.git $ARTENOLIS_DATA_PATH/scratch/cobratoolbox-cobrajl --depth=1
+    - cd $ARTENOLIS_DATA_PATH/scratch/cobratoolbox-cobrajl
     - git submodule update --init --remote --no-fetch --depth=1
 
     # change to the current directory
@@ -32,7 +32,7 @@ script:
     - cd .. && rm -rf COBRA
 
 after_success:
-    - if [ "$ARCH" == "Linux" ]; then /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'cd(Pkg.dir("COBRA")); using Coverage; tmp=process_folder(); Codecov.submit(tmp, verbose=false); Coveralls.submit(tmp);'; fi
+    - if [ "$ARCH" == "Linux" ]; then $ARTENOLIS_SOFT_PATH/julia/$JULIA_VER/bin/julia --color=yes -e 'cd(Pkg.dir("COBRA")); using Coverage; tmp=process_folder(); Codecov.submit(tmp, verbose=false); Coveralls.submit(tmp);'; fi
 
     # set environment variables for documentation deployment
     - if [ "$ARCH" == "Linux" ]; then
@@ -44,4 +44,4 @@ after_success:
       fi
 
     # deploy documentation
-    - if [ "$ARCH" == "Linux" ]; then /mnt/prince-data/JULIA/$JULIA_VER/bin/julia --color=yes -e 'cd(Pkg.dir("COBRA")); include(joinpath("docs", "makeDoc.jl"))'; fi
+    - if [ "$ARCH" == "Linux" ]; then $ARTENOLIS_SOFT_PATH/julia/$JULIA_VER/bin/julia --color=yes -e 'cd(Pkg.dir("COBRA")); include(joinpath("docs", "makeDoc.jl"))'; fi
