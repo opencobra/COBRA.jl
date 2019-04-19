@@ -401,7 +401,7 @@ minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = d
 @test isdir("$resultsDir/logs")
 
 # remove the results folder to clean up
-run(`rm -rf $(Pkg.dir("COBRA"))/results`)
+rm("$(Pkg.dir("COBRA"))/results", recursive=true, force=true)
 
 # call to create a log files directory (throws a warning message)
 minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers=nWorkers, saveChunks=true, onlyFluxes=true, rxnsList=1:10)
@@ -416,5 +416,4 @@ minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = d
 @test isdir("$(Pkg.dir("COBRA"))/results/logs")
 
 # remove the results folder to clean up
-run(`rm -rf $(Pkg.dir("COBRA"))/results`)
-
+rm("$(Pkg.dir("COBRA"))/results", recursive=true, force=true)
