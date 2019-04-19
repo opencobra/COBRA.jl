@@ -1,4 +1,4 @@
-# Tutorials 
+# Tutorials
 
 
 ## Tutorial - COBRA.jl
@@ -27,7 +27,7 @@ COBRA.checkSysConfig()
 
 ### Beginner's Guide
 
-Should you not have any prior experience with Julia and/or Linux, please **follow carefully** the [Beginner's Guide](http://opencobra.github.io/COBRA.jl/stable/beginnerGuide.html). If you however feel that you are set to proceed with this tutorial, please consider the [Beginner's Guide](http://opencobra.github.io/COBRA.jl/stable/beginnerGuide.html) as a go-to reference in case you are running into any issues. 
+Should you not have any prior experience with Julia and/or Linux, please **follow carefully** the [Beginner's Guide](http://opencobra.github.io/COBRA.jl/stable/beginnerGuide.html). If you however feel that you are set to proceed with this tutorial, please consider the [Beginner's Guide](http://opencobra.github.io/COBRA.jl/stable/beginnerGuide.html) as a go-to reference in case you are running into any issues.
 
 If you see unusual behavior, you may consider reading the [FAQ section](http://opencobra.github.io/COBRA.jl/stable/faq.html).
 
@@ -41,7 +41,7 @@ julia> ? distributedFBA
 
 ### Installation check and package testing
 
-Make sure that you have a working installation of `MathProgBase.jl` and at least one of the supported solvers. You may find further information [here](http://mathprogbasejl.readthedocs.io/en/latest/). 
+Make sure that you have a working installation of `MathProgBase.jl` and at least one of the supported solvers. You may find further information [here](http://mathprogbasejl.readthedocs.io/en/latest/).
 
 If you want to install other solvers such as `CPLEX`, `CLP`, `Gurobi`, or `Mosek`, you can find more information [here](https://github.com/JuliaOpt).
 
@@ -85,10 +85,10 @@ You may add local workers as follows:
 
 ```julia
 ## specify the total number of parallel workers
-nWorkers = 4 
+nWorkers = 4
 
 ## create a parallel pool
-workersPool, nWorkers = createPool(nWorkers) 
+workersPool, nWorkers = createPool(nWorkers)
 ```
 
 The IDs of the respective workers are given in `workersPool`, and the number of local workers is stored in `nWorkers`.
@@ -306,11 +306,11 @@ If you already have a working installation of the COBRA Toolbox, you may skip th
 
 **Advanced users** may also want to install the COBRA Toolbox directly installed from Julia. You must have `git` (or `gitBash` on Windows) installed - see [requirements](https://opencobra.github.io/cobratoolbox/stable/installation.html#system-requirements).
 
-For illustration purposes of this tutorial, the COBRA Toolbox will be installed in the `/tmp` directory. This may take a while, depending on the speed of your internet connection.
+For illustration purposes of this tutorial, the COBRA Toolbox will be installed in the `~/tmp` directory. This may take a while, depending on the speed of your internet connection.
 
 
 ```julia
-installDir = "/tmp/cobratoolbox"
+installDir = "~/cobratoolbox"
 ```
 
 
@@ -340,10 +340,10 @@ include("$(Pkg.dir("COBRA"))/src/connect.jl")
 
 ```julia
 ## specify the total number of parallel workers
-nWorkers = 4 
+nWorkers = 4
 
 ## create a parallel pool
-workersPool, nWorkers = createPool(nWorkers) 
+workersPool, nWorkers = createPool(nWorkers)
 ```
 
 After initializing the workers, the packages must be loaded on each worker:
@@ -417,7 +417,7 @@ using MAT
 vars = matread("modelCharacteristics.mat")
 ```
 
-The full data set can be retrieved with: 
+The full data set can be retrieved with:
 
 
 ```julia
