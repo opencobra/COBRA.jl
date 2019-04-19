@@ -215,7 +215,7 @@ Results are saved in the `outputFile`.
 
 - `nMatlab`:         Number of desired MATLAB sessions (default: 2)
 - `outputFile`:      Name of `.mat` file to save the result table named "summaryData" (default name: "PALM_data.mat")
-- `cobraToolboxDir`: Directory of the COBRA Toolbox (default: "~/cobratoolbox")
+- `cobraToolboxDir`: Directory of the COBRA Toolbox (default: ENV["HOME"]*"/cobratoolbox")
 - `printLevel`:     Verbose level (default: 1). Mute all output with `printLevel = 0`.
 
 # OUTPUTS
@@ -226,12 +226,12 @@ File with the name specified in `outputFile`.
 
 - Minimum working example
 ```julia
-julia> PALM("~/models", "characteristics")
+julia> PALM(ENV["HOME"]*"/models", "characteristics")
 ```
 
 - Running `PALM` on 12 MATLAB sessions
 ```julia
-julia> PALM("~/models", "characteristics", 12, "characteristicsResults.mat")
+julia> PALM(ENV["HOME"]*"/models", "characteristics", 12, "characteristicsResults.mat")
 ```
 
 See also: `loopModels()` and `shareLoad()`
@@ -273,8 +273,9 @@ function PALM(dir, scriptName; nMatlab::Int=2, outputFile::AbstractString="PALM_
         for (p, pid) in enumerate(workers())
             @spawnat (p + 1) begin
                 # clone a copy to a tmp folder as the cobtratoolbox is updated at runtime
-                if !isdir("~/tmp/test-ct-$p")
-                    run(`git clone $cobraToolboxDir ~/tmp/test-ct-$p`)
+                if !isdir(ENV["HOME"]*"/tmp/test-ct-$p")
+                    cmd = "git clone $cobraToolboxDir"*ENV["HOME"]*"/tmp/test-ct-$p"
+                    run(`$cmd`)
                 end
             end
         end
@@ -291,8 +292,8 @@ function PALM(dir, scriptName; nMatlab::Int=2, outputFile::AbstractString="PALM_
             # adding the model directory and eventual subdirectories to the MATLAB path
             # Note: the fileseparator `/` also works on Windows systems if git Bash has been installed
             @async R[p] = @spawnat (p+1) begin
-                eval(parse("mat\"addpath(genpath('~/tmp/test-ct-$p'))\""))
-                eval(parse("mat\"run('~/tmp/test-ct-$p/initCobraToolbox.m');\""))
+                eval(parse("mat\"addpath(genpath('"*ENV["HOME"]*"/tmp/test-ct-$p'))\""))
+                eval(parse("mat\"run('"*ENV["HOME"]*"/tmp/test-ct-$p/initCobraToolbox.m');\""))
             end
         end
     end
