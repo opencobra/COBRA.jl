@@ -401,6 +401,7 @@ minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = d
 @test isdir("$resultsDir/logs")
 
 # remove the results folder to clean up
+rm("$(Pkg.dir("COBRA"))/results/logs", recursive=true, force=true)
 rm("$(Pkg.dir("COBRA"))/results", recursive=true, force=true)
 
 # call to create a log files directory (throws a warning message)
