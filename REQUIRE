@@ -1,9 +1,4 @@
 julia 1.0
-<<<<<<< HEAD
 MathProgBase 0.7.0
 MAT 0.5.0
 HTTP 0.8.0
-=======
-MathProgBase 0.6.1
-MAT 0.3.1
->>>>>>> ca47e7a199dc37cdc4a6ca0154388919a10f1757
