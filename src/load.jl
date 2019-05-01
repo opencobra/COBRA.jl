@@ -88,9 +88,9 @@ function loadModel(fileName::String, matrixAS::String="S", modelName::String="mo
         # load the stoichiometric matrix A or S
         if matrixAS == "A" || matrixAS == "S"
             if matrixAS in modelKeys
-                S = model[matrixAS]
+                S = sparse(model[matrixAS])
             else
-                S = model[(matrixAS == "S") ? "A" : "S"]
+                S = sparse(model[(matrixAS == "S") ? "A" : "S"])
                 error("Matrix `$matrixAS` does not exist in `$modelName`, but matrix `S` exists. Set `matrixAS = S` if you want to use `S`.")
             end
         else
@@ -99,14 +99,14 @@ function loadModel(fileName::String, matrixAS::String="S", modelName::String="mo
 
         # load the upper bound vector ub
         if modelFields[1] in modelKeys
-            ub = squeeze(model[modelFields[1]], 2)
+            ub = dropdims(model[modelFields[1]]; dims = 2)
         else
             error("The vector `$(modelFields[1])` does not exist in `$modelName`.")
         end
 
         # load the upper bound vector lb
         if modelFields[2] in modelKeys
-            lb = squeeze(model[modelFields[2]], 2)
+            lb = dropdims(model[modelFields[2]]; dims = 2)
         else
             error("The vector `$(modelFields[2])` does not exist in `$modelName`.")
         end
@@ -117,20 +117,20 @@ function loadModel(fileName::String, matrixAS::String="S", modelName::String="mo
         else
             osense = -1
             if printLevel > 0
-                info("The model objective is set to be maximized.\n")
+                @info "The model objective is set to be maximized."
             end
         end
 
         # load the upper bound vector c
         if modelFields[4] in modelKeys && osense != 0
-            c = squeeze(model[modelFields[4]], 2)
+            c = dropdims(model[modelFields[4]]; dims = 2)
         else
             error("The vector `$(modelFields[4])` does not exist in `$modelName`.")
         end
 
         # load the upper bound vector c
         if modelFields[5] in modelKeys
-            b = squeeze(model[modelFields[5]], 2)
+            b = dropdims(model[modelFields[5]]; dims = 2)
         else
             b = zeros(length(c))
             error("The vector `$(modelFields[5])` does not exist in `$modelName`.")
@@ -144,20 +144,20 @@ function loadModel(fileName::String, matrixAS::String="S", modelName::String="mo
             end
         else
             if printLevel > 0
-                info("All constraints assumed equality constaints.\n")
+                @info "All constraints assumed equality constaints."
             end
         end
 
         # load the reaction names vector
         if modelFields[7] in modelKeys
-            rxns = squeeze(model[modelFields[7]], 2)
+            rxns = dropdims(model[modelFields[7]]; dims = 2)
         else
             error("The vector `$(modelFields[7])` does not exist in `$modelName`.")
         end
 
         # load the reaction names vector
         if modelFields[8] in modelKeys
-            mets = squeeze(model[modelFields[8]], 2)
+            mets = dropdims(model[modelFields[8]]; dims = 2)
         else
             error("The vector `$(modelFields[8])` does not exist in `$modelName`.")
         end

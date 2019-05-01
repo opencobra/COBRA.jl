@@ -7,6 +7,9 @@
 
 #-------------------------------------------------------------------------------------------
 
+using Pkg
+using Distributed
+
 # retrieve all packages that are installed on the system
 include("$(Pkg.dir("COBRA"))/src/checkSetup.jl")
 packages = checkSysConfig()
@@ -25,8 +28,8 @@ end
 
 # use the module COBRA and Base.Test modules on all workers
 using COBRA
-using Base.Test
-using Requests
+using Test
+using HTTP
 using Suppressor
 
 # download the ecoli_core_model
@@ -34,8 +37,8 @@ include("getTestModel.jl")
 getTestModel()
 
 # check if MATLAB package is present
-if sizeof(Pkg.installed("MATLAB")) > 0
-    info("The MATLAB package is present. The tests for PALM.jl will be run.")
+if "MATLAB" in keys(Pkg.installed())
+    @info "The MATLAB package is present. The tests for PALM.jl will be run."
 
     using MAT
     using MATLAB
@@ -94,7 +97,7 @@ if sizeof(Pkg.installed("MATLAB")) > 0
     # remove the directory with the test models
     rm(joinpath(TESTDIR, "testModels"), force=true, recursive=true)
 else
-    warn("The MATLAB package is not present. The tests for PALM.jl will not be run.")
+    @warn "The MATLAB package is not present. The tests for PALM.jl will not be run."
 end
 
 
@@ -106,10 +109,10 @@ for i = 1:length(supportedSolvers)
     print(" > Testing $(supportedSolvers[i]) ... ")
     if !(supportedSolvers[i] in packages)
         @test_throws ErrorException changeCobraSolver(string(supportedSolvers[i]))
-        print_with_color(:red, "Not supported.\n")
+        printstyled("Not supported.\n"; color=:red)
     else
         @test typeof(changeCobraSolver(supportedSolvers[i])) == COBRA.SolverConfig
-        print_with_color(:green, "Done.\n")
+        printstyled("Done.\n"; color=:green)
     end
 end
 
@@ -123,13 +126,13 @@ for s = 1:length(packages)
     testDir = readdir(TESTDIR)
 
     # print the solver name
-    print_with_color(:green, "\n\n -- Running $(length(testDir) - 2) tests using the $solverName solver. -- \n\n")
+    printstyled("\n\n -- Running $(length(testDir) - 2) tests using the $solverName solver. -- \n\n"; color=:green)
 
     # evaluate the test file
     for t = 1:length(testDir)
         # run only parallel and serial test files
         if testDir[t][1:2] == "p_" || testDir[t][1:2] == "s_" || testDir[t][1:2] == "z_"
-            print_with_color(:green, "\nRunning $(testDir[t]) ...\n\n")
+            printstyled("\nRunning $(testDir[t]) ...\n\n"; color=:green)
             include(testDir[t])
         end
     end
@@ -142,6 +145,6 @@ if isdir(tmpDir)
 end
 
 # print a status line
-print_with_color(:green, "\n -- All tests passed. -- \n\n")
+printstyled("\n -- All tests passed. -- \n\n"; color=:green)
 
 #-------------------------------------------------------------------------------------------
