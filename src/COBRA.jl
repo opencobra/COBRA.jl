@@ -17,9 +17,10 @@ The documentation is here: http://opencobra.github.io/COBRA.jl
 module COBRA
 
     # include the load file to load a model of .mat format
+    using Pkg, SparseArrays, Distributed, LinearAlgebra
     using MAT
     using MathProgBase
-    if sizeof(Pkg.installed("MATLAB")) > 0
+    if "MATLAB" in keys(Pkg.installed())
         using MATLAB
     end
 
@@ -30,7 +31,7 @@ module COBRA
     include("solve.jl")
     include("distributedFBA.jl")
     include("tools.jl")
-    if sizeof(Pkg.installed("MATLAB")) > 0
+    if "MATLAB" in keys(Pkg.installed())
         include("PALM.jl")
     end
 

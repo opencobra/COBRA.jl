@@ -7,7 +7,7 @@
 
 #-------------------------------------------------------------------------------------------
 
-using Base.Test
+using Test, LinearAlgebra
 
 if !@isdefined includeCOBRA
     includeCOBRA = true
@@ -43,18 +43,18 @@ getTestModel()
 include("$(Pkg.dir("COBRA"))/config/solverCfg.jl")
 
 # load an external mat file
-model = loadModel("$(Pkg.dir("COBRA"))/test/ecoli_core_model.mat", "S", "model")
+model = loadModel("$(Pkg.dir("COBRA"))/test/ecoli_core_model.mat", "S", "e_coli_core")
 
 # test that no output is produced with printLevel = 0
-info(" > Testing silent $solverName ...")
+@info " > Testing silent $solverName ..."
 solver = changeCobraSolver(solverName, printLevel=0)
-output = @capture_out minFlux, maxFlux = distributedFBA(model, solver, nWorkers=nWorkers, printLevel=0, rxnsList=1:4)
+output = @capture_out minFlux, maxFlux = distributedFBA(model, solver; nWorkers=nWorkers, printLevel=0, rxnsList=1:4)
 if string(solverName) == "Gurobi"
     @test length(matchall(r"From worker ", output)) == 2*nWorkers
 else
     @test length(output) == 0
 end
-info(" > Done testing silent $solverName.")
+@info " > Done testing silent $solverName."
 
 # change the COBRA solver
 solver = changeCobraSolver(solverName, solParams)
@@ -62,198 +62,199 @@ solver = changeCobraSolver(solverName, solParams)
 # select the number of reactions
 rxnsList = 1:length(model.rxns)
 
-minFluxT = [-2.542357461637039
-            -2.542357461637039
-            -3.813536192455565
-             0.848587001219999
-             0.848587001219999
-            -3.813536192455565
-                             0
-                             0
-            -1.430076072170838
-            -2.214311337554841
-             8.390000000000001
-            34.825655310640002
-             0.786529800000000
-            -26.528831096100003
-             0.848587001219999
-            35.984903218817756
-            -2.145114108256252
-             8.686592417159998
-            -2.214311337554841
-                             0
-                             0
-                             0
-            15.206556434392406
-                             0
-                             0
-                             0
-                             0
-            -10.000000000000000
-                             0
-                             0
-            15.777787788000069
-            20.935954109512409
-                             0
-                             0
-            -5.559968424258519
-            -25.619523994320012
-            -3.214895047684765
-                             0
-                             0
-             1.171711973239997
-                             0
-                             0
-                             0
-                             0
-                             0
-            -0.512905973490859
-                             0
-                             0
-             9.863240997959998
-             9.046615951886109
-             0.201115669860000
-                             0
-            -5.358852754398518
-                             0
-                             0
-            -1.271178730818519
-                             0
-            -32.258228771220004
-             0.848587001219999
-                             0
-            -2.145114108256252
-                             0
-                             0
-            -3.249704488360005
-                             0
-                             0
-            32.659177871419992
-                             0
-             4.288789693440000
-            17.992451609408878
-                             0
-             1.171711973239997
-                             0
-            -14.299019113100011
-            -17.909167832660000
-                             0
-            -16.732519251860001
-             2.893407175260005
-                             0
-                             0
-                             0
-                             0
-                             0
-            -2.542357461637041
-            -0.620909006871476
-            -8.611284454940005
-                             0
-                             0
-                             0
-            -8.045926834700001
-            -0.154536201070266
-                             0
-            -0.154536201070266
-            -0.466372805801210
-             1.171711973239997
+# JL: Changed minFluxT and maxFluxT due to a different version of e_coli_core (BIGG)
+minFluxT = [-2.542383644
+            -2.542383644
+            -3.813575466
+            0.84858603
+            0.84858603
+            -3.813575466
+            0
+            0
+            -1.4300908
+            -2.214334142
+            8.39
+            34.82557929
+            0.7865289
+            -26.5288694
+            0.84858603
+            35.98482481
+            -2.1451362
+            8.686582477
+            -2.214334142
+            0
+            0
+            0
+            15.20649461
+            0
+            0
+            0
+            0
+            -10
+            0
+            0
+            15.77776973
+            20.93588573
+            0
+            0
+            -5.559976608
+            -25.61956333
+            -3.214895048
+            0
+            0
+            1.17169919
+            0
+            0
+            -68.64435839
+            0
+            0
+            -0.512922598
+            0
+            0
+            9.863229712
+            9.046606133
+            0.20111544
+            0
+            -5.358861168
+            0
+            0
+            -1.271191822
+            0
+            -32.25826052
+            0.84858603
+            0
+            -2.1451362
+            0
+            0
+            -3.249778929
+            0
+            0
+            32.6591202
+            0
+            4.288784786
+            17.9924124
+            0
+            1.17169919
+            0
+            -14.29905996
+            -17.90917023
+            0
+            -16.73252299
+            2.893403864
+            0
+            0
+            0
+            0
+            0
+            -2.542383644
+            -0.620909007
+            -8.611297487
+            0
+            0
+            0
+            -8.045940513
+            -0.154536201
+            0
+            -0.154536201
+            -0.466372806
+            1.17169919
             ]
 
 maxFluxT = [0
             0
             0
-            0.008894513835920
-            0.008894513835920
+            0.008894527
+            0.008894527
             0
-            0.017160912866050
-            0.008045926834700
-            0
-            0
-            0.025550912866050
-            0.059381011244985
-            0.000873921506968
-            -0.015206556434392
-            0.008894513835920
-            0.051239047988640
-            0
-            0.016732519251860
-            0
-            0.003813536192456
-            0.002542357461637
-            0.001430076072171
-            0.026528831096100
-            0.002214311337555
-            0.011322274661708
+            0.01716109
+            0.008045941
             0
             0
-            -0.009046615951886
+            0.02555109
+            0.059381115
+            0.000873922
+            -0.015206495
+            0.008894527
+            0.051239127
             0
-            0.001271178730819
-            0.027100062449708
-            0.032258228771220
-            0.002145114108256
+            0.016732523
             0
-            -0.004288789693440
-            -0.017992451609409
-            -0.002893407175260
-            0.002542357461637
-            0.001674235401566
-            0.009217638807940
-            0.017160912866050
-            0.068643651464200
-            0.068643651464200
-            1.000000000000000
+            0.003813575
+            0.002542384
+            0.001430091
+            0.026528869
+            0.002214334
+            0.011322375
             0
-            0.008045926834700
             0
-            0.024137780504100
-            0.017909167832660
-            0.010000000000000
-            0.017362028535910
+            -0.009046606
             0
-            0.013073238842470
-            0.017160912866050
-            0.017160912866050
+            0.001271192
+            0.027100145
+            0.032258261
+            0.002145136
             0
-            0.024137780504100
-            -0.020935954109512
-            0.008894513835920
-            0.008045926834700
+            -0.004288785
+            -0.017992412
+            -0.002893404
+            0.002542384
+            0.001674253
+            0.00921764
+            0.01716109
+            0.068644358
             0
-            0.008045926834700
+            1
             0
-            0.016091853669400
-            0.011935837517263
-            0.015318594740410
-            0.051239047988640
-            0.044759390689735
-            0.005559968424259
-            0.025619523994320
-            0.019888197055060
-            0.025290553320174
-            0.011322274661708
-            0.009838761391000
-            -0.009863240997960
-            0.024137780504100
-            -0.008686592417160
-            0.003214895047685
-            0.020346778124675
-            0.017160912866050
-            0.017160912866050
-            0.003813536192456
-            0.021382900237218
+            0.008045941
             0
-            0.015526496049160
-            -0.000565357620240
-            0.022881217154733
-            0.022881217154733
-            1.000000000000000
+            0.024137822
+            0.01790917
+            0.01
+            0.017362205
             0
-            0.007905216653480
-            0.037041821616640
-            0.007905216653480
-            0.007621279395680
-            0.009217638807940
+            0.01307342
+            0.01716109
+            0.01716109
+            0
+            0.024137822
+            -0.020935886
+            0.008894527
+            0.008045941
+            0
+            0.008045941
+            0
+            0.016091881
+            0.011935942
+            0.01531869
+            0.051239127
+            0.044759781
+            0.005559977
+            0.025619563
+            0.01988822
+            0.025290737
+            0.011322375
+            0.009838762
+            -0.00986323
+            0.024137822
+            -0.008686582
+            0.003214895
+            0.020346956
+            0.01716109
+            0.01716109
+            0.003813575
+            0.021383088
+            0
+            0.015526524
+            -0.000565357
+            0.022881453
+            0.022881453
+            1
+            0
+            0.00790523
+            0.037042161
+            0.00790523
+            0.007621294
+            0.00921764
             ]
 
 for s = 0:2
@@ -262,16 +263,16 @@ for s = 0:2
 
     # launch the distributedFBA process
     startTime = time()
-    minFlux, maxFlux, optSol = distributedFBA(model, solver, nWorkers=nWorkers, preFBA=true, optPercentage=optPercentage, objective="max", rxnsList=rxnsList, strategy=s)
+    minFlux, maxFlux, optSol = distributedFBA(model, solver; nWorkers=nWorkers, preFBA=true, optPercentage=optPercentage, objective="max", rxnsList=rxnsList, strategy=s)
     solTime = time() - startTime
 
     # Test numerical values - test on floor as different numerical precision with different solvers
     @test floor(maximum(maxFlux)) == 1000.0
     @test floor(minimum(maxFlux)) == -21.0
     @test floor(maximum(minFlux)) == 35.0
-    @test floor(minimum(minFlux)) == -33.0
-    @test floor(norm(maxFlux))    == 1427.0
-    @test floor(norm(minFlux))    == 93.0
+    @test floor(minimum(minFlux)) == -69.0 # JL: The changed values must be checked in the future; possibly due to changing e_coli_core
+    @test floor(norm(maxFlux))    == 1425.0 # JL: The changed values must be checked in the future; possibly due to changing e_coli_core
+    @test floor(norm(minFlux))    == 116.0 # JL: The changed values must be checked in the future; possibly due to changing e_coli_core
     @test abs((model.c' * minFlux)[1] - optPercentage / 100.0 * optSol) < 1e-6
 
     # test each element of the minimum and maximum flux vectors
@@ -417,4 +418,3 @@ minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = d
 
 # remove the results folder to clean up
 run(`rm -rf $(Pkg.dir("COBRA"))/results`)
-
