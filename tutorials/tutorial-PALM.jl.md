@@ -40,11 +40,11 @@ If you already have a working installation of the COBRA Toolbox, you may skip th
 
 **Advanced users** may also want to install the COBRA Toolbox directly installed from Julia. You must have `git` (or `gitBash` on Windows) installed - see [requirements](https://opencobra.github.io/cobratoolbox/stable/installation.html#system-requirements).
 
-For illustration purposes of this tutorial, the COBRA Toolbox will be installed in the `/tmp` directory. This may take a while, depending on the speed of your internet connection.
+For illustration purposes of this tutorial, the COBRA Toolbox will be installed in the `~/tmp` directory. This may take a while, depending on the speed of your internet connection.
 
 
 ```julia
-installDir = "/tmp/cobratoolbox"
+installDir = "~/tmp/cobratoolbox"
 ```
 
 
@@ -74,10 +74,10 @@ include("$(Pkg.dir("COBRA"))/src/connect.jl")
 
 ```julia
 # specify the total number of parallel workers
-nWorkers = 4 
+nWorkers = 4
 
 # create a parallel pool
-workersPool, nWorkers = createPool(nWorkers) 
+workersPool, nWorkers = createPool(nWorkers)
 ```
 
 After initializing the workers, the packages must be loaded on each worker:
@@ -151,7 +151,7 @@ using MAT
 vars = matread("modelCharacteristics.mat")
 ```
 
-The full data set can be retrieved with: 
+The full data set can be retrieved with:
 
 
 ```julia
