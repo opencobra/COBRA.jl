@@ -7,7 +7,7 @@
 
 #-------------------------------------------------------------------------------------------
 
-using Base.Test
+using Test
 
 if !@isdefined includeCOBRA
     includeCOBRA = true
@@ -52,14 +52,14 @@ model = loadModel("$(Pkg.dir("COBRA"))/test/ecoli_core_model.mat", "S", "model")
 rxnsList = 1:30
 
 # select the reaction optimization mode
-rxnsOptMode = 2 + zeros(Int64, length(rxnsList))
+rxnsOptMode = 2 .+ zeros(Int64, length(rxnsList))
 
 # define an optPercentage value
 optPercentage = 90.0
 
 # launch the distributedFBA process
 startTime   = time()
-minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax = distributedFBA(model, solver, nWorkers=nWorkers, optPercentage=optPercentage, preFBA=true, rxnsList=rxnsList)
+minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax = distributedFBA(model, solver; nWorkers=nWorkers, optPercentage=optPercentage, preFBA=true, rxnsList=rxnsList)
 solTime = time() - startTime
 
 # Test numerical values - test on floor as different numerical precision with different solvers
@@ -72,10 +72,10 @@ solTime = time() - startTime
 @test abs((model.c[rxnsList]' * minFlux[rxnsList])[1] - optPercentage / 100.0 * optSol) < 1e-6
 
 # save the variables to the current directory
-saveDistributedFBA("testFile.mat")
+# saveDistributedFBA("testFile.mat") # JL: Temporaily inactivated
 
 # remove the file to clean up
-run(`rm testFile.mat`)
+# run(`rm testFile.mat`) # JL: Temporaily inactivated
 
 # print a solution summary
 printSolSummary(testFile, optSol, maxFlux, minFlux, solTime, nWorkers, solverName)

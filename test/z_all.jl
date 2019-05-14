@@ -7,7 +7,7 @@
 
 #-------------------------------------------------------------------------------------------
 
-using Base.Test
+using Test
 
 if !@isdefined includeCOBRA
     includeCOBRA = true
@@ -49,7 +49,7 @@ solver = changeCobraSolver(solverName, solParams)
 @test_throws ErrorException changeCobraSolver("mySolver")
 
 # test some functions that are known to throw errors
-print_with_color(:yellow, "\n>> The following tests throw warning messages for testing purposes. <<\n\n")
+printstyled("\n>> The following tests throw warning messages for testing purposes. <<\n\n"; color=:yellow)
 
 # test if an error is thrown when myModel.mat does not exist
 @test_throws ErrorException loadModel("myModel.mat")
@@ -86,7 +86,7 @@ model = loadModel("$(Pkg.dir("COBRA"))/test/ecoli_core_model.mat")
 
 # run a model with more reactions on the reaction list than in the model
 rxnsList = 1:length(model.rxns) + 1
-minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers=1, optPercentage=90.0, objective="min", rxnsList=rxnsList)
+minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver; nWorkers=1, optPercentage=90.0, objective="min", rxnsList=rxnsList)
 
 # test preFBA! with min
 optSol, fbaSol = preFBA!(model, solver, 90.0, "min")
@@ -135,4 +135,4 @@ elseif solver.name == "CPLEX"
     @test isequal(retStat, [4, NaN]) # unbounded and not solved
 end
 
-print_with_color(:yellow, "\n >> Note: Warnings above are thrown for testing purposes and can be safely ignored.\n")
+printstyled("\n >> Note: Warnings above are thrown for testing purposes and can be safely ignored.\n"; color=:yellow)
