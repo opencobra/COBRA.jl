@@ -125,14 +125,14 @@ function loadModel(fileName::String, modelName::String="model", printLevel::Int=
 
         # load the upper bound vector ub
         if modelFields[1] in modelKeys
-            ub = squeeze(model[modelFields[1]], 2)
+            ub = vec(model[modelFields[1]])
         else
             error("The vector `$(modelFields[1])` does not exist in `$modelName`.")
         end
 
         # load the lower bound vector lb
         if modelFields[2] in modelKeys
-            lb = squeeze(model[modelFields[2]], 2)
+            lb = vec(model[modelFields[2]])
         else
             error("The vector `$(modelFields[2])` does not exist in `$modelName`.")
         end
@@ -143,20 +143,20 @@ function loadModel(fileName::String, modelName::String="model", printLevel::Int=
         else
             osense = -1
             if printLevel > 0
-                info("The model objective is set to be maximized.\n")
+                @info "The model objective is set to be maximized.\n"
             end
         end
 
         # load the objective vector c
         if modelFields[4] in modelKeys && osense != 0
-            c = squeeze(model[modelFields[4]], 2)
+            c = vec(model[modelFields[4]])
         else
             error("The vector `$(modelFields[4])` does not exist in `$modelName`.")
         end
 
         # load the right hand side vector b
         if modelFields[5] in modelKeys
-            b = squeeze(model[modelFields[5]], 2)
+            b = vec(model[modelFields[5]])
         else
             b = zeros(length(c))
             error("The vector `$(modelFields[5])` does not exist in `$modelName`.")
@@ -183,20 +183,20 @@ function loadModel(fileName::String, modelName::String="model", printLevel::Int=
             end
         else
             if printLevel > 0
-                info("All constraints assumed equality constaints.\n")
+                @info "All constraints assumed equality constaints.\n"
             end
         end
 
         # load the reaction names vector
         if modelFields[7] in modelKeys
-            rxns = squeeze(model[modelFields[7]], 2)
+            rxns = vec(model[modelFields[7]])
         else
             error("The vector `$(modelFields[7])` does not exist in `$modelName`.")
         end
 
         # load the metabolites vector
         if modelFields[8] in modelKeys
-            mets = squeeze(model[modelFields[8]], 2)
+            mets = vec(model[modelFields[8]])
         else
             error("The vector `$(modelFields[8])` does not exist in `$modelName`.")
         end

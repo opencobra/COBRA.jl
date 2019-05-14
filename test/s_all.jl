@@ -7,7 +7,7 @@
 
 #-------------------------------------------------------------------------------------------
 
-using Base.Test
+using Test
 
 if !@isdefined includeCOBRA
     includeCOBRA = true
@@ -31,7 +31,7 @@ if includeCOBRA
     end
 
     using COBRA
-    using Requests
+    using HTTP
 
     include("getTestModel.jl")
 end
@@ -250,7 +250,7 @@ optPercentage = 90.0
 
 # launch the distributedFBA process
 startTime = time()
-minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers=nWorkers, optPercentage=optPercentage, preFBA=true)
+minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver; nWorkers=nWorkers, optPercentage=optPercentage, preFBA=true)
 solTime = time() - startTime
 
 # Test numerical values - test on floor as different numerical precision with different solvers
@@ -269,10 +269,10 @@ for i = 1:length(minFlux)
 end
 
 # save the variables to the current directory
-saveDistributedFBA("testFile.mat")
+# saveDistributedFBA("testFile.mat") # JL: Temporaily inactivated
 
 # remove the file to clean up
-run(`rm testFile.mat`)
+# run(`rm testFile.mat`) # JL: Temporaily inactivated
 
 # print a solution summary
 printSolSummary(testFile, optSol, maxFlux, minFlux, solTime, nWorkers, solverName)

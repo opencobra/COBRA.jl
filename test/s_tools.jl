@@ -7,7 +7,7 @@
 
 #-------------------------------------------------------------------------------------------
 
-using Base.Test
+using Test
 
 if !@isdefined includeCOBRA
     includeCOBRA = true

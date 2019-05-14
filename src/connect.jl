@@ -8,7 +8,7 @@
 #-------------------------------------------------------------------------------------------
 
 if "JENKINS" in keys(ENV)
-    info("JENKINS CI server detected. Workers will be added with test environment configuration.")
+    @info "JENKINS CI server detected. Workers will be added with test environment configuration."
     include("$JULIA_HOME/../share/julia/test/testenv.jl")
     addprocsCOBRA = addprocs_with_testenv
 else
@@ -68,7 +68,7 @@ function createPool(localWorkers::Int, connectSSH::Bool=false, connectionFile::S
                 include(connectionFile)
 
             if printLevel > 0
-                print_with_color(:green, "Done.\n")
+                printstyled("Done.\n"; color=:green)
             end
         else
             error("Connection file (filename: `$connectionFile`) is unreadable or not accessible.")
@@ -91,32 +91,32 @@ function createPool(localWorkers::Int, connectSSH::Bool=false, connectionFile::S
     # connect all required workers
     if nWorkers <= 1
         if printLevel > 0
-            info("Sequential version - Depending on the model size, expect long execution times.")
+            @info "Sequential version - Depending on the model size, expect long execution times."
         end
     else
         if printLevel > 0
-            info("Parallel version - Connecting the $nWorkers workers ...")
+            @info "Parallel version - Connecting the $nWorkers workers ..."
         end
 
         # print a warning for already connected threads
         if nprocs() > nWorkers
             if printLevel > 0
-                print_with_color(:blue, "$nWorkers workers already connected. No further workers to connect.\n")
+                printstyled("$nWorkers workers already connected. No further workers to connect.\n"; color=:blue)
             end
         end
 
         # add local threads
         if localWorkers > 0 && nworkers() < nWorkers
-            addprocsCOBRA(localWorkers, topology = :master_slave)
+            addprocsCOBRA(localWorkers, topology = :master_worker)
             if printLevel > 0
-                print_with_color(:blue, "$(nworkers()) local workers are connected. (+1) on host: $(gethostname())\n")
+                printstyled("$(nworkers()) local workers are connected. (+1) on host: $(gethostname())\n"; color=:blue)
             end
         end
 
         # add remote threads
         if connectSSH && nworkers() < nWorkers && isfile(connectionFile)
             if printLevel > 0
-                info("Connecting SSH nodes ...")
+                @info "Connecting SSH nodes ..."
             end
 
             # loop through the workers to be connected
@@ -132,13 +132,13 @@ function createPool(localWorkers::Int, connectSSH::Bool=false, connectionFile::S
 
                         # add threads when the SSH login is successful
                         if successConnect
-                            addprocsCOBRA([(sshWorkers[i]["usernode"], sshWorkers[i]["procs"])], topology = :master_slave,
+                            addprocsCOBRA([(sshWorkers[i]["usernode"], sshWorkers[i]["procs"])], topology = :master_worker,
                                           tunnel = true, dir = sshWorkers[i]["dir"], sshflags = sshWorkers[i]["flags"],
                                           exeflags=`--depwarn=no`, exename = sshWorkers[i]["exename"])
 
                             # return a status update
                             if printLevel > 0
-                                info("Connected ", sshWorkers[i]["procs"], " workers on ",  sshWorkers[i]["usernode"])
+                                @info "Connected ", sshWorkers[i]["procs"], " workers on ",  sshWorkers[i]["usernode"]
                             end
 
                             # increase the counter of remote workers
