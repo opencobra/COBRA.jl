@@ -7,7 +7,7 @@
 
 #-------------------------------------------------------------------------------------------
 
-using Pkg, Distributed # for Julia ver >= 1.0
+using Pkg, Distributed, LinearAlgebra # for Julia ver >= 1.0
 
 # retrieve all packages that are installed on the system
 include("$(Pkg.dir("COBRA"))/src/checkSetup.jl")
@@ -117,9 +117,9 @@ end
 
 includeCOBRA = false
 
-for s = 1:length(packages)
+for s in packages
     # define a solvername
-    solverName = string(packages[s])
+    global solverName = string(s)
 
     # read out the directory with the test files
     testDir = readdir(TESTDIR)
@@ -130,7 +130,7 @@ for s = 1:length(packages)
     # evaluate the test file
     for t = 1:length(testDir)
         # run only parallel and serial test files
-        if testDir[t][1:2] == "p_" || testDir[t][1:2] == "s_" || testDir[t][1:2] == "z_"
+        if testDir[t][1:2] in ["p_", "s_", "z_"]
             printstyled("\nRunning $(testDir[t]) ...\n\n"; color=:green)
             include(testDir[t])
         end
