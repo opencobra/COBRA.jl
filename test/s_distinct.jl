@@ -7,7 +7,6 @@
 
 #-------------------------------------------------------------------------------------------
 
-using Test
 
 if !@isdefined includeCOBRA
     includeCOBRA = true
@@ -21,7 +20,6 @@ nWorkers = 1
 
 # create a pool and use the COBRA module if the testfile is run in a loop
 if includeCOBRA
-    solverName = :GLPKMathProgInterface
     connectSSHWorkers = false
     include("$(Pkg.dir("COBRA"))/src/connect.jl")
 
@@ -31,7 +29,7 @@ if includeCOBRA
     end
 
     using COBRA
-    using Requests
+    using HTTP
 
     include("getTestModel.jl")
 end

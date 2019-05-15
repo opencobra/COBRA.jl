@@ -7,7 +7,6 @@
 
 #-------------------------------------------------------------------------------------------
 
-using Test, LinearAlgebra
 
 if !@isdefined includeCOBRA
     includeCOBRA = true
@@ -21,7 +20,7 @@ nWorkers = 4
 
 # create a pool and use the COBRA module if the testfile is run in a loop
 if includeCOBRA
-    solverName = :GLPKMathProgInterface
+    # solverName = :GLPKMathProgInterface # JL: is it really necessary?
     connectSSHWorkers = false
     include("$(Pkg.dir("COBRA"))/src/connect.jl")
 
@@ -48,7 +47,7 @@ model = loadModel("$(Pkg.dir("COBRA"))/test/ecoli_core_model.mat", "S", "model")
 # test that no output is produced with printLevel = 0
 @info " > Testing silent $solverName ..."
 solver = changeCobraSolver(solverName, printLevel=0)
-output = @capture_out minFlux, maxFlux = distributedFBA(model, solver; nWorkers=nWorkers, printLevel=0, rxnsList=1:4)
+output = @capture_out minFlux, maxFlux = distributedFBA(model, solver, nWorkers=nWorkers, printLevel=0, rxnsList=1:4)
 if string(solverName) == "Gurobi"
     @test length(matchall(r"From worker ", output)) == 2*nWorkers
 else
