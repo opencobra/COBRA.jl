@@ -866,11 +866,11 @@ function saveDistributedFBA(fileName::String, vars::Array{String,1} = ["minFlux"
     for i = 1:length(vars)
         if isdefined(Main, Symbol(vars[i]))
             if printLevel > 0
-                print("Saving $(vars[i]) (T:> $(typeof(eval(Main, Symbol(vars[i]))))) ...")
+                print("Saving $(vars[i]) (T:> $(typeof(Main.eval(Symbol(vars[i]))))) ...")
             end
 
             # write the variable to the file
-            write(file, "$(vars[i])", convertUnitRange( eval(Main, Symbol(vars[i])) ))
+            write(file, "$(vars[i])", convertUnitRange(Main.eval(Symbol(vars[i])) ))
 
             # increment the counter
             countSavedVars = countSavedVars + 1

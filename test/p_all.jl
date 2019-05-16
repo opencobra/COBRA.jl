@@ -381,13 +381,13 @@ minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = d
 @test isequal(statussolmax, ones(Int, length(rxnsList)))
 
 # JL: saveDistributedFBA temporarily inactivated
-# saveDistributedFBA("testFile.mat", ["minFlux", "maxFlux"])
+saveDistributedFBA("testFile.mat", ["minFlux", "maxFlux"])
 
 # call saveDistributedFBA with no variables
-# saveDistributedFBA("testFile.mat", [""])
+saveDistributedFBA("testFile.mat", [""])
 
 # remove the file to clean up
-# run(`rm testFile.mat`)
+run(`rm testFile.mat`)
 
 # remove the results folder to clean up
 try
