@@ -333,7 +333,7 @@ minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = d
 printSolSummary(testFile, optSol, maxFlux, minFlux, solTime, nWorkers, solverName, strategy, saveChunks)
 
 # remove the results folder to clean up
-run(`rm -rf $(Pkg.dir("COBRA"))/results`)
+#run(`rm -rf $(Pkg.dir("COBRA"))/results`)
 
 # create folders if they are not present
 if !isdir("$(Pkg.dir("COBRA"))/results")
