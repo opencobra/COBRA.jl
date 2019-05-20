@@ -139,6 +139,10 @@ end
 tmpDir = joinpath(dirname(@__FILE__), "..", "results")
 if isdir(tmpDir)
     run(`tree $tmpDir`)
+    run(`ls -lash $tmpDir`)
+    run(`sh -c "rm -rf $tmpDir/fvamax"`)
+    run(`sh -c "rm -rf $tmpDir/fvamin"`)
+    run(`sh -c "rm -rf $tmpDir/logs"`)
     run(`sh -c "rm -rf $tmpDir"`)
 end
 
