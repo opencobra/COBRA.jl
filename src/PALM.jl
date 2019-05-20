@@ -271,7 +271,7 @@ function PALM(dir, scriptName; nMatlab::Int=2, outputFile::AbstractString="PALM_
 
     if useCOBRA
         for (p, pid) in enumerate(workers())
-            @spawnat (p + 1) begin
+            @sync @spawnat (p + 1) begin
                 # clone a copy to a tmp folder as the cobtratoolbox is updated at runtime
                 info(ENV["HOME"]*"/tmp/test-ct-$p")
                 if !isdir(ENV["HOME"]*"/tmp/test-ct-$p")
