@@ -138,14 +138,11 @@ end
 # remove the results folder to clean up
 tmpDir = joinpath(dirname(@__FILE__), "..", "results")
 if isdir(tmpDir)
-    run(`tree $tmpDir`)
-    run(`ls -lash $tmpDir`)
-    run(`cd $tmpDir`)
-    run(`ls -lash`)
-    run(`sh -c "rm -rf fvamax"`)
-    run(`sh -c "rm -rf fvamin"`)
-    run(`sh -c "rm -rf logs"`)
-    run(`sh -c "rm -rf $tmpDir"`)
+    try
+        rm("$tmpDir", recursive=true, force=true)
+    catch
+        info("The directory $tmpDir cannot be removed. Please check permissions.\n")
+    end
 end
 
 # print a status line
