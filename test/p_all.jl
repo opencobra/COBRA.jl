@@ -384,13 +384,13 @@ saveDistributedFBA("testFile.mat", [""])
 run(`rm testFile.mat`)
 
 # remove the results folder to clean up
-rm("$(Pkg.dir("COBRA"))/results", recursive=true, force=true)
+#rm("$(Pkg.dir("COBRA"))/results", recursive=true, force=true)
 
 # create the logs folder
 resultsDir = "$(Pkg.dir("COBRA"))/results"
 
 if isdir("$resultsDir/logs")
-    rm("$resultsDir/logs", recursive=true, force=true)
+    #rm("$resultsDir/logs", recursive=true, force=true)
     print_with_color(:green, "$resultsDir/logs folder created")
 end
 
