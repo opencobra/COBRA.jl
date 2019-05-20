@@ -13,12 +13,6 @@ script:
           export PATH="$PATH:$ARTENOLIS_SOFT_PATH/MATLAB/$MATLAB_VER/bin";
       fi
 
-    # clone the COBRA Toolbox
-    - rm -rf ~/tmp/cobratoolbox-cobrajl
-    - git clone git@github.com:opencobra/cobratoolbox.git ~/tmp/cobratoolbox-cobrajl
-    - cd ~/tmp/cobratoolbox-cobrajl
-    - git submodule update --init --remote --no-fetch
-
     # change to the current directory
     - cd $CURRENT_DIR
 
