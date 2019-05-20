@@ -273,6 +273,7 @@ function PALM(dir, scriptName; nMatlab::Int=2, outputFile::AbstractString="PALM_
     # Note: there is no need for the submodules to be cloned
     if !isdir(cobraToolboxDir)
         cmd = "git clone git@github.com:opencobra/cobratoolbox.git $cobraToolboxDir"
+        info(cmd)
         run(`$cmd`)
     end
 
