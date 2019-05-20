@@ -138,7 +138,7 @@ end
 # remove the results folder to clean up
 tmpDir = joinpath(dirname(@__FILE__), "..", "results")
 if isdir(tmpDir)
-    rm(tmpDir, force=true, recursive=true)
+    #rm(tmpDir, force=true, recursive=true)
 end
 
 # print a status line
