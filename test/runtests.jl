@@ -138,6 +138,7 @@ end
 # remove the results folder to clean up
 tmpDir = joinpath(dirname(@__FILE__), "..", "results")
 if isdir(tmpDir)
+    run(`tree $tmpDir`)
     run(`sh -c "rm -rf $tmpDir"`)
 end
 
