@@ -25,6 +25,9 @@ script:
     # clean up the build directory
     - cd .. && rm -rf COBRA
 
+    # clean up the tmp folder
+    - rm -rf ~/tmp
+
 after_success:
     - if [ "$ARCH" == "Linux" ]; then $ARTENOLIS_SOFT_PATH/julia/$JULIA_VER/bin/julia --color=yes -e 'cd(Pkg.dir("COBRA")); using Coverage; tmp=process_folder(); Codecov.submit(tmp, verbose=false); Coveralls.submit(tmp);'; fi
 
