@@ -14,9 +14,9 @@ script:
       fi
 
     # clone the COBRA Toolbox
-    - rm -rf $ARTENOLIS_DATA_PATH/scratch/cobratoolbox-cobrajl
-    - git clone git@github.com:opencobra/cobratoolbox.git $ARTENOLIS_DATA_PATH/scratch/cobratoolbox-cobrajl --depth=1
-    - cd $ARTENOLIS_DATA_PATH/scratch/cobratoolbox-cobrajl
+    - rm -rf ~/tmp/cobratoolbox-cobrajl
+    - git clone git@github.com:opencobra/cobratoolbox.git ~/tmp/cobratoolbox-cobrajl --depth=1
+    - cd ~/tmp/cobratoolbox-cobrajl
     - git submodule update --init --remote --no-fetch
 
     # change to the current directory
