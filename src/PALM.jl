@@ -275,7 +275,7 @@ function PALM(dir, scriptName; nMatlab::Int=2, outputFile::AbstractString="PALM_
                 # clone a copy to a tmp folder as the cobtratoolbox is updated at runtime
                 info(ENV["HOME"]*"/tmp/test-ct-$p")
                 if !isdir(ENV["HOME"]*"/tmp/test-ct-$p")
-                    cmd = "git clone $cobraToolboxDir "*ENV["HOME"]*"/tmp/test-ct-$p"
+                    cmd = "cp -r $cobraToolboxDir "*ENV["HOME"]*"/tmp/test-ct-$p"
                     info(cmd)
                     run(`$cmd`)
                 end
