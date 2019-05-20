@@ -15,7 +15,7 @@ script:
 
     # clone the COBRA Toolbox
     - rm -rf ~/tmp/cobratoolbox-cobrajl
-    - git clone git@github.com:opencobra/cobratoolbox.git ~/tmp/cobratoolbox-cobrajl
+    - git clone git@github.com:opencobra/cobratoolbox.git ~/tmp/cobratoolbox-cobrajl --bare
     - cd ~/tmp/cobratoolbox-cobrajl
     - git submodule update --init --remote --no-fetch
 
