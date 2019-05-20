@@ -269,13 +269,20 @@ function PALM(dir, scriptName; nMatlab::Int=2, outputFile::AbstractString="PALM_
     # declare an empty array for storing a summary of all data
     summaryData = Array{Union{Int,Float64,AbstractString}}(nModels + 1, nCharacteristics + 1)
 
+    # clone the COBRA Toolbox if it is not yet available
+    # Note: there is no need for the submodules to be cloned
+    if !isdir(cobraToolboxDir)
+        cmd = "git clone git@github.com:opencobra/cobratoolbox.git $cobraToolboxDir"
+        run(`$cmd`)
+    end
+
+    # clone a copy to a tmp folder as the cobtratoolbox is updated at runtime
     if useCOBRA
         for (p, pid) in enumerate(workers())
             @sync @spawnat (p + 1) begin
-                # clone a copy to a tmp folder as the cobtratoolbox is updated at runtime
                 info(ENV["HOME"]*"/tmp/test-ct-$p")
                 if !isdir(ENV["HOME"]*"/tmp/test-ct-$p")
-                    cmd = "cp -r $cobraToolboxDir "*ENV["HOME"]*"/tmp/test-ct-$p"
+                    cmd = "git clone $cobraToolboxDir "*ENV["HOME"]*"/tmp/test-ct-$p"
                     info(cmd)
                     run(`$cmd`)
                 end
