@@ -63,14 +63,6 @@ print_with_color(:yellow, "\n>> The following tests throw warning messages for t
 # test if an error is thrown when the struct myModel does not exist
 @test_throws ErrorException loadModel("$(Pkg.dir("COBRA"))/test/ecoli_core_model.mat", "S", "myModel")
 
-# call other fields of the model
-@test_throws ErrorException loadModel("$(Pkg.dir("COBRA"))/test/ecoli_core_model.mat", "S", "model", ["ubTest", "lb", "osense", "c", "b", "csense", "rxns", "mets"])
-@test_throws ErrorException loadModel("$(Pkg.dir("COBRA"))/test/ecoli_core_model.mat", "S", "model", ["ub", "lbTest", "osense", "c", "b", "csense", "rxns", "mets"])
-@test_throws ErrorException loadModel("$(Pkg.dir("COBRA"))/test/ecoli_core_model.mat", "S", "model", ["ub", "lb", "osense", "cTest", "b", "csense", "rxns", "mets"])
-@test_throws ErrorException loadModel("$(Pkg.dir("COBRA"))/test/ecoli_core_model.mat", "S", "model", ["ub", "lb", "osense", "c", "bTest", "csense", "rxns", "mets"])
-@test_throws ErrorException loadModel("$(Pkg.dir("COBRA"))/test/ecoli_core_model.mat", "S", "model", ["ub", "lb", "osense", "c", "b", "csense", "rxnsTest", "mets"])
-@test_throws ErrorException loadModel("$(Pkg.dir("COBRA"))/test/ecoli_core_model.mat", "S", "model", ["ub", "lb", "osense", "c", "b", "csense", "rxns", "metsTest"])
-
 # connect SSH workers that are not reachable
 @test createPool(1, false) == (workers(), 1)
 @test_throws ErrorException workersPool, nWorkers = createPool(0, false)
