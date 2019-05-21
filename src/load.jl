@@ -97,7 +97,7 @@ function loadModel(fileName::String, modelName::String="model", printLevel::Int=
             # set the model fields
             push!(modelFields, "d", "dsense", "ctrs")
 
-            # load the ector d
+            # load the vector d
             if modelFields[9] in modelKeys
                 d = squeeze(model[modelFields[9]], 2)
             else
