@@ -90,5 +90,19 @@ saveDistributedFBA("testFile.mat")
 # remove the file to clean up
 run(`rm testFile.mat`)
 
+# load a coupled model (printLevel = 0)
+modelCoupled = loadModel("modelCoupled.mat", "modelCoupled")
+
+# test the size of the combined S matrix
+@test size(modelCoupled.S, 1) == length(modelCoupled.mets)
+@test size(modelCoupled.S, 2) == length(modelCoupled.rxns)
+
+# load a coupled model (printLevel = 1)
+modelCoupled = loadModel("modelCoupled.mat", "modelCoupled", 1)
+
+# test the size of the combined S matrix
+@test size(modelCoupled.S, 1) == length(modelCoupled.mets)
+@test size(modelCoupled.S, 2) == length(modelCoupled.rxns)
+
 # print a solution summary
 printSolSummary(testFile, optSol, maxFlux, minFlux, solTime, nWorkers, solverName)
