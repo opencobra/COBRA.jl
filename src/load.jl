@@ -99,7 +99,7 @@ function loadModel(fileName::String, modelName::String="model", printLevel::Int=
 
             # load the vector d
             if modelFields[9] in modelKeys
-                d = squeeze(model[modelFields[9]], 2)
+                d = vec(model[modelFields[9]])
             else
                 error("The vector `$(modelFields[9])` does not exist in `$modelName`.")
             end
