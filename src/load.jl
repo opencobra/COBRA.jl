@@ -86,7 +86,7 @@ function loadModel(fileName::String, modelName::String="model", printLevel::Int=
             if size(model["C"]) > (0, 0) && size(model["d"]) > (0, 0)
                 # model is a coupled model
                 if printLevel > 0
-                    info("The model named $modelName loaded from $fileName is a coupled model.")
+                    @info "The model named $modelName loaded from $fileName is a coupled model."
                 end
                 cdPresent = true
                 S = [model["S"]; model["C"]]
@@ -108,13 +108,13 @@ function loadModel(fileName::String, modelName::String="model", printLevel::Int=
                 # legacy structure if a matrix A is present
                 S = model["A"]
                 if printLevel > 0
-                    warn("The named $modelName loaded from $fileName is a coupled model, but has a legacy structure.")
+                    @warn "The named $modelName loaded from $fileName is a coupled model, but has a legacy structure."
                 end
             else
                 # model is an uncoupled model
                 S = model["S"]
                 if printLevel > 0
-                    info("The model named $modelName loaded from $fileName is a uncoupled model.")
+                    @info "The model named $modelName loaded from $fileName is a uncoupled model."
                 end
             end
         end
@@ -204,7 +204,7 @@ function loadModel(fileName::String, modelName::String="model", printLevel::Int=
         if cdPresent
             # load the contraints vector
             if modelFields[8] in modelKeys
-                ctrs = squeeze(model[modelFields[11]], 2)
+                ctrs = vec(model[modelFields[11]])
             else
                 error("The vector `$(modelFields[11])` does not exist in `$modelName`.")
             end

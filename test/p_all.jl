@@ -337,7 +337,7 @@ printSolSummary(testFile, optSol, maxFlux, minFlux, solTime, nWorkers, solverNam
 try
     rm("$(Pkg.dir("COBRA"))/results", recursive=true, force=true)
 catch
-    info("The directory $(Pkg.dir("COBRA"))/results cannot be removed. Please check permissions.\n")
+    @info "The directory $(Pkg.dir("COBRA"))/results cannot be removed. Please check permissions.\n"
 end
 
 # create folders if they are not present
@@ -355,7 +355,7 @@ if !isdir("$(Pkg.dir("COBRA"))/results")
         mkdir("$(Pkg.dir("COBRA"))/results/fvamax")
     end
 else
-    print_with_color(:cyan, "Directory `results` already exists.\n\n")
+    printstyled("Directory `results` already exists.\n\n", color=:green)
 end
 
 minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, preFBA=true, saveChunks=true)
@@ -393,7 +393,7 @@ run(`rm testFile.mat`)
 try
     rm("$(Pkg.dir("COBRA"))/results", recursive=true, force=true)
 catch
-    info("The directory $(Pkg.dir("COBRA"))/results cannot be removed. Please check permissions.\n")
+    @info "The directory $(Pkg.dir("COBRA"))/results cannot be removed. Please check permissions.\n"
 end
 
 # create the logs folder
@@ -403,9 +403,9 @@ if isdir("$resultsDir/logs")
     try
         rm("$resultsDir/logs", recursive=true, force=true)
     catch
-        info("The directory $resultsDir/logs cannot be removed. Please check permissions.\n")
+        @info "The directory $resultsDir/logs cannot be removed. Please check permissions.\n"
     end
-    print_with_color(:green, "$resultsDir/logs folder created")
+    printstyled("$resultsDir/logs folder created", color=:green)
 end
 
 # call to create a log files directory
@@ -418,7 +418,7 @@ minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = d
 try
     rm("$(Pkg.dir("COBRA"))/results", recursive=true, force=true)
 catch
-    info("The directory $(Pkg.dir("COBRA"))/results cannot be removed. Please check permissions.\n")
+    @info "The directory $(Pkg.dir("COBRA"))/results cannot be removed. Please check permissions.\n"
 end
 
 # call to create a log files directory (throws a warning message)
@@ -437,5 +437,5 @@ minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = d
 try
     rm("$(Pkg.dir("COBRA"))/results", recursive=true, force=true)
 catch
-    info("The directory $(Pkg.dir("COBRA"))/results cannot be removed. Please check permissions.\n")
+    @info "The directory $(Pkg.dir("COBRA"))/results cannot be removed. Please check permissions.\n"
 end

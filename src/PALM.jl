@@ -94,17 +94,17 @@ function shareLoad(nModels::Int, nMatlab::Int = 2, printLevel::Int=1, dryRun::Bo
 
         if quotientModels < remainderModels - 1 || remainderModels < 1
             if printLevel > 0
-                print_with_color(:red, "\n >> Load sharing is not fair. Consider adjusting the maximum poolsize.\n")
+                printstyled("\n >> Load sharing is not fair. Consider adjusting the maximum poolsize.\n", color=:red)
             end
         else
             if printLevel > 0
-                print_with_color(:yellow, "\n >> Load sharing is almost ideal.\n")
+                printstyled("\n >> Load sharing is almost ideal.\n", color=:yellow)
             end
         end
     else
         if printLevel > 0
             println(" >> Every worker will run ", quotientModels, " model(s).")
-            print_with_color(:green, " >> Load sharing is ideal.\n")
+            printstyled(" >> Load sharing is ideal.\n", color=:green)
         end
     end
 
