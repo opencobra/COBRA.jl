@@ -46,13 +46,13 @@ See also: `createPool()` and `PALM`
 function shareLoad(nModels::Int, nMatlab::Int = 2, printLevel::Int=1, dryRun::Bool=false)
 
     if printLevel > 0 && dryRun
-        info("Load sharing is determined without actively changing the number of connected workers (dryRun = true).")
+        @info "Load sharing is determined without actively changing the number of connected workers (dryRun = true)."
     end
 
     # Make sure that not more processes are launched than there are models (load ratio >= 1)
     if nMatlab > nModels
         if printLevel > 0
-            warn("Number of workers ($nMatlab) exceeds the number of models ($nModels).")
+            @warn "Number of workers ($nMatlab) exceeds the number of models ($nModels)."
         end
 
         nMatlab = nModels
@@ -65,7 +65,7 @@ function shareLoad(nModels::Int, nMatlab::Int = 2, printLevel::Int=1, dryRun::Bo
         end
 
         if printLevel > 0
-            warn("Number of workers reduced to number of models for ideal load distribution.\n")
+            @warn "Number of workers reduced to number of models for ideal load distribution.\n"
         end
     end
 
@@ -94,17 +94,17 @@ function shareLoad(nModels::Int, nMatlab::Int = 2, printLevel::Int=1, dryRun::Bo
 
         if quotientModels < remainderModels - 1 || remainderModels < 1
             if printLevel > 0
-                print_with_color(:red, "\n >> Load sharing is not fair. Consider adjusting the maximum poolsize.\n")
+                printstyled("\n >> Load sharing is not fair. Consider adjusting the maximum poolsize.\n", color=:red)
             end
         else
             if printLevel > 0
-                print_with_color(:yellow, "\n >> Load sharing is almost ideal.\n")
+                printstyled("\n >> Load sharing is almost ideal.\n", color=:yellow)
             end
         end
     else
         if printLevel > 0
             println(" >> Every worker will run ", quotientModels, " model(s).")
-            print_with_color(:green, " >> Load sharing is ideal.\n")
+            printstyled(" >> Load sharing is ideal.\n", color=:green)
         end
     end
 
@@ -244,7 +244,7 @@ function PALM(dir, scriptName; nMatlab::Int=2, outputFile::AbstractString="PALM_
     dirContent = readdir(dir)
 
     if printLevel > 0
-        info("Directory with $(length(dirContent)) models read successfully.")
+        @info "Directory with $(length(dirContent)) models read successfully."
     end
 
     nWorkers, quotientModels, remainderModels = shareLoad(length(dirContent), nMatlab)
@@ -295,7 +295,7 @@ function PALM(dir, scriptName; nMatlab::Int=2, outputFile::AbstractString="PALM_
     @sync for (p, pid) in enumerate(workers())
 
         if printLevel > 0
-            info("Launching MATLAB session on worker $(p+1).")
+            @info "Launching MATLAB session on worker $(p+1)."
         end
 
         if useCOBRA
@@ -310,7 +310,7 @@ function PALM(dir, scriptName; nMatlab::Int=2, outputFile::AbstractString="PALM_
 
     # print an informative message
     if printLevel > 0
-        info("> MATLAB sessions initializing")
+        @info "> MATLAB sessions initializing"
     end
 
     @sync for (p, pid) in enumerate(workers())
@@ -330,7 +330,7 @@ function PALM(dir, scriptName; nMatlab::Int=2, outputFile::AbstractString="PALM_
             localnModels = quotientModels
 
             if printLevel > 0
-                info("(case1): Worker $(p+1) runs $localnModels models: from $startIndex to $endIndex")
+                @info "(case1): Worker $(p+1) runs $localnModels models: from $startIndex to $endIndex"
             end
         else
             endIndex = Int((p+1) * quotientModels + remainderModels)
@@ -345,7 +345,7 @@ function PALM(dir, scriptName; nMatlab::Int=2, outputFile::AbstractString="PALM_
             localnModels = endIndex - startIndex + 1
 
             if printLevel > 0
-                info("(case 2): Worker $(p+1) runs $localnModels models: from $startIndex to $endIndex")
+                @info "(case 2): Worker $(p+1) runs $localnModels models: from $startIndex to $endIndex"
             end
         end
 

@@ -7,7 +7,6 @@
 
 #-------------------------------------------------------------------------------------------
 
-using Base.Test
 
 if !@isdefined includeCOBRA
     includeCOBRA = true
@@ -21,7 +20,6 @@ nWorkers = 1
 
 # create a pool and use the COBRA module if the testfile is run in a loop
 if includeCOBRA
-    solverName = :GLPKMathProgInterface
     connectSSHWorkers = false
     include("$(Pkg.dir("COBRA"))/src/connect.jl")
 
@@ -31,7 +29,7 @@ if includeCOBRA
     end
 
     using COBRA
-    using Requests
+    using HTTP
 
     include("getTestModel.jl")
 end
@@ -60,7 +58,7 @@ optPercentage = 10.0
 for s = 0:2
     # launch the distributedFBA process
     startTime   = time()
-    minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers=nWorkers, optPercentage=optPercentage, objective="min", rxnsList=rxnsList, strategy=s, rxnsOptMode=rxnsOptMode, preFBA=false)
+    minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver; nWorkers=nWorkers, optPercentage=optPercentage, objective="min", rxnsList=rxnsList, strategy=s, rxnsOptMode=rxnsOptMode, preFBA=false)
     solTime = time() - startTime
 
     # Test numerical values - test on ceil as different numerical precision with different solvers
@@ -84,7 +82,7 @@ model = modelOrig
 
 # launch the distributedFBA process with only 1 reaction
 startTime = time()
-minFlux, maxFlux, optSol  = distributedFBA(model, solver, nWorkers=nWorkers, objective="", rxnsList=rxnsList, rxnsOptMode=rxnsOptMode, preFBA=false);
+minFlux, maxFlux, optSol  = distributedFBA(model, solver; nWorkers=nWorkers, objective="", rxnsList=rxnsList, rxnsOptMode=rxnsOptMode, preFBA=false);
 solTime = time() - startTime
 
 fbaSolution = solveCobraLP(model, solver)  # in the model, objective is assumed to be maximized

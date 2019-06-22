@@ -7,7 +7,6 @@
 
 #-------------------------------------------------------------------------------------------
 
-using Base.Test
 
 if !@isdefined includeCOBRA
     includeCOBRA = true
@@ -21,7 +20,6 @@ nWorkers = 4
 
 # create a pool and use the COBRA module if the testfile is run in a loop
 if includeCOBRA
-    solverName = :GLPKMathProgInterface
     connectSSHWorkers = false
     include("$(Pkg.dir("COBRA"))/src/connect.jl")
 
@@ -31,7 +29,7 @@ if includeCOBRA
     end
 
     using COBRA
-    using Requests
+    using HTTP
 
     include("getTestModel.jl")
 end
@@ -52,14 +50,14 @@ model = loadModel("$(Pkg.dir("COBRA"))/test/ecoli_core_model.mat", "S", "model")
 rxnsList = 1:30
 
 # select the reaction optimization mode
-rxnsOptMode = 2 + zeros(Int64, length(rxnsList))
+rxnsOptMode = 2 .+ zeros(Int64, length(rxnsList))
 
 # define an optPercentage value
 optPercentage = 90.0
 
 # launch the distributedFBA process
 startTime   = time()
-minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax = distributedFBA(model, solver, nWorkers=nWorkers, optPercentage=optPercentage, preFBA=true, rxnsList=rxnsList)
+minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax = distributedFBA(model, solver; nWorkers=nWorkers, optPercentage=optPercentage, preFBA=true, rxnsList=rxnsList)
 solTime = time() - startTime
 
 # Test numerical values - test on floor as different numerical precision with different solvers
