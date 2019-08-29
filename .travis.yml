@@ -4,13 +4,11 @@ os:
     - linux
 
 julia:
-    - 0.6
-    - 0.7
+    - 1.0
     - nightly
 
 matrix:
   allow_failures:
-    - julia: 0.7
     - julia: nightly
 
 notifications:
@@ -25,18 +23,3 @@ addons:
         - libgmp-dev
         - libglpk-dev
 
-git:
-    depth: 99999
-
-before_install:
-    - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-
-script:
-    # update all packages
-    - julia --color=yes -e 'Pkg.update();'
-
-    # temporary addition for julia 0.6 until new version of MAT tagged
-    - julia --color=yes -e 'Pkg.add("MAT"); Pkg.checkout("MAT")'
-
-    # add and test the COBRA module
-    - julia --color=yes -e 'Pkg.clone(pwd()); Pkg.test("COBRA")'
