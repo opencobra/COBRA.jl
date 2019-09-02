@@ -17,5 +17,5 @@ docs/build/
 docs/tutorial/results.mat
 results/*
 test/testModels
-
+Manifest.toml
 docs/src/tutorials.md
