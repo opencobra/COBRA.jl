@@ -9,7 +9,7 @@
 
 if "JENKINS" in keys(ENV)
     @info "JENKINS CI server detected. Workers will be added with test environment configuration."
-    include("$ARTENOLIS_SOFT_PATH/julia/$JULIA_VER/share/julia/test/testenv.jl")
+    include(ENV["ARTENOLIS_SOFT_PATH"]*"/julia/"*ENV["JULIA_VER"]*"/share/julia/test/testenv.jl")
     addprocsCOBRA = addprocs_with_testenv
 else
     addprocsCOBRA = addprocs
