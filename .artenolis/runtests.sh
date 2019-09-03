@@ -5,24 +5,11 @@ echo "MATLAB_VER = $MATLAB_VER"
 
 # launch the test script
 if [ "$ARCH" == "Linux" ]; then
-    if [ "$JULIA_VER" == "v0.6.4" ]; then
-        # remove th julia directory to clean the installation directory
-        rm -rf $JULIA_PKGDIR/v0.6/COBRA
-
-        # add the COBRA module
-        $ARTENOLIS_SOFT_PATH/julia/$JULIA_VER/bin/julia --color=yes -e 'Pkg.clone(pwd()); cd(Pkg.dir("COBRA")); Pkg.test(pwd(), coverage=true);'
-
-    elif [ "$JULIA_VER" == "v0.7.0" ]; then
-        # add the COBRA module
-        $ARTENOLIS_SOFT_PATH/julia/$JULIA_VER/bin/julia --color=yes -e 'using Pkg; Pkg.clone(pwd())'
-    fi
+    $ARTENOLIS_SOFT_PATH/julia/$JULIA_VER/bin/julia --color=yes -e 'import Pkg; Pkg.clone(pwd()); Pkg.test("COBRA", coverage=true); Pkg.rm("COBRA");'
 
 elif [ "$ARCH" == "macOS" ]; then
-    # remove th julia directory to clean the installation directory
-    rm -rf ~/.julia/v0.6/COBRA
-
     caffeinate -u &
-    /Applications/Julia-$JULIA_VER.app/Contents/Resources/julia/bin/julia --color=yes -e 'Pkg.clone(pwd()); cd(Pkg.dir("COBRA")); Pkg.test(pwd());'
+    /Applications/Julia-$JULIA_VER.app/Contents/Resources/julia/bin/julia --color=yes -e 'import Pkg; Pkg.clone(pwd()); Pkg.test("COBRA", coverage=true); Pkg.rm("COBRA");'
 
 elif [ "$ARCH" == "windows" ]; then
     if [ "$JULIA_VER" == "v0.6.4" ]; then
