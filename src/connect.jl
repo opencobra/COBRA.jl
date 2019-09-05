@@ -54,7 +54,7 @@ See also: `workers()`, `nprocs()`, `addprocs()`, `gethostname()`
 
 """
 
-function createPool(localWorkers::Int, connectSSH::Bool=false, connectionFile::String="$(Pkg.dir("COBRA"))/config/sshCfg.jl", printLevel::Int=1)
+function createPool(localWorkers::Int, connectSSH::Bool=false, connectionFile::String=joinpath(dirname(pathof(COBRA)))*"/../config/sshCfg.jl", printLevel::Int=1)
 
     # load cores on remote nodes
     if connectSSH

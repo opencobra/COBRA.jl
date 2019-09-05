@@ -90,6 +90,9 @@ function checkSysConfig(printLevel::Int=1)
             if string(pkgName) == "GLPKMathProgInterface"
                 checkPackage(:GLPK, printLevel)
             end
+            if string(pkgName) == "Mosek"
+                checkPackage(:MosekTools, printLevel)
+            end
         end
 
     end

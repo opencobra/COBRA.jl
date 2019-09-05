@@ -108,7 +108,7 @@ function changeCobraSolver(name, params=[]; printLevel::Int=1)
             if abs(printLevel) > 1
                 printLevel = 1
             end
-            solver.handle = CplexSolver(CPX_PARAM_SCRIND=printLevel)
+            solver.handle = CPLEX.Optimizer(CPX_PARAM_SCRIND=printLevel)
         catch
             error("The solver `CPLEX` cannot be set using `changeCobraSolver()`.")
         end
@@ -116,9 +116,9 @@ function changeCobraSolver(name, params=[]; printLevel::Int=1)
     elseif name == "GLPKMathProgInterface" || name == "GLPK"
         try
             if length(params) > 1
-                solver.handle = GLPKSolverLP(method=params[1], presolve=params[2])
+                solver.handle = GLPK.Optimizer(method=params[1], presolve=params[2])
             else
-                solver.handle = GLPKSolverLP()
+                solver.handle = GLPK.Optimizer() #GLPKSolverLP()
             end
         catch
             error("The solver `GLPK` or `GLPKMathProgInterface` cannot be set using `changeCobraSolver()`.")
@@ -155,7 +155,7 @@ function changeCobraSolver(name, params=[]; printLevel::Int=1)
             if printLevel == 1
                 printLevel = 10 # default value: https://docs.mosek.com/7.1/toolbox/MSK_IPAR_LOG.html
             end
-            solver.handle = MosekSolver(MSK_IPAR_LOG=printLevel)
+            solver.handle = Mosek.Optimizer(MSK_IPAR_LOG=printLevel)
         catch
           error("The solver `Mosek` cannot be set using `changeCobraSolver()`.")
         end

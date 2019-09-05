@@ -17,9 +17,9 @@ The documentation is here: http://opencobra.github.io/COBRA.jl
 module COBRA
 
     # include the load file to load a model of .mat format
-    using Pkg, SparseArrays, Distributed, LinearAlgebra
-    using MAT
-    using MathProgBase
+    import Pkg
+    using SparseArrays, Distributed, LinearAlgebra
+    using MAT, MathProgBase
     if "MATLAB" in keys(Pkg.installed())
         using MATLAB
     end
