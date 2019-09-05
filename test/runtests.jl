@@ -8,17 +8,20 @@
 #-------------------------------------------------------------------------------------------
 
 using Pkg, Distributed, LinearAlgebra # for Julia ver >= 1.0
+import COBRA
+
+pkgDir = joinpath(dirname(pathof(COBRA)))
 
 # retrieve all packages that are installed on the system
-include("$(Pkg.dir("COBRA"))/src/checkSetup.jl")
+include(pkgDir*"/checkSetup.jl")
 packages = checkSysConfig()
 
 # configure for runnint the tests in batch
 solverName = :GLPKMathProgInterface #:CPLEX
 nWorkers = 4
 connectSSHWorkers = false
-include("$(Pkg.dir("COBRA"))/src/connect.jl")
-TESTDIR = "$(Pkg.dir("COBRA"))/test"
+include(pkgDir*"/connect.jl")
+TESTDIR = pkgDir*"/../test"
 
 # create a parallel pool and determine its size
 if (@isdefined nWorkers) && (@isdefined connectSSHWorkers)
