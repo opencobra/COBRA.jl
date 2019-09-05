@@ -8,7 +8,7 @@
 #-------------------------------------------------------------------------------------------
 
 using Pkg, Distributed, LinearAlgebra # for Julia ver >= 1.0
-import COBRA
+using COBRA
 
 pkgDir = joinpath(dirname(pathof(COBRA)))
 
@@ -29,7 +29,7 @@ if (@isdefined nWorkers) && (@isdefined connectSSHWorkers)
 end
 
 # use the module COBRA and Base.Test modules on all workers
-using COBRA
+@everywhere using COBRA
 using Test
 using HTTP
 using Suppressor
