@@ -17,7 +17,7 @@ include(pkgDir*"/checkSetup.jl")
 packages = checkSysConfig()
 
 # configure for runnint the tests in batch
-solverName = :GLPKMathProgInterface #:CPLEX
+solverName = :GLPKMathProgInterface
 nWorkers = 4
 connectSSHWorkers = false
 include(pkgDir*"/connect.jl")
@@ -29,10 +29,10 @@ if (@isdefined nWorkers) && (@isdefined connectSSHWorkers)
 end
 
 # use the module COBRA and Base.Test modules on all workers
-@everywhere using COBRA
+using COBRA
 using Test
 using HTTP
-using Suppressor
+#using Suppressor
 
 # download the ecoli_core_model
 include("getTestModel.jl")
@@ -104,7 +104,7 @@ end
 
 
 # list all currently supported solvers
-supportedSolvers = [:Clp, :GLPKMathProgInterface, :CPLEX, :Gurobi, :Mosek]
+supportedSolvers = [:GLPKMathProgInterface, :CPLEX, :Gurobi] #:Clp, :Mosek
 
 # test if an error is thrown for non-installed solvers
 for i = 1:length(supportedSolvers)
@@ -133,7 +133,7 @@ for s in packages
     # evaluate the test file
     for t = 1:length(testDir)
         # run only parallel and serial test files
-        if testDir[t][1:2] in ["p_", "s_", "z_"]
+        if testDir[t][1:2] in ["s_", "z_"] #"p_",
             printstyled("\nRunning $(testDir[t]) ...\n\n"; color=:green)
             include(testDir[t])
         end

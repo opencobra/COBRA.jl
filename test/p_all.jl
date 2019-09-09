@@ -12,6 +12,8 @@ if !@isdefined includeCOBRA
     includeCOBRA = true
 end
 
+pkgDir = joinpath(dirname(pathof(COBRA)))
+
 # output information
 testFile = @__FILE__
 
@@ -20,9 +22,9 @@ nWorkers = 4
 
 # create a pool and use the COBRA module if the testfile is run in a loop
 if includeCOBRA
-    # solverName = :GLPKMathProgInterface # JL: is it really necessary?
+    solverName = :GLPKMathProgInterface # JL: is it really necessary?
     connectSSHWorkers = false
-    include("$(Pkg.dir("COBRA"))/src/connect.jl")
+    include(pkgDir*"/connect.jl")
 
     # create a parallel pool and determine its size
     if isdefined(:nWorkers) && isdefined(:connectSSHWorkers)
@@ -39,10 +41,10 @@ end
 getTestModel()
 
 # include a common deck for running tests
-include("$(Pkg.dir("COBRA"))/config/solverCfg.jl")
+include(pkgDir*"/../config/solverCfg.jl")
 
 # load an external mat file
-model = loadModel("$(Pkg.dir("COBRA"))/test/ecoli_core_model.mat", "S", "model")
+model = loadModel(pkgDir*"/../test/ecoli_core_model.mat", "S", "model")
 
 # test that no output is produced with printLevel = 0
 @info " > Testing silent $solverName ..."
