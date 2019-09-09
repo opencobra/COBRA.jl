@@ -71,7 +71,7 @@ function checkSysConfig(printLevel::Int=1)
     packages = []
 
     # initialize a vector with supported LP solvers
-    LPsolvers = [:Clp, :GLPKMathProgInterface, :Gurobi, :CPLEX, :Mosek]
+    LPsolvers = [ :GLPKMathProgInterface, :Gurobi, :CPLEX] #:Clp, :Mosek
 
     if checkPackage(:MathProgBase, printLevel)
 
