@@ -9,7 +9,6 @@
 
 sshWorkers = Array{Dict{Any, Any}}(undef, 3)
 
-# JL: Have a look at the codes below
 sshWorkers[1] = Dict( "usernode"   => "first.last@server1.com",
                         "procs"  => 8,
                         "dir"    => `"~"/COBRA.jl/`,
