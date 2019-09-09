@@ -30,8 +30,7 @@ if includeCOBRA
         workersPool, nWorkers = createPool(nWorkers, connectSSHWorkers)
     end
 
-    using COBRA
-    using HTTP
+    using COBRA, HTTP
 
     include("getTestModel.jl")
 end

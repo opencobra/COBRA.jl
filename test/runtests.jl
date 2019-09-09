@@ -7,8 +7,7 @@
 
 #-------------------------------------------------------------------------------------------
 
-using Pkg, Distributed, LinearAlgebra
-using COBRA
+using Pkg, Distributed, LinearAlgebra, COBRA
 
 pkgDir = joinpath(dirname(pathof(COBRA)))
 
@@ -29,10 +28,7 @@ if (@isdefined nWorkers) && (@isdefined connectSSHWorkers)
 end
 
 # use the module COBRA and Base.Test modules on all workers
-using COBRA
-using Test
-using HTTP
-#using Suppressor
+using COBRA, Test, HTTP
 
 # download the ecoli_core_model
 include("getTestModel.jl")
@@ -42,8 +38,7 @@ getTestModel()
 if "MATLAB" in keys(Pkg.installed())
     @info "The MATLAB package is present. The tests for PALM.jl will be run."
 
-    using MAT
-    using MATLAB
+    using MAT, MATLAB
 
     # load sharing that is not fair
     nWorkers, quotientModels, remainderModels = COBRA.shareLoad(2)
