@@ -3,11 +3,9 @@ uuid = "58298e0b-d05c-52ec-a210-0694647ebfc7"
 version = "0.3.0"
 
 [deps]
-CPLEX = "a076750e-1247-5638-91d2-ce28b192dca0"
 Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 GLPK = "60bf3e95-4087-53dc-ae20-288a0d20c6a6"
 GLPKMathProgInterface = "3c7084bd-78ad-589a-b5bb-dbd673274bea"
-Gurobi = "2e9cd046-0924-5485-92f1-d5272153d98b"
 HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 MAT = "23992714-dd62-5051-b70f-ba57cb901cac"
@@ -22,13 +20,11 @@ julia = "1"
 
 [extras]
 CPLEX = "a076750e-1247-5638-91d2-ce28b192dca0"
-Clp = "e2554f3b-3117-50c0-817c-e040a3ddf72d"
 GLPK = "60bf3e95-4087-53dc-ae20-288a0d20c6a6"
 GLPKMathProgInterface = "3c7084bd-78ad-589a-b5bb-dbd673274bea"
 Gurobi = "2e9cd046-0924-5485-92f1-d5272153d98b"
 MATLAB = "10e44e05-a98a-55b3-a45b-ba969058deb6"
-Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Suppressor", "GLPKMathProgInterface", "GLPK", "Clp", "Test"]
+test = ["GLPKMathProgInterface", "GLPK", "Test"]
