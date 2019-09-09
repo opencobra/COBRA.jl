@@ -22,7 +22,8 @@ nWorkers = 4
 
 # create a pool and use the COBRA module if the testfile is run in a loop
 if includeCOBRA
-    solverName = :GLPKMathProgInterface # JL: is it really necessary?
+    # define the name of the default solver
+    solverName = :GLPKMathProgInterface
     connectSSHWorkers = false
     include(pkgDir*"/connect.jl")
 
@@ -303,12 +304,10 @@ if solverName != "Mosek"
     @test abs((model.c' * minFlux)[1] - optSol) < 1e-6
 
     # save the variables to the current directory
-    # JL: We need to revise the saveDistributedFBA function;
-    #     I think this function must have the result variables as an argument
-    # saveDistributedFBA("testFile.mat") # Temporaily inactivated
+    saveDistributedFBA("testFile.mat")
 
     # remove the file to clean up
-    # run(`rm testFile.mat`) # Temporaily inactivated
+    run(`rm testFile.mat`)
 
     # print a solution summary
     printSolSummary(testFile, optSol, maxFlux, minFlux, solTime, nWorkers, solverName)
@@ -382,7 +381,6 @@ minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = d
 @test isequal(statussolmin, ones(Int, length(rxnsList)))
 @test isequal(statussolmax, ones(Int, length(rxnsList)))
 
-# JL: saveDistributedFBA temporarily inactivated
 saveDistributedFBA("testFile.mat", ["minFlux", "maxFlux"])
 
 # call saveDistributedFBA with no variables

@@ -7,7 +7,7 @@
 
 #-------------------------------------------------------------------------------------------
 
-using Pkg, Distributed, LinearAlgebra # for Julia ver >= 1.0
+using Pkg, Distributed, LinearAlgebra
 using COBRA
 
 pkgDir = joinpath(dirname(pathof(COBRA)))
