@@ -76,7 +76,7 @@ model = loadModel("$(Pkg.dir("COBRA"))/test/ecoli_core_model.mat")
 
 # run a model with more reactions on the reaction list than in the model
 rxnsList = 1:length(model.rxns) + 1
-minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver; nWorkers=1, optPercentage=90.0, objective="min", rxnsList=rxnsList)
+minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers=1, optPercentage=90.0, objective="min", rxnsList=rxnsList)
 
 # test preFBA! with min
 optSol, fbaSol = preFBA!(model, solver, 90.0, "min")

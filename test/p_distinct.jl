@@ -50,13 +50,13 @@ model = loadModel("$(Pkg.dir("COBRA"))/test/ecoli_core_model.mat", "S", "model")
 optPercentage = 90.0
 
 # run all the reactions as a reference
-minFlux1, maxFlux1, optSol1, fbaSol1, fvamin1, fvamax1, statussolmin1, statussolmax1 = distributedFBA(model, solver; nWorkers=nWorkers, optPercentage=optPercentage, preFBA=true)
+minFlux1, maxFlux1, optSol1, fbaSol1, fvamin1, fvamax1, statussolmin1, statussolmax1 = distributedFBA(model, solver, nWorkers=nWorkers, optPercentage=optPercentage, preFBA=true)
 
 rxnsList = [1; 2; 3; 4; 12; 28]
 rxnsOptMode = [0; 1; 2; 0; 1; 2] # min: 1, 3, 4, 28; max: 2, 3, 12, 28
 
 # run only a few reactions with rxnsOptMode and rxnsList
-minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver; nWorkers=nWorkers, preFBA=true, optPercentage=optPercentage, rxnsList=rxnsList, rxnsOptMode=rxnsOptMode)
+minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers=nWorkers, preFBA=true, optPercentage=optPercentage, rxnsList=rxnsList, rxnsOptMode=rxnsOptMode)
 
 # test the solution status
 @test isequal(statussolmin[rxnsList], [1, NaN, 1, 1, NaN, 1])
@@ -80,7 +80,7 @@ end
 
 # run only the reactions of the rxnsList (both maximizations and minimizations)
 startTime = time()
-minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver; nWorkers=nWorkers, preFBA=true, optPercentage=optPercentage, rxnsList=rxnsList)
+minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers=nWorkers, preFBA=true, optPercentage=optPercentage, rxnsList=rxnsList)
 solTime = time() - startTime
 
 @test norm(minFlux1[rxnsList] - minFlux[rxnsList]) < 1e-9
