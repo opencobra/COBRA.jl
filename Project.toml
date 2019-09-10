@@ -27,4 +27,4 @@ MATLAB = "10e44e05-a98a-55b3-a45b-ba969058deb6"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["GLPKMathProgInterface", "GLPK", "Test"]
+test = ["GLPKMathProgInterface", "GLPK", "Test", "Gurobi", "CPLEX"]
