@@ -215,7 +215,7 @@ Results are saved in the `outputFile`.
 
 - `nMatlab`:         Number of desired MATLAB sessions (default: 2)
 - `outputFile`:      Name of `.mat` file to save the result table named "summaryData" (default name: "PALM_data.mat")
-- `cobraToolboxDir`: Directory of the COBRA Toolbox (default: ENV["HOME"]*"/cobratoolbox")
+- `cobraToolboxDir`: Directory of the COBRA Toolbox (default: homedir()*"/cobratoolbox")
 - `printLevel`:     Verbose level (default: 1). Mute all output with `printLevel = 0`.
 
 # OUTPUTS
@@ -226,19 +226,19 @@ File with the name specified in `outputFile`.
 
 - Minimum working example
 ```julia
-julia> PALM(ENV["HOME"]*"/models", "characteristics")
+julia> PALM(homedir()*"/models", "characteristics")
 ```
 
 - Running `PALM` on 12 MATLAB sessions
 ```julia
-julia> PALM(ENV["HOME"]*"/models", "characteristics", 12, "characteristicsResults.mat")
+julia> PALM(homedir()*"/models", "characteristics", 12, "characteristicsResults.mat")
 ```
 
 See also: `loopModels()` and `shareLoad()`
 
 """
 
-function PALM(dir, scriptName; nMatlab::Int=2, outputFile::AbstractString="PALM_data.mat", varsCharact=[], cobraToolboxDir=ENV["HOME"]*Base.Filesystem.path_separator*"cobratoolbox", printLevel::Int=1, useCOBRA::Bool=true)
+function PALM(dir, scriptName; nMatlab::Int=2, outputFile::AbstractString="PALM_data.mat", varsCharact=[], cobraToolboxDir=homedir()*Base.Filesystem.path_separator*"cobratoolbox", printLevel::Int=1, useCOBRA::Bool=true)
 
     # read the content of the directory
     dirContent = readdir(dir)
@@ -281,9 +281,9 @@ function PALM(dir, scriptName; nMatlab::Int=2, outputFile::AbstractString="PALM_
     if useCOBRA
         for (p, pid) in enumerate(workers())
             @sync @spawnat (p + 1) begin
-                @info ENV["HOME"]*"/tmp/test-ct-$p"
-                if !isdir(ENV["HOME"]*"/tmp/test-ct-$p")
-                    cmd = "git clone $cobraToolboxDir "*ENV["HOME"]*"/tmp/test-ct-$p"
+                @info homedir()*"/tmp/test-ct-$p"
+                if !isdir(homedir()*"/tmp/test-ct-$p")
+                    cmd = "git clone $cobraToolboxDir "*homedir()*"/tmp/test-ct-$p"
                     @info cmd
                     run(`sh -c $cmd`)
                 end

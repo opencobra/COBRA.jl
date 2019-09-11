@@ -844,12 +844,12 @@ julia> saveDistributedFBA("myDirectory/myResults.mat")
 
 - Home location
 ```julia
-julia> saveDistributedFBA(ENV["HOME"]*"/myResults.mat")
+julia> saveDistributedFBA(homedir()*"/myResults.mat")
 ```
 
 - Save minFlux and maxFlux variables
 ```julia
-julia> saveDistributedFBA(ENV["HOME"]*"/myResults.mat", ["minFlux", "maxFlux"])
+julia> saveDistributedFBA(homedir()*"/myResults.mat", ["minFlux", "maxFlux"])
 ```
 
 """

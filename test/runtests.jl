@@ -89,7 +89,7 @@ if "MATLAB" in keys(Pkg.installed())
                    "nNz"]
 
     # launch PALM with the scriptFile on the 2 models
-    PALM(joinpath(TESTDIR, "testModels"), "scriptFile", nMatlab=2, outputFile="modelCharacteristics.mat", varsCharact=varsCharact, cobraToolboxDir=ENV["HOME"]*"/tmp/cobratoolbox-cobrajl")
+    PALM(joinpath(TESTDIR, "testModels"), "scriptFile", nMatlab=2, outputFile="modelCharacteristics.mat", varsCharact=varsCharact, cobraToolboxDir=homedir()*"/tmp/cobratoolbox-cobrajl")
 
     # remove the directory with the test models
     rm(joinpath(TESTDIR, "testModels"), force=true, recursive=true)
