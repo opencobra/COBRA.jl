@@ -281,9 +281,9 @@ function PALM(dir, scriptName; nMatlab::Int=2, outputFile::AbstractString="PALM_
     if useCOBRA
         for (p, pid) in enumerate(workers())
             @sync @spawnat (p + 1) begin
-                @info homedir()*"/tmp/test-ct-$p"
-                if !isdir(homedir()*"/tmp/test-ct-$p")
-                    cmd = "git clone $cobraToolboxDir "*homedir()*"/tmp/test-ct-$p"
+                @info homedir()*Base.Filesystem.path_separator*"tmp"*Base.Filesystem.path_separator*"test-ct-$p"
+                if !isdir(homedir()*Base.Filesystem.path_separator*"tmp"*Base.Filesystem.path_separator*"test-ct-$p")
+                    cmd = "git clone $cobraToolboxDir "*homedir()*Base.Filesystem.path_separator*"tmp"*Base.Filesystem.path_separator*"test-ct-$p"
                     @info cmd
                     run(`sh -c $cmd`)
                 end
@@ -300,10 +300,9 @@ function PALM(dir, scriptName; nMatlab::Int=2, outputFile::AbstractString="PALM_
 
         if useCOBRA
             # adding the model directory and eventual subdirectories to the MATLAB path
-            # Note: the fileseparator `/` also works on Windows systems if git Bash has been installed
             @async R[p] = @spawnat (p+1) begin
-                eval_string("addpath(genpath([getenv('HOME') '/tmp/test-ct-"*string(p)*"']))")
-                eval_string("run([getenv('HOME') '/tmp/test-ct-$p/initCobraToolbox.m'])")
+                eval_string("addpath(genpath(["*homedir()*Base.Filesystem.path_separator*"'tmp"*Base.Filesystem.path_separator*"test-ct-"*string(p)*"']))")
+                eval_string("run(["*homedir()*"'"*Base.Filesystem.path_separator*"tmp"*Base.Filesystem.path_separator*"test-ct-$p"*Base.Filesystem.path_separator*"initCobraToolbox.m'])")
             end
         end
     end
