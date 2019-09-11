@@ -167,7 +167,7 @@ function loopModels(dir, p, scriptName, dirContent, startIndex, endIndex, varsCh
     #local nModels
     if endIndex >= startIndex
         # declaration of local data array
-        data = Array{Union{Int,Float64,AbstractString}}(localnModels, nCharacteristics + 1)
+        data = Array{Union{Int,Float64,AbstractString}}(undef, localnModels, nCharacteristics + 1)
 
         for k = 1:localnModels
             PALM_iModel = k #+ (p - 1) * nModels
@@ -182,7 +182,7 @@ function loopModels(dir, p, scriptName, dirContent, startIndex, endIndex, varsCh
             MATLAB.@mput PALM_modelFile
             MATLAB.@mput PALM_dir
             MATLAB.@mput PALM_printLevel
-            eval(parse("MATLAB.mat\"run('$scriptName')\""))
+            MATLAB.eval_string("run('" * scriptName * "')")
 
             for i = 1:nCharacteristics
                 data[k, i + 1] = MATLAB.get_variable(Symbol(varsCharact[i]))
@@ -281,7 +281,7 @@ function PALM(dir, scriptName; nMatlab::Int=2, outputFile::AbstractString="PALM_
     if useCOBRA
         for (p, pid) in enumerate(workers())
             @sync @spawnat (p + 1) begin
-                info(ENV["HOME"]*"/tmp/test-ct-$p")
+                @info ENV["HOME"]*"/tmp/test-ct-$p"
                 if !isdir(ENV["HOME"]*"/tmp/test-ct-$p")
                     cmd = "git clone $cobraToolboxDir "*ENV["HOME"]*"/tmp/test-ct-$p"
                     @info cmd
@@ -302,8 +302,8 @@ function PALM(dir, scriptName; nMatlab::Int=2, outputFile::AbstractString="PALM_
             # adding the model directory and eventual subdirectories to the MATLAB path
             # Note: the fileseparator `/` also works on Windows systems if git Bash has been installed
             @async R[p] = @spawnat (p+1) begin
-                eval(parse("mat\"addpath(genpath('"*ENV["HOME"]*"/tmp/test-ct-$p'))\""))
-                eval(parse("mat\"run('"*ENV["HOME"]*"/tmp/test-ct-$p/initCobraToolbox.m');\""))
+                eval_string("addpath(genpath([getenv('HOME') '/tmp/test-ct-"*string(p)*"']))")
+                eval_string("run([getenv('HOME') '/tmp/test-ct-$p/initCobraToolbox.m'])")
             end
         end
     end
