@@ -13,7 +13,7 @@ elif [ "$ARCH" == "macOS" ]; then
 
 elif [ "$ARCH" == "windows" ]; then
     unset Path
-    nohup "$ARTENOLIS_SOFT_PATH\\julia\\$JULIA_VER\\\bin\\julia.exe" --color=yes -e 'ENV["MATLAB_HOME"]="D:\\MATLAB\\$(ENV["MATLAB_VER"])"; import Pkg; Pkg.clone(pwd()); Pkg.test("COBRA");' > output.log & PID=$!
+    nohup "$ARTENOLIS_SOFT_PATH\\julia\\$JULIA_VER\\\bin\\julia.exe" --color=yes -e 'import Pkg; Pkg.clone(pwd()); Pkg.test("COBRA"); Pkg.rm("COBRA");' > output.log & PID=$!
 
     # follow the log file
     tail -n0 -F --pid=$! output.log 2>/dev/null
