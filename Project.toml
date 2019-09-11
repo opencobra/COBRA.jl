@@ -10,7 +10,6 @@ GLPKMathProgInterface = "3c7084bd-78ad-589a-b5bb-dbd673274bea"
 HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 MAT = "23992714-dd62-5051-b70f-ba57cb901cac"
-MATLAB = "10e44e05-a98a-55b3-a45b-ba969058deb6"
 MathProgBase = "fdba3010-5040-5b88-9595-932c9decdf73"
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
@@ -30,4 +29,4 @@ MATLAB = "10e44e05-a98a-55b3-a45b-ba969058deb6"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["GLPKMathProgInterface", "GLPK", "Test", "MATLAB", "Gurobi", "CPLEX", "MAT"]
+test = ["GLPKMathProgInterface", "GLPK", "Test", "MAT", "MATLAB", "Gurobi", "CPLEX"]
