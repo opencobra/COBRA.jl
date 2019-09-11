@@ -28,7 +28,7 @@ if (@isdefined nWorkers) && (@isdefined connectSSHWorkers)
 end
 
 # use the module COBRA and Base.Test modules on all workers
-using COBRA, Test, HTTP
+@everywhere using COBRA, Test, HTTP
 
 # download the ecoli_core_model
 include("getTestModel.jl")
