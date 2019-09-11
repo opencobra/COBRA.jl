@@ -261,19 +261,19 @@ function PALM(dir, scriptName; nMatlab::Int=2, outputFile::AbstractString="PALM_
     nCharacteristics = length(varsCharact)
 
     # prepare array for storing remote references
-    R = Array{Future}(nWorkers)
+    R = Array{Future}(undef, nWorkers, 2)
 
     # declare an array to store the indices for each worker
-    indicesWorkers = Array{Int}(nWorkers, 3)
+    indicesWorkers = Array{Int}(undef, nWorkers, 3)
 
     # declare an empty array for storing a summary of all data
-    summaryData = Array{Union{Int,Float64,AbstractString}}(nModels + 1, nCharacteristics + 1)
+    summaryData = Array{Union{Int,Float64,AbstractString}}(undef, nModels + 1, nCharacteristics + 1)
 
     # clone the COBRA Toolbox if it is not yet available
     # Note: there is no need for the submodules to be cloned
     if !isdir(cobraToolboxDir)
         cmd = "git clone git@github.com:opencobra/cobratoolbox.git $cobraToolboxDir"
-        info(cmd)
+        @info cmd
         run(`sh -c $cmd`)
     end
 
@@ -284,7 +284,7 @@ function PALM(dir, scriptName; nMatlab::Int=2, outputFile::AbstractString="PALM_
                 info(ENV["HOME"]*"/tmp/test-ct-$p")
                 if !isdir(ENV["HOME"]*"/tmp/test-ct-$p")
                     cmd = "git clone $cobraToolboxDir "*ENV["HOME"]*"/tmp/test-ct-$p"
-                    info(cmd)
+                    @info cmd
                     run(`sh -c $cmd`)
                 end
             end
