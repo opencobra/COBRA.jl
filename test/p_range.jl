@@ -7,7 +7,6 @@
 
 #-------------------------------------------------------------------------------------------
 
-using Base.Test
 
 if !@isdefined includeCOBRA
     includeCOBRA = true
@@ -21,7 +20,6 @@ nWorkers = 4
 
 # create a pool and use the COBRA module if the testfile is run in a loop
 if includeCOBRA
-    solverName = :GLPKMathProgInterface
     connectSSHWorkers = false
     include("$(Pkg.dir("COBRA"))/src/connect.jl")
 
@@ -30,8 +28,7 @@ if includeCOBRA
         workersPool, nWorkers = createPool(nWorkers, connectSSHWorkers)
     end
 
-    using COBRA
-    using Requests
+    using COBRA, HTTP
 
     include("getTestModel.jl")
 end
@@ -52,7 +49,7 @@ model = loadModel("$(Pkg.dir("COBRA"))/test/ecoli_core_model.mat", "S", "model")
 rxnsList = 1:30
 
 # select the reaction optimization mode
-rxnsOptMode = 2 + zeros(Int64, length(rxnsList))
+rxnsOptMode = 2 .+ zeros(Int64, length(rxnsList))
 
 # define an optPercentage value
 optPercentage = 90.0

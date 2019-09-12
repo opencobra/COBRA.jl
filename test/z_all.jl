@@ -7,7 +7,6 @@
 
 #-------------------------------------------------------------------------------------------
 
-using Base.Test
 
 if !@isdefined includeCOBRA
     includeCOBRA = true
@@ -21,7 +20,6 @@ nWorkers = 1
 
 # create a pool and use the COBRA module if the testfile is run in a loop
 if includeCOBRA
-    solverName = :GLPKMathProgInterface
     connectSSHWorkers = false
     include("$(Pkg.dir("COBRA"))/src/connect.jl")
 
@@ -31,7 +29,7 @@ if includeCOBRA
     end
 
     using COBRA
-    using Requests
+    using HTTP
 
     include("getTestModel.jl")
 end
@@ -49,7 +47,7 @@ solver = changeCobraSolver(solverName, solParams)
 @test_throws ErrorException changeCobraSolver("mySolver")
 
 # test some functions that are known to throw errors
-print_with_color(:yellow, "\n>> The following tests throw warning messages for testing purposes. <<\n\n")
+printstyled("\n>> The following tests throw warning messages for testing purposes. <<\n\n"; color=:yellow)
 
 # test if an error is thrown when myModel.mat does not exist
 @test_throws ErrorException loadModel("myModel.mat")
@@ -127,4 +125,4 @@ elseif solver.name == "CPLEX"
     @test isequal(retStat, [4, NaN]) # unbounded and not solved
 end
 
-print_with_color(:yellow, "\n >> Note: Warnings above are thrown for testing purposes and can be safely ignored.\n")
+printstyled("\n >> Note: Warnings above are thrown for testing purposes and can be safely ignored.\n"; color=:yellow)

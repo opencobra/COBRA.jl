@@ -142,7 +142,7 @@ function changeCobraSolver(name, params=[]; printLevel::Int=1)
         catch
             error("The solver `Gurobi` cannot be set using `changeCobraSolver()`.")
         end
-
+    #=
     elseif name == "Clp"
         try
             solver.handle = ClpSolver()
@@ -159,7 +159,7 @@ function changeCobraSolver(name, params=[]; printLevel::Int=1)
         catch
           error("The solver `Mosek` cannot be set using `changeCobraSolver()`.")
         end
-
+    =#
     else
         solver.handle = -1
         error("The solver is not supported. Please set the solver name to one the supported solvers.")

@@ -7,7 +7,6 @@
 
 #-------------------------------------------------------------------------------------------
 
-using Base.Test
 
 if !@isdefined includeCOBRA
     includeCOBRA = true
@@ -21,7 +20,6 @@ nWorkers = 1
 
 # create a pool and use the COBRA module if the testfile is run in a loop
 if includeCOBRA
-    solverName = :GLPKMathProgInterface
     connectSSHWorkers = false
     include("$(Pkg.dir("COBRA"))/src/connect.jl")
 
@@ -30,8 +28,7 @@ if includeCOBRA
         workersPool, nWorkers = createPool(nWorkers, connectSSHWorkers)
     end
 
-    using COBRA
-    using Requests
+    using COBRA, HTTP
 
     include("getTestModel.jl")
 end
@@ -55,7 +52,7 @@ optPercentage = 90.0
 minFlux1, maxFlux1, optSol1, fbaSol1, fvamin1, fvamax1, statussolmin1, statussolmax1 = distributedFBA(model, solver, nWorkers=nWorkers, optPercentage=optPercentage, preFBA=true)
 
 rxnsList = [1; 18; 10; 20:30; 90; 93; 95]
-rxnsOptMode = [0; 1; 2; 2 + zeros(Int, length(20:30)); 2; 1; 0]
+rxnsOptMode = [0; 1; 2; 2 .+ zeros(Int, length(20:30)); 2; 1; 0]
 
 # run only a few reactions with rxnsOptMode and rxnsList
 minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers=nWorkers, optPercentage=optPercentage, rxnsList=rxnsList, rxnsOptMode=rxnsOptMode, preFBA=true)

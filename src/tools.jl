@@ -85,7 +85,7 @@ function findRxnIDS(model, rxnsList=model.rxns)
 
     # throw an error when no reaction matched any in the model
     if length(rxnIDsNE) != 0
-        warn("Some reaction names are not in the model; their indices in the `rxnsList` are reported in `rxnIDsNE`.\n")
+        @warn "Some reaction names are not in the model; their indices in the `rxnsList` are reported in `rxnIDsNE`.\n"
     end
 
     return rxnIDs, rxnIDsNE

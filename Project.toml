@@ -1,0 +1,32 @@
+name = "COBRA"
+uuid = "58298e0b-d05c-52ec-a210-0694647ebfc7"
+version = "0.3.0"
+
+[deps]
+CPLEX = "a076750e-1247-5638-91d2-ce28b192dca0"
+Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
+GLPK = "60bf3e95-4087-53dc-ae20-288a0d20c6a6"
+GLPKMathProgInterface = "3c7084bd-78ad-589a-b5bb-dbd673274bea"
+HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+MAT = "23992714-dd62-5051-b70f-ba57cb901cac"
+MathProgBase = "fdba3010-5040-5b88-9595-932c9decdf73"
+Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
+SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+
+[compat]
+HTTP = ">= 0.8.0"
+MAT = ">= 0.5.0"
+julia = "1"
+
+[extras]
+CPLEX = "a076750e-1247-5638-91d2-ce28b192dca0"
+GLPK = "60bf3e95-4087-53dc-ae20-288a0d20c6a6"
+GLPKMathProgInterface = "3c7084bd-78ad-589a-b5bb-dbd673274bea"
+Gurobi = "2e9cd046-0924-5485-92f1-d5272153d98b"
+MAT = "23992714-dd62-5051-b70f-ba57cb901cac"
+MATLAB = "10e44e05-a98a-55b3-a45b-ba969058deb6"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["GLPKMathProgInterface", "GLPK", "Test"]
