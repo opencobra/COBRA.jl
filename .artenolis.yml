@@ -20,9 +20,8 @@ script:
     - cd .. && cp -r $NODE_LABELS COBRA && cd COBRA
 
     # change the test dependencies on Linux and macOS (ARTENOLIS)
-    - if [ "$ARCH" == "Linux" && "$ARCH" == "macOS" ]; then
+    - if [ "$ARCH" == "Linux" ] || [ "$ARCH" == "macOS" ]; then
           perl -i -pe's/test = \["GLPKMathProgInterface", "GLPK", "Test"\]/test = \["GLPKMathProgInterface", "GLPK", "Test", "MAT", "MATLAB", "Gurobi", "CPLEX"\]/g' Project.toml;
-          cat Project.toml;
       fi
 
     # launch the tests
