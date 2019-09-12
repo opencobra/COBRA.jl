@@ -19,10 +19,8 @@ script:
     # rename the cloned folder
     - cd .. && cp -r $NODE_LABELS COBRA && cd COBRA
 
-    # change the test dependencies on Linux and macOS (ARTENOLIS)
-    - if [ "$ARCH" == "Linux" ] || [ "$ARCH" == "macOS" ]; then
-          perl -i -pe's/test = \["GLPKMathProgInterface", "GLPK", "Test"\]/test = \["GLPKMathProgInterface", "GLPK", "Test", "MAT", "MATLAB", "Gurobi", "CPLEX"\]/g' Project.toml;
-      fi
+    # change the test dependencies
+    - perl -i -pe's/test = \["GLPKMathProgInterface", "GLPK", "Test"\]/test = \["GLPKMathProgInterface", "GLPK", "Test", "MAT", "MATLAB", "Gurobi", "CPLEX"\]/g' Project.toml;
 
     # launch the tests
     - bash .artenolis/runtests.sh
