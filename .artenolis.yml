@@ -21,14 +21,10 @@ script:
 
     # change the test dependencies on Linux and macOS (ARTENOLIS)
     - if [ "$ARCH" == "Linux" ] || [ "$ARCH" == "macOS" ]; then
-
-          # update the local cobratoolbox
           CURRENT_DIR=`pwd`;
           cd ~/tmp/cobratoolbox-cobrajl;
           git pull origin master;
           cd $CURRENT_DIR;
-
-          # change the test requirements
           perl -i -pe's/test = \["GLPKMathProgInterface", "GLPK", "Test"\]/test = \["GLPKMathProgInterface", "GLPK", "Test", "MAT", "MATLAB", "Gurobi", "CPLEX"\]/g' Project.toml;
       fi
 
