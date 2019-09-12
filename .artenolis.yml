@@ -21,7 +21,7 @@ script:
 
     # change the test dependencies on Linux and macOS (ARTENOLIS)
     - if [ "$ARCH" == "Linux" && "$ARCH" == "macOS" ]; then
-        perl -i -pe's/test = \["GLPKMathProgInterface", "GLPK", "Test"\]/test = \["GLPKMathProgInterface", "GLPK", "Test", "MAT", "MATLAB", "Gurobi", "CPLEX"\]/g' Project.toml
+          perl -i -pe's/test = \["GLPKMathProgInterface", "GLPK", "Test"\]/test = \["GLPKMathProgInterface", "GLPK", "Test", "MAT", "MATLAB", "Gurobi", "CPLEX"\]/g' Project.toml;
       fi
 
     # launch the tests
