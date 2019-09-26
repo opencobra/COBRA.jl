@@ -45,7 +45,7 @@ For illustration purposes of this tutorial, the COBRA Toolbox will be installed 
 
 
 ```julia
-installDir = "~/tmp/cobratoolbox"
+installDir = homedir()*"/tmp/cobratoolbox"
 ```
 
 
