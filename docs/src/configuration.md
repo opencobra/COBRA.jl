@@ -4,7 +4,8 @@
 
 In order to load currently defined solver parameters, the following file may be included in the script, which defines the `solParams` array:
 ```julia
-include("$(Pkg.dir("COBRA"))/config/solverCfg.jl")
+pkgDir = joinpath(dirname(pathof(COBRA)), "..")
+include(pkgDir*"/config/solverCfg.jl")
 ```
 Then, the `COBRA` solver can be set with:
 ```julia
@@ -49,7 +50,8 @@ solParams = [
 
 A parallel pool with workers on SSH nodes can be created using:
 ```julia
-include("$(Pkg.dir("COBRA"))/src/connect.jl")
+pkgDir = joinpath(dirname(pathof(COBRA)), "..")
+include(pkgDir*"/src/connect.jl")
 workersPool, nWorkers = createPool(12, true, "mySSHCfg.jl")
 ```
 which will connect 12 local workers, and all workers defined in `mySSHCfg.jl`. An example connection file is provided in the `config/` folder of the `COBRA` package installation folder.
