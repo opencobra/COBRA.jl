@@ -12,7 +12,7 @@ if !@isdefined includeCOBRA
     includeCOBRA = true
 end
 
-pkgDir = joinpath(dirname(pathof(COBRA)))
+pkgDir = joinpath(dirname(pathof(COBRA)), "..")
 
 # output information
 testFile = @__FILE__
@@ -25,7 +25,7 @@ if includeCOBRA
     # define the name of the default solver
     solverName = :GLPKMathProgInterface
     connectSSHWorkers = false
-    include(pkgDir*"/connect.jl")
+    include(pkgDir*"/src/connect.jl")
 
     # create a parallel pool and determine its size
     if isdefined(:nWorkers) && isdefined(:connectSSHWorkers)
@@ -336,24 +336,24 @@ printSolSummary(testFile, optSol, maxFlux, minFlux, solTime, nWorkers, solverNam
 
 # remove the results folder to clean up
 try
-    rm("$(Pkg.dir("COBRA"))/results", recursive=true, force=true)
+    rm(pkgDir*"/results", recursive=true, force=true)
 catch
     @info "The directory $(Pkg.dir("COBRA"))/results cannot be removed. Please check permissions.\n"
 end
 
 # create folders if they are not present
-if !isdir("$(Pkg.dir("COBRA"))/results")
-    mkdir("$(Pkg.dir("COBRA"))/results")
+if !isdir(pkgDir*"/results")
+    mkdir(pkgDir*"/results")
     printstyled("Directory `results` created.\n\n"; color=:green)
 
     # create a folder for storing the chunks of the fluxes of each minimization
-    if !isdir("$(Pkg.dir("COBRA"))/results/fvamin")
-        mkdir("$(Pkg.dir("COBRA"))/results/fvamin")
+    if !isdir(pkgDir*"/results/fvamin")
+        mkdir(pkgDir*"/results/fvamin")
     end
 
     # create a folder for storing the chunks of the fluxes of each maximization
-    if !isdir("$(Pkg.dir("COBRA"))/results/fvamax")
-        mkdir("$(Pkg.dir("COBRA"))/results/fvamax")
+    if !isdir(pkgDir*"/results/fvamax")
+        mkdir(pkgDir*"/results/fvamax")
     end
 else
     printstyled("Directory `results` already exists.\n\n", color=:green)
@@ -391,13 +391,13 @@ run(`rm testFile.mat`)
 
 # remove the results folder to clean up
 try
-    rm("$(Pkg.dir("COBRA"))/results", recursive=true, force=true)
+    rm(pkgDir*"/results", recursive=true, force=true)
 catch
     @info "The directory $(Pkg.dir("COBRA"))/results cannot be removed. Please check permissions.\n"
 end
 
-# create the logs folder
-resultsDir = "$(Pkg.dir("COBRA"))/results"
+# create the pkgDir*"/
+resultsDir = pkgDir*"/results"
 
 if isdir("$resultsDir/logs")
     try
@@ -416,7 +416,7 @@ minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = d
 
 # remove the results folder to clean up
 try
-    rm("$(Pkg.dir("COBRA"))/results", recursive=true, force=true)
+    rm(pkgDir*"/results", recursive=true, force=true)
 catch
     @info "The directory $(Pkg.dir("COBRA"))/results cannot be removed. Please check permissions.\n"
 end
@@ -430,12 +430,12 @@ minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = d
 # call to write logFiles with onlyFluxes
 minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers=nWorkers, onlyFluxes=true, rxnsList=1:10, logFiles=true)
 
-# test if the /logs folder has been created
-@test isdir("$(Pkg.dir("COBRA"))/results/logs")
+# test if thpkgDir*"/en created
+@test isdir(pkgDir*"/results/logs")
 
 # remove the results folder to clean up
-try
-    rm("$(Pkg.dir("COBRA"))/results", recursive=true, force=true)
+trypkgDir*"/
+    rm(pkgDir*"/results", recursive=true, force=true)
 catch
     @info "The directory $(Pkg.dir("COBRA"))/results cannot be removed. Please check permissions.\n"
 end

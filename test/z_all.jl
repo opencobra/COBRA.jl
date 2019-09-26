@@ -18,10 +18,12 @@ testFile = @__FILE__
 # number of workers
 nWorkers = 1
 
+pkgDir = joinpath(dirname(pathof(COBRA)), "..")
+
 # create a pool and use the COBRA module if the testfile is run in a loop
 if includeCOBRA
     connectSSHWorkers = false
-    include("$(Pkg.dir("COBRA"))/src/connect.jl")
+    include(pkgDir*"/src/connect.jl")
 
     # create a parallel pool and determine its size
     if isdefined(:nWorkers) && isdefined(:connectSSHWorkers)
@@ -38,7 +40,7 @@ end
 getTestModel()
 
 # include a common deck for running tests
-include("$(Pkg.dir("COBRA"))/config/solverCfg.jl")
+include(pkgDir*"/config/solverCfg.jl")
 
 # change the COBRA solver
 solver = changeCobraSolver(solverName, solParams)
@@ -53,13 +55,13 @@ printstyled("\n>> The following tests throw warning messages for testing purpose
 @test_throws ErrorException loadModel("myModel.mat")
 
 # test if an error is thrown when the matrix A does not exist
-@test_throws ErrorException loadModel("$(Pkg.dir("COBRA"))/test/ecoli_core_model.mat", "A")
+@test_throws ErrorException loadModel(pkgDir*"/test/ecoli_core_model.mat", "A")
 
 # test if an error is thrown when the matrix A does not exist
-@test_throws ErrorException loadModel("$(Pkg.dir("COBRA"))/test/ecoli_core_model.mat", "R")
+@test_throws ErrorException loadModel(pkgDir*"/test/ecoli_core_model.mat", "R")
 
 # test if an error is thrown when the struct myModel does not exist
-@test_throws ErrorException loadModel("$(Pkg.dir("COBRA"))/test/ecoli_core_model.mat", "S", "myModel")
+@test_throws ErrorException loadModel(pkgDir*"/test/ecoli_core_model.mat", "S", "myModel")
 
 # connect SSH workers that are not reachable
 @test createPool(1, false) == (workers(), 1)
@@ -72,7 +74,7 @@ printstyled("\n>> The following tests throw warning messages for testing purpose
 @test createPool(2) == (workers(), 2)
 
 # load a new version of the model
-model = loadModel("$(Pkg.dir("COBRA"))/test/ecoli_core_model.mat")
+model = loadModel(pkgDir*"/test/ecoli_core_model.mat")
 
 # run a model with more reactions on the reaction list than in the model
 rxnsList = 1:length(model.rxns) + 1
@@ -86,7 +88,7 @@ model.c = 0.0 * model.c
 @test_throws MethodError optSol, fbaSol = preFBA!(model, solver, 90.0, "min")
 
 # set a wrong solver handle
-model = loadModel("$(Pkg.dir("COBRA"))/test/ecoli_core_model.mat")
+model = loadModel(pkgDir*"/test/ecoli_core_model.mat")
 solver = changeCobraSolver(solverName, solParams)
 solver.handle = -1
 @test_throws ErrorException solveCobraLP(model, solver)
@@ -103,7 +105,7 @@ else
 end
 
 # load the test model
-modelTest = loadModel("$(Pkg.dir("COBRA"))/test/testData.mat", "S", "modelTest")
+modelTest = loadModel(pkgDir*"/test/testData.mat", "S", "modelTest")
 @test modelTest.osense == -1
 @test modelTest.csense == fill('E', length(modelTest.b))
 

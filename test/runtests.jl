@@ -9,18 +9,18 @@
 
 using Pkg, Distributed, LinearAlgebra, COBRA
 
-pkgDir = joinpath(dirname(pathof(COBRA)))
+pkgDir = joinpath(dirname(pathof(COBRA)), "..")
 
 # retrieve all packages that are installed on the system
-include(pkgDir*"/checkSetup.jl")
+include(pkgDir*"/src/checkSetup.jl")
 packages = checkSysConfig()
 
 # configure for runnint the tests in batch
 solverName = :GLPKMathProgInterface
 nWorkers = 4
 connectSSHWorkers = false
-include(pkgDir*"/connect.jl")
-TESTDIR = pkgDir*"/../test"
+include(pkgDir*"/src/connect.jl")
+TESTDIR = pkgDir*"/test"
 
 # create a parallel pool and determine its size
 if (@isdefined nWorkers) && (@isdefined connectSSHWorkers)
