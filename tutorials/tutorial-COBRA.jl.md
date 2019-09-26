@@ -1,4 +1,3 @@
-
 # Tutorial - COBRA.jl
 
 This tutorial serves as a quick start guide as well as an interactive reference for more advanced users. Download the live notebook from [here](https://github.com/opencobra/COBRA.jl/tree/master/tutorials).
