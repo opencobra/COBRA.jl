@@ -27,7 +27,8 @@ The MATLAB script can be saved as `scriptFile.m` in any folder. For illustration
 
 
 ```julia
-run(`cat $(Pkg.dir("COBRA"))/test/scriptFile.m`)
+using COBRA
+run(`cat $(joinpath(dirname(pathof(COBRA)), "../test/scriptFile.m"))`)
 ```
 
 Note that the variables marked with `PALM_` are the ones defined within Julia.
@@ -57,7 +58,12 @@ run(`rm -rf $installDir`)
 
 ```julia
 run(`git clone --depth=1 --recurse-submodules https://github.com/opencobra/cobratoolbox.git $installDir`);
-info("The COBRA Toolbox has been cloned successfully to the $installDir directory.")
+@info "The COBRA Toolbox has been cloned successfully to the $installDir directory."
+```
+
+
+```julia
+run(`mkdir "~/tmp/cobratoolbox"`)
 ```
 
 **Tip:** When using `PALM.jl`, it is advised to add the `--recurse-submodules` flag. This will speed up the simultaneous initialisations on several workers.
@@ -68,16 +74,17 @@ Similarly to `distributedFBA.jl`, the workers may be added using `createPool`, g
 
 
 ```julia
-include("$(Pkg.dir("COBRA"))/src/connect.jl")
+using Distributed
+include(joinpath(dirname(pathof(COBRA)), "connect.jl"))
 ```
 
 
 ```julia
 # specify the total number of parallel workers
-nWorkers = 4
+nWorkers = 4 
 
 # create a parallel pool
-workersPool, nWorkers = createPool(nWorkers)
+workersPool, nWorkers = createPool(nWorkers) 
 ```
 
 After initializing the workers, the packages must be loaded on each worker:
@@ -140,7 +147,7 @@ Now, all variables are defined, and `PALM.jl` is ready to be launched:
 
 
 ```julia
-PALM(modelDir, "$(Pkg.dir("COBRA"))/test/scriptFile.m", nWorkers, "modelCharacteristics.mat", varsCharact, installDir)
+PALM(modelDir, "$(joinpath(dirname(pathof(COBRA)), "../test/scriptFile.m"))"; nMatlab=nWorkers, outputFile="modelCharacteristics.mat", varsCharact=varsCharact, cobraToolboxDir=installDir)
 ```
 
 The output file that contains the values of the variables defined in `varsCharact` for each model is `modelCharacteristics.mat`. This file can be read back into Julia by using:
@@ -151,7 +158,7 @@ using MAT
 vars = matread("modelCharacteristics.mat")
 ```
 
-The full data set can be retrieved with:
+The full data set can be retrieved with: 
 
 
 ```julia
