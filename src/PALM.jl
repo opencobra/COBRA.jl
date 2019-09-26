@@ -302,8 +302,12 @@ function PALM(dir, scriptName; nMatlab::Int=2, outputFile::AbstractString="PALM_
             slash = Base.Filesystem.path_separator
             # adding the model directory and eventual subdirectories to the MATLAB path
             @async R[p] = @spawnat (p+1) begin
-                eval_string("addpath(genpath('"*homedir()*slash*"tmp"*slash*"test-ct-"*string(p)*"'))")
-                eval_string("run('"*homedir()*slash*"tmp"*slash*"test-ct-$p"*slash*"initCobraToolbox.m')")
+                addPath = "addpath(genpath('"*homedir()*slash*"tmp"*slash*"test-ct-"*string(p)*"'))"
+                runInit = "run('"*homedir()*slash*"tmp"*slash*"test-ct-$p"*slash*"initCobraToolbox.m')"
+                @info addPath
+                @info runInit
+                MATLAB.eval_string(addPath)
+                MATLAB.eval_string(runInit)
             end
         end
     end
