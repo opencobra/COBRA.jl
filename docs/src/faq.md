@@ -1,4 +1,4 @@
-# Frequently Asked Questions (FAQ)
+# [Frequently Asked Questions (FAQ)](@id FAQ)
 
 Why can't I build packages in Julia?
 ------------------------------------

@@ -3,7 +3,8 @@
 What is Julia?
 --------------
 
-"*Julia is a high-level, high-performance dynamic programming language […]*". You may read more about Julia [here](http://julialang.org).
+"*Julia is a high-level, high-performance dynamic programming language […]*".
+You may read more about Julia [here](http://julialang.org).
 
 How do I get Julia?
 -------------------
@@ -36,7 +37,7 @@ If you need help, you can always type a `?`at the Julia REPL. For instance, if y
 ? abs
 ```
 
-You may also find the [FAQ section](faq.html) of this documentation interesting, especially if you are running into issues.
+You may also find the [FAQ](@ref) of this documentation interesting, especially if you are running into issues.
 
 How do I install a solver?
 --------------------------
@@ -71,11 +72,6 @@ Pkg.add("GLPKMathProgInterface")
 ```
 
 Other supported solvers, such as `CPLEX`, `Clp`, `Gurobi`, or `Mosek`, may be installed in a similar way. Their respective interfaces are described [here](https://github.com/JuliaOpt). If you want to use `CPLEX`, you must follow the installation instructions [here](https://github.com/JuliaOpt/CPLEX.jl). Most importantly, make sure that you set the `LD_LIBRARY_PATH` environment variable.
-
-Now I have a solver, and I have Julia. What is next?
-------------------------------------------------------
-
-You are now all set to install `COBRA.jl`. Follow the installation instructions [here](index.html). You may then also follow this [tutorial](cobratutorial.html) to get you started.
 
 There is a tutorial, but I cannot open it. What should I do?
 ------------------------------------------------------------

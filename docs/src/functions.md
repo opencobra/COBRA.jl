@@ -2,50 +2,44 @@
 
 ## connect.jl
 
-```@docs
-createPool
+```@autodocs
+Modules = [COBRA]
+Pages = ["connect.jl"]
 ```
 
 ## checkSetup.jl
 
-```@docs
-checkPackage
-checkSysConfig
+```@autodocs
+Modules = [COBRA]
+Pages = ["checkSetup.jl"]
 ```
 
 ## distributedFBA.jl
-```@docs
-preFBA!
-splitRange
-loopFBA
-distributedFBA
-printSolSummary
-saveDistributedFBA
+```@autodocs
+Modules = [COBRA]
+Pages = ["distributedFBA.jl"]
 ```
 
 ## load.jl
-```@docs
-LPproblem
-loadModel
+```@autodocs
+Modules = [COBRA]
+Pages = ["load.jl"]
 ```
 
 ## PALM.jl
-```@docs
-shareLoad
-loopModels
-PALM
+```@autodocs
+Modules = [COBRA]
+Pages = ["PALM.jl"]
 ```
 
 ## solve.jl
-```@docs
-SolverConfig
-buildCobraLP
-changeCobraSolver
-solveCobraLP
+```@autodocs
+Modules = [COBRA]
+Pages = ["solve.jl"]
 ```
 
 ## tools.jl
-```@docs
-findRxnIDS
-convertUnitRange
+```@autodocs
+Modules = [COBRA]
+Pages = ["tools.jl"]
 ```
