@@ -63,11 +63,7 @@ makedocs(format = Documenter.HTML(),
         )
 
 deploydocs(repo = "github.com/opencobra/COBRA.jl.git",
-           julia  = get(ENV, "JULIA_VER", ""),
            target = "build",
-           make = nothing,
-           deps = nothing,
            branch = "gh-pages",
            devbranch = "origin/develop",
-           latest = get(ENV, "GIT_BRANCH", "")
           )
