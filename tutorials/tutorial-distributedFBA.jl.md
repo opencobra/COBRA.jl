@@ -16,7 +16,8 @@ The connection functions are given in `connect.jl`, which, if a parallel version
 
 
 ```julia
-include("$(Pkg.dir("COBRA"))/src/connect.jl")
+using Distributed #leejm516: This is needed even though COBRA imports that package 
+include(joinpath(dirname(pathof(COBRA)), "connect.jl"))
 ```
 
 You may add local workers as follows:
@@ -55,7 +56,7 @@ Before the COBRA solver can be defined, the solver parameters and configuration 
 solverName = :Gurobi #:GLPKMathProgInterface
 
 # include the solver configuration file
-include("$(Pkg.dir("COBRA"))/config/solverCfg.jl")
+include(joinpath(dirname(pathof(COBRA)), "../config/solverCfg.jl"))
 ```
 
 The name of the solver can be changed as follows:
@@ -75,8 +76,8 @@ As a test and as an example, the *E.coli* core model may be loaded as:
 
 ```julia
 # download the test model
-using Requests
-include("$(Pkg.dir("COBRA"))/test/getTestModel.jl")
+using HTTP
+include(joinpath(dirname(pathof(COBRA)), "../test/getTestmodel.jl"))
 getTestModel()
 ```
 
@@ -166,7 +167,7 @@ You may now input several reactions with various `rxnsOptMode` values to run spe
 
 ```julia
 rxnsList = [1; 18; 10; 20:30; 90; 93; 95]
-rxnsOptMode = [0; 1; 2; 2+zeros(Int, length(20:30)); 2; 1; 0]
+rxnsOptMode = [0; 1; 2; 2 .+ zeros(Int, length(20:30)); 2; 1; 0]
 
 # run only a few reactions with rxnsOptMode and rxnsList
 # distributedFBA(model, solver, nWorkers, optPercentage, objective, rxnsList, strategy, preFBA, rxnsOptMode)
