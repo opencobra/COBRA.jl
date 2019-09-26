@@ -66,6 +66,5 @@ deploydocs(repo = "github.com/opencobra/COBRA.jl.git",
            target = "build",
            branch = "gh-pages",
            devbranch = "origin/develop",
-           devurl = "latest",
-           versions = ["stable" => "v^", "v#.#", devurl => devurl]
+           versions = ["stable" => "v^", "v#.#"]
           )
