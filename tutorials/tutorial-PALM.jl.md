@@ -1,4 +1,3 @@
-
 # Tutorial - PALM.jl
 
 This tutorial serves as a reference to get started with `PALM.jl`. Download the live notebook from [here](https://github.com/opencobra/COBRA.jl/tree/master/tutorials).
@@ -11,10 +10,11 @@ Please make sure to have the following packages installed: `COBRA.jl`, `MATLAB`,
 
 
 ```julia
-#=
-Pkg.add("COBRA")
+
+import Pkg;
+#Pkg.add("COBRA")
 Pkg.add("MATLAB")
-=#
+
 ```
 
 ## Writing a MATLAB script
@@ -45,7 +45,7 @@ For illustration purposes of this tutorial, the COBRA Toolbox will be installed 
 
 
 ```julia
-installDir = "~/tmp/cobratoolbox"
+installDir = homedir()*"/tmp/cobratoolbox"
 ```
 
 
@@ -91,8 +91,8 @@ After initializing the workers, the packages must be loaded on each worker:
 
 
 ```julia
-@everywhere using COBRA
-@everywhere using MATLAB
+@everywhere using COBRA;
+@everywhere using MATLAB;
 ```
 
 ## Sharing the load

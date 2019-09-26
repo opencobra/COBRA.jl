@@ -1,4 +1,3 @@
-
 # Tutorial - distributedFBA.jl
 
 This tutorial serves as a reference to get started with `distributedFBA.jl`. Download the live notebook from [here](https://github.com/opencobra/COBRA.jl/tree/master/tutorials).
@@ -37,7 +36,7 @@ In order to be able to use the `COBRA` module on all connected workers, you must
 
 
 ```julia
-@everywhere using COBRA
+@everywhere using COBRA;
 ```
 
 ## Define and change the COBRA solver
@@ -46,14 +45,12 @@ Before the COBRA solver can be defined, the solver parameters and configuration 
 
 - `:GLPKMathProgInterface`
 - `:CPLEX`
-- `:Clp`
 - `:Gurobi`
-- `:Mosek`
 
 
 ```julia
 # specify the solver name
-solverName = :Gurobi #:GLPKMathProgInterface
+solverName = :GLPKMathProgInterface
 
 # include the solver configuration file
 include(joinpath(dirname(pathof(COBRA)), "../config/solverCfg.jl"))
