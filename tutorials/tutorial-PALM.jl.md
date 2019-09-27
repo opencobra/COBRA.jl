@@ -1,4 +1,3 @@
-
 # Tutorial - PALM.jl
 
 This tutorial serves as a reference to get started with `PALM.jl`. Download the live notebook from [here](https://github.com/opencobra/COBRA.jl/tree/master/tutorials).
@@ -11,10 +10,11 @@ Please make sure to have the following packages installed: `COBRA.jl`, `MATLAB`,
 
 
 ```julia
-#=
-Pkg.add("COBRA")
+
+import Pkg;
+#Pkg.add("COBRA")
 Pkg.add("MATLAB")
-=#
+
 ```
 
 ## Writing a MATLAB script
@@ -27,7 +27,8 @@ The MATLAB script can be saved as `scriptFile.m` in any folder. For illustration
 
 
 ```julia
-run(`cat $(Pkg.dir("COBRA"))/test/scriptFile.m`)
+using COBRA
+run(`cat $(joinpath(dirname(pathof(COBRA)), "../test/scriptFile.m"))`)
 ```
 
 Note that the variables marked with `PALM_` are the ones defined within Julia.
@@ -40,11 +41,11 @@ If you already have a working installation of the COBRA Toolbox, you may skip th
 
 **Advanced users** may also want to install the COBRA Toolbox directly installed from Julia. You must have `git` (or `gitBash` on Windows) installed - see [requirements](https://opencobra.github.io/cobratoolbox/stable/installation.html#system-requirements).
 
-For illustration purposes of this tutorial, the COBRA Toolbox will be installed in the `/tmp` directory. This may take a while, depending on the speed of your internet connection.
+For illustration purposes of this tutorial, the COBRA Toolbox will be installed in the `~/tmp` directory. This may take a while, depending on the speed of your internet connection.
 
 
 ```julia
-installDir = "/tmp/cobratoolbox"
+installDir = homedir()*"/tmp/cobratoolbox"
 ```
 
 
@@ -57,7 +58,12 @@ run(`rm -rf $installDir`)
 
 ```julia
 run(`git clone --depth=1 --recurse-submodules https://github.com/opencobra/cobratoolbox.git $installDir`);
-info("The COBRA Toolbox has been cloned successfully to the $installDir directory.")
+@info "The COBRA Toolbox has been cloned successfully to the $installDir directory."
+```
+
+
+```julia
+run(`mkdir "~/tmp/cobratoolbox"`)
 ```
 
 **Tip:** When using `PALM.jl`, it is advised to add the `--recurse-submodules` flag. This will speed up the simultaneous initialisations on several workers.
@@ -68,7 +74,8 @@ Similarly to `distributedFBA.jl`, the workers may be added using `createPool`, g
 
 
 ```julia
-include("$(Pkg.dir("COBRA"))/src/connect.jl")
+using Distributed
+include(joinpath(dirname(pathof(COBRA)), "connect.jl"))
 ```
 
 
@@ -84,8 +91,8 @@ After initializing the workers, the packages must be loaded on each worker:
 
 
 ```julia
-@everywhere using COBRA
-@everywhere using MATLAB
+@everywhere using COBRA;
+@everywhere using MATLAB;
 ```
 
 ## Sharing the load
@@ -140,7 +147,7 @@ Now, all variables are defined, and `PALM.jl` is ready to be launched:
 
 
 ```julia
-PALM(modelDir, "$(Pkg.dir("COBRA"))/test/scriptFile.m", nWorkers, "modelCharacteristics.mat", varsCharact, installDir)
+PALM(modelDir, "$(joinpath(dirname(pathof(COBRA)), "../test/scriptFile.m"))"; nMatlab=nWorkers, outputFile="modelCharacteristics.mat", varsCharact=varsCharact, cobraToolboxDir=installDir)
 ```
 
 The output file that contains the values of the variables defined in `varsCharact` for each model is `modelCharacteristics.mat`. This file can be read back into Julia by using:

@@ -46,13 +46,13 @@ See also: `createPool()` and `PALM`
 function shareLoad(nModels::Int, nMatlab::Int = 2, printLevel::Int=1, dryRun::Bool=false)
 
     if printLevel > 0 && dryRun
-        info("Load sharing is determined without actively changing the number of connected workers (dryRun = true).")
+        @info "Load sharing is determined without actively changing the number of connected workers (dryRun = true)."
     end
 
     # Make sure that not more processes are launched than there are models (load ratio >= 1)
     if nMatlab > nModels
         if printLevel > 0
-            warn("Number of workers ($nMatlab) exceeds the number of models ($nModels).")
+            @warn "Number of workers ($nMatlab) exceeds the number of models ($nModels)."
         end
 
         nMatlab = nModels
@@ -65,7 +65,7 @@ function shareLoad(nModels::Int, nMatlab::Int = 2, printLevel::Int=1, dryRun::Bo
         end
 
         if printLevel > 0
-            warn("Number of workers reduced to number of models for ideal load distribution.\n")
+            @warn "Number of workers reduced to number of models for ideal load distribution.\n"
         end
     end
 
@@ -94,17 +94,17 @@ function shareLoad(nModels::Int, nMatlab::Int = 2, printLevel::Int=1, dryRun::Bo
 
         if quotientModels < remainderModels - 1 || remainderModels < 1
             if printLevel > 0
-                print_with_color(:red, "\n >> Load sharing is not fair. Consider adjusting the maximum poolsize.\n")
+                printstyled("\n >> Load sharing is not fair. Consider adjusting the maximum poolsize.\n", color=:red)
             end
         else
             if printLevel > 0
-                print_with_color(:yellow, "\n >> Load sharing is almost ideal.\n")
+                printstyled("\n >> Load sharing is almost ideal.\n", color=:yellow)
             end
         end
     else
         if printLevel > 0
             println(" >> Every worker will run ", quotientModels, " model(s).")
-            print_with_color(:green, " >> Load sharing is ideal.\n")
+            printstyled(" >> Load sharing is ideal.\n", color=:green)
         end
     end
 
@@ -167,7 +167,7 @@ function loopModels(dir, p, scriptName, dirContent, startIndex, endIndex, varsCh
     #local nModels
     if endIndex >= startIndex
         # declaration of local data array
-        data = Array{Union{Int,Float64,AbstractString}}(localnModels, nCharacteristics + 1)
+        data = Array{Union{Int,Float64,AbstractString}}(undef, localnModels, nCharacteristics + 1)
 
         for k = 1:localnModels
             PALM_iModel = k #+ (p - 1) * nModels
@@ -182,7 +182,7 @@ function loopModels(dir, p, scriptName, dirContent, startIndex, endIndex, varsCh
             MATLAB.@mput PALM_modelFile
             MATLAB.@mput PALM_dir
             MATLAB.@mput PALM_printLevel
-            eval(parse("MATLAB.mat\"run('$scriptName')\""))
+            MATLAB.eval_string("run('" * scriptName * "')")
 
             for i = 1:nCharacteristics
                 data[k, i + 1] = MATLAB.get_variable(Symbol(varsCharact[i]))
@@ -215,7 +215,7 @@ Results are saved in the `outputFile`.
 
 - `nMatlab`:         Number of desired MATLAB sessions (default: 2)
 - `outputFile`:      Name of `.mat` file to save the result table named "summaryData" (default name: "PALM_data.mat")
-- `cobraToolboxDir`: Directory of the COBRA Toolbox (default: "~/cobratoolbox")
+- `cobraToolboxDir`: Directory of the COBRA Toolbox (default: homedir()*"/cobratoolbox")
 - `printLevel`:     Verbose level (default: 1). Mute all output with `printLevel = 0`.
 
 # OUTPUTS
@@ -226,25 +226,25 @@ File with the name specified in `outputFile`.
 
 - Minimum working example
 ```julia
-julia> PALM("~/models", "characteristics")
+julia> PALM(homedir()*"/models", "characteristics")
 ```
 
 - Running `PALM` on 12 MATLAB sessions
 ```julia
-julia> PALM("~/models", "characteristics", 12, "characteristicsResults.mat")
+julia> PALM(homedir()*"/models", "characteristics", 12, "characteristicsResults.mat")
 ```
 
 See also: `loopModels()` and `shareLoad()`
 
 """
 
-function PALM(dir, scriptName, nMatlab::Int=2, outputFile::AbstractString="PALM_data.mat", varsCharact=[], cobraToolboxDir=ENV["HOME"]*Base.Filesystem.path_separator*"cobratoolbox", printLevel::Int=1)
+function PALM(dir, scriptName; nMatlab::Int=2, outputFile::AbstractString="PALM_data.mat", varsCharact=[], cobraToolboxDir=homedir()*Base.Filesystem.path_separator*"cobratoolbox", printLevel::Int=1, useCOBRA::Bool=true)
 
     # read the content of the directory
     dirContent = readdir(dir)
 
     if printLevel > 0
-        info("Directory with $(length(dirContent)) models read successfully.")
+        @info "Directory with $(length(dirContent)) models read successfully."
     end
 
     nWorkers, quotientModels, remainderModels = shareLoad(length(dirContent), nMatlab)
@@ -261,19 +261,32 @@ function PALM(dir, scriptName, nMatlab::Int=2, outputFile::AbstractString="PALM_
     nCharacteristics = length(varsCharact)
 
     # prepare array for storing remote references
-    R = Array{Future}(nWorkers)
+    R = Array{Future}(undef, nWorkers, 2)
 
     # declare an array to store the indices for each worker
-    indicesWorkers = Array{Int}(nWorkers, 3)
+    indicesWorkers = Array{Int}(undef, nWorkers, 3)
 
     # declare an empty array for storing a summary of all data
-    summaryData = Array{Union{Int,Float64,AbstractString}}(nModels + 1, nCharacteristics + 1)
+    summaryData = Array{Union{Int,Float64,AbstractString}}(undef, nModels + 1, nCharacteristics + 1)
 
-    for (p, pid) in enumerate(workers())
-        @spawnat (p + 1) begin
-            # clone a copy to a tmp folder as the cobtratoolbox is updated at runtime
-            if !isdir("/tmp/test-ct-$p")
-                run(`git clone $cobraToolboxDir /tmp/test-ct-$p`)
+    # clone the COBRA Toolbox if it is not yet available
+    # Note: there is no need for the submodules to be cloned
+    if !isdir(cobraToolboxDir)
+        cmd = "git clone git@github.com:opencobra/cobratoolbox.git $cobraToolboxDir"
+        @info cmd
+        run(`sh -c $cmd`)
+    end
+
+    # clone a copy to a tmp folder as the cobtratoolbox is updated at runtime
+    if useCOBRA
+        for (p, pid) in enumerate(workers())
+            @sync @spawnat (p + 1) begin
+                @info homedir()*Base.Filesystem.path_separator*"tmp"*Base.Filesystem.path_separator*"test-ct-$p"
+                if !isdir(homedir()*Base.Filesystem.path_separator*"tmp"*Base.Filesystem.path_separator*"test-ct-$p")
+                    cmd = "git clone $cobraToolboxDir "*homedir()*Base.Filesystem.path_separator*"tmp"*Base.Filesystem.path_separator*"test-ct-$p"
+                    @info cmd
+                    run(`sh -c $cmd`)
+                end
             end
         end
     end
@@ -282,21 +295,26 @@ function PALM(dir, scriptName, nMatlab::Int=2, outputFile::AbstractString="PALM_
     @sync for (p, pid) in enumerate(workers())
 
         if printLevel > 0
-            info("Launching MATLAB session on worker $(p+1).")
+            @info "Launching MATLAB session on worker $(p+1)."
         end
 
-        # adding the model directory and eventual subdirectories to the MATLAB path
-        # Note: the fileseparator `/` also works on Windows systems if git Bash has been installed
-        @async R[p] = @spawnat (p+1) begin
-            eval(parse("mat\"addpath(genpath('/tmp/test-ct-$p'))\""))
-            eval(parse("mat\"run('/tmp/test-ct-$p/initCobraToolbox.m');\""))
+        if useCOBRA
+            slash = Base.Filesystem.path_separator
+            # adding the model directory and eventual subdirectories to the MATLAB path
+            @async R[p] = @spawnat (p+1) begin
+                addPath = "addpath(genpath('"*homedir()*slash*"tmp"*slash*"test-ct-"*string(p)*"'))"
+                runInit = "run('"*homedir()*slash*"tmp"*slash*"test-ct-$p"*slash*"initCobraToolbox.m')"
+                @info addPath
+                @info runInit
+                MATLAB.eval_string(addPath)
+                MATLAB.eval_string(runInit)
+            end
         end
-
     end
 
     # print an informative message
     if printLevel > 0
-        info("> MATLAB sessions initializing")
+        @info "> MATLAB sessions initializing"
     end
 
     @sync for (p, pid) in enumerate(workers())
@@ -316,7 +334,7 @@ function PALM(dir, scriptName, nMatlab::Int=2, outputFile::AbstractString="PALM_
             localnModels = quotientModels
 
             if printLevel > 0
-                info("(case1): Worker $(p+1) runs $localnModels models: from $startIndex to $endIndex")
+                @info "(case1): Worker $(p+1) runs $localnModels models: from $startIndex to $endIndex"
             end
         else
             endIndex = Int((p+1) * quotientModels + remainderModels)
@@ -331,7 +349,7 @@ function PALM(dir, scriptName, nMatlab::Int=2, outputFile::AbstractString="PALM_
             localnModels = endIndex - startIndex + 1
 
             if printLevel > 0
-                info("(case 2): Worker $(p+1) runs $localnModels models: from $startIndex to $endIndex")
+                @info "(case 2): Worker $(p+1) runs $localnModels models: from $startIndex to $endIndex"
             end
         end
 

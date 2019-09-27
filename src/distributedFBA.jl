@@ -65,12 +65,12 @@ function preFBA!(model, solver, optPercentage::Float64=0.0, osenseStr::String="m
     # provide a warning when the optPercentage is higher than 90%
     if optPercentage > OPT_PERCENTAGE
         if printLevel > 0
-            print_with_color(:cyan, "The value of optPercentage is higher than 90%. The solution process might take longer than expected.\n\n")
+            printstyled("The value of optPercentage is higher than 90%. The solution process might take longer than expected.\n\n"; color=:cyan)
         end
     end
 
     # determine constraints for the correct space (0-100% of the full space)
-    if countnz(model.c) > 0
+    if count(!iszero, model.c) > 0
         hasObjective = true
 
         # solve the original LP problem
@@ -99,7 +99,7 @@ function preFBA!(model, solver, optPercentage::Float64=0.0, osenseStr::String="m
     # add a condition if the LP has an extra condition based on the FBA solution
     if hasObjective
         if printLevel > 0
-            print_with_color(:blue, "preFBA! [osenseStr = $osenseStr]: FBAobj = $FBAobj, optPercentage = $optPercentage, objValue = optPercentage * FBAobj = $objValue, norm(fbaSol) = $(norm(fbaSol)).\n\n")
+            printstyled("preFBA! [osenseStr = $osenseStr]: FBAobj = $FBAobj, optPercentage = $optPercentage, objValue = optPercentage * FBAobj = $objValue, norm(fbaSol) = $(norm(fbaSol)).\n\n"; color=:blue)
         end
 
         # add a row in the stoichiometric matrix
@@ -118,7 +118,7 @@ function preFBA!(model, solver, optPercentage::Float64=0.0, osenseStr::String="m
         return FBAobj, fbaSol
     else
         if printLevel > 0
-            print_with_color(:blue, "No objective set (`c` is zero). objValue and fbaSol not defined. optPercentage = $optPercentage.\n\n")
+            printstyled("No objective set (`c` is zero). objValue and fbaSol not defined. optPercentage = $optPercentage.\n\n"; color=:blue)
         end
         return nothing
     end
@@ -177,8 +177,8 @@ function splitRange(model, rxnsList, nWorkers::Int=1, strategy::Int=0, printLeve
 
     # output the average load per worker and the splitting strategy
     if printLevel > 0
-        print_with_color(:blue, "Average load per worker: $pRxnsWorker reactions ($nWorkers workers).\n")
-        print_with_color(:blue, "Splitting strategy is $strategy.\n\n")
+        printstyled("Average load per worker: $pRxnsWorker reactions ($nWorkers workers).\n"; color=:blue)
+        printstyled("Splitting strategy is $strategy.\n\n"; color=:blue)
     end
 
     # define indices for each worker p
@@ -342,8 +342,8 @@ See also: `distributeFBA()`, `MathProgBase.HighLevelInterface`
 
 """
 
-function loopFBA(m, rxnsList, nRxns::Int, rxnsOptMode=2 + zeros(Int, length(rxnsList)), iRound::Int=0, pid::Int=1,
-                 resultsDir::String="$(Pkg.dir("COBRA"))/results", logFiles::Bool=false, onlyFluxes::Bool=false, printLevel::Int=1)
+function loopFBA(m, rxnsList, nRxns::Int, rxnsOptMode=2 .+ zeros(Int, length(rxnsList)), iRound::Int=0, pid::Int=1,
+                 resultsDir::String=joinpath(dirname(pathof(COBRA)), "..")*"/results", logFiles::Bool=false, onlyFluxes::Bool=false, printLevel::Int=1)
 
     # initialize vectors and counters
     retObj = zeros(nRxns)
@@ -523,8 +523,8 @@ See also: `preFBA!()`, `splitRange()`, `buildCobraLP()`, `loopFBA()`, or `fetch(
 """
 
 function distributedFBA(model, solver; nWorkers::Int=1, optPercentage::Union{Float64, Int64}=0.0, objective::String="max",
-                        rxnsList=1:length(model.rxns), strategy::Int=0, rxnsOptMode=2 + zeros(Int, length(model.rxns)),
-                        preFBA::Bool=false, saveChunks::Bool=false, resultsDir::String="$(Pkg.dir("COBRA"))/results",
+                        rxnsList=1:length(model.rxns), strategy::Int=0, rxnsOptMode=2 .+ zeros(Int, length(model.rxns)),
+                        preFBA::Bool=false, saveChunks::Bool=false, resultsDir::String=joinpath(dirname(pathof(COBRA)), "..")*"/results",
                         logFiles::Bool=false, onlyFluxes::Bool=false, printLevel::Int=1)
 
     # convert type of optPercentage
@@ -539,19 +539,19 @@ function distributedFBA(model, solver; nWorkers::Int=1, optPercentage::Union{Flo
         optSol, fbaSol = preFBA!(model, solver, optPercentage, objective)
         solTime = time() - startTime
         if printLevel > 0
-            print_with_color(:green, "Original FBA solved. Solution time: $solTime s.\n\n")
+            printstyled("Original FBA solved. Solution time: $solTime s.\n\n"; color=:green)
         end
     else
         # throw a warning message if preFBA = false and optPercentage > 0%
         if optPercentage > 0.0
-            warn("The value of optPercentage is > 0%, but preFBA = false. Set preFBA = true in order to take optPercentage into account.\n\n")
+            @warn "The value of optPercentage is > 0%, but preFBA = false. Set preFBA = true in order to take optPercentage into account.\n\n"
         end
 
         # define the optSol and fbaSol variables
         optSol = NaN
         fbaSol = NaN * zeros(length(model.rxns))
         if printLevel > 0
-            print_with_color(:blue, "Original FBA. No additional constraints have been added.\n")
+            printstyled("Original FBA. No additional constraints have been added.\n"; color=:blue)
         end
     end
 
@@ -570,14 +570,14 @@ function distributedFBA(model, solver; nWorkers::Int=1, optPercentage::Union{Flo
     if nRxns > 60000 && !saveChunks && !onlyFluxes
         saveChunks = true
         if printLevel > 0
-            info("Trying to solve a model of $nRxns reactions. `saveChunks` has been set to `true`.")
+            @info "Trying to solve a model of $nRxns reactions. `saveChunks` has been set to `true`."
         end
     end
 
     # set saveChunks to false when only the maxFlux and minFlux arguments are requested
     if saveChunks && onlyFluxes
         saveChunks = false
-        warn("`saveChunks` has been set to `false`.\n")
+        @warn "`saveChunks` has been set to `false`.\n"
     end
 
     if saveChunks || logFiles
@@ -585,11 +585,11 @@ function distributedFBA(model, solver; nWorkers::Int=1, optPercentage::Union{Flo
         if !isdir("$resultsDir")
             mkdir("$resultsDir")
             if printLevel > 0
-                print_with_color(:green, "Directory `$resultsDir` created.\n")
+                printstyled("Directory `$resultsDir` created.\n"; color=:green)
             end
         else
             if printLevel > 0
-                print_with_color(:cyan, "Directory `$resultsDir` already exists.\n")
+                printstyled("Directory `$resultsDir` already exists.\n"; color=:cyan)
             end
         end
     end
@@ -598,7 +598,7 @@ function distributedFBA(model, solver; nWorkers::Int=1, optPercentage::Union{Flo
     if logFiles && !isdir("$resultsDir/logs")
         mkdir("$resultsDir/logs")
         if printLevel > 0
-            print_with_color(:green, "Directory `$resultsDir/logs` created.\n")
+            printstyled("Directory `$resultsDir/logs` created.\n"; color=:green)
         end
     end
 
@@ -622,7 +622,7 @@ function distributedFBA(model, solver; nWorkers::Int=1, optPercentage::Union{Flo
         fvamin = NaN * zeros(1, 1)
         fvamax = NaN * zeros(1, 1)
         if printLevel > 0
-            info("Only the `minFlux` and `maxFlux` vectors will be calculated (solver solution status available in `statussolmin` and `statussolmax`).\n")
+            @info "Only the `minFlux` and `maxFlux` vectors will be calculated (solver solution status available in `statussolmin` and `statussolmax`).\n"
         end
     end
 
@@ -634,33 +634,33 @@ function distributedFBA(model, solver; nWorkers::Int=1, optPercentage::Union{Flo
     if nRxnsList > nRxns
         rxnsList = 1:nRxns
         if printLevel > 0
-            warn("The `rxnsList` has more reactions than in the model. `rxnsList` shorted to the maximum number of reactions.")
+            @warn "The `rxnsList` has more reactions than in the model. `rxnsList` shorted to the maximum number of reactions."
         end
     end
 
     if nRxns != nRxnsList
             if printLevel > 0
-                println(" >> Only $nRxnsList ", (nRxnsList == 1) ? "reaction" : "reactions", " of $nRxns will be solved (~ $(nRxnsList * 100 / nRxns) \%).\n")
+                println(" >> Only $nRxnsList ", (nRxnsList == 1) ? "reaction" : "reactions", " of $nRxns will be solved (~ $(nRxnsList * 100 / nRxns) %).\n")
             end
     else
         if printLevel > 0
-            println(" >> All $nRxns reactions of the model will be solved (100 \%).\n")
+            println(" >> All $nRxns reactions of the model will be solved (100 %).\n")
         end
     end
 
     # sanity checks for large models
     if nRxnsList > 20000 && nWorkers <= 4
         if printLevel > 0
-            warn("\nTrying to solve more than 20000 optimization problems on fewer than 4 workers. Memory might be limited.")
-            info(" >> Try running this analysis on a cluster, or use a larger parallel pool.\n")
+            @warn "\nTrying to solve more than 20000 optimization problems on fewer than 4 workers. Memory might be limited."
+            @info " >> Try running this analysis on a cluster, or use a larger parallel pool.\n"
         end
     end
 
     # sanity check for few reactions on a large pool
     if nRxnsList < nWorkers
         if printLevel > 0
-            warn("\nThe parallel pool of workers is larger than the number of reactions being solved.")
-            info(" >> Consider reducing the size of the parallel pool to free system resources.\n")
+            @warn "\nThe parallel pool of workers is larger than the number of reactions being solved."
+            @info " >> Consider reducing the size of the parallel pool to free system resources.\n"
         end
     end
 
@@ -670,7 +670,7 @@ function distributedFBA(model, solver; nWorkers::Int=1, optPercentage::Union{Flo
         rxnsKey = splitRange(model, rxnsList, nWorkers, strategy, printLevel)
 
         # prepare array for storing remote references
-        R = Array{Future}(nWorkers, 2)
+        R = Array{Future}(undef, nWorkers, 2)
 
         # distribution across workers
         @sync for (p, pid) in enumerate(workers())
@@ -723,7 +723,7 @@ function distributedFBA(model, solver; nWorkers::Int=1, optPercentage::Union{Flo
                     # close the 2 file streams
                     close(filemin)
                     close(filemax)
-                    print_with_color(:green, "Done.\n")
+                    printstyled("Done.\n"; color=:green)
                 else
                     fvamin[:, rxnsList[rxnsKey[p]]] = fetch(R[p, 1])[2][:, :]
                     fvamax[:, rxnsList[rxnsKey[p]]] = fetch(R[p, 2])[2][:, :]
@@ -784,7 +784,7 @@ function printSolSummary(testFile::String, optSol, maxFlux, minFlux, solTime, nW
     # print a solution summary
     if printLevel > 0
         println("\n-- Solution summary --\n")
-        print_with_color(:blue, "$testFile\n")
+        printstyled("$testFile\n"; color=:blue)
 
         if !isnan(optSol)  println(" Original FBA obj.val         ", optSol)  end
 
@@ -844,12 +844,12 @@ julia> saveDistributedFBA("myDirectory/myResults.mat")
 
 - Home location
 ```julia
-julia> saveDistributedFBA(ENV["HOME"]*"/myResults.mat")
+julia> saveDistributedFBA(homedir()*"/myResults.mat")
 ```
 
 - Save minFlux and maxFlux variables
 ```julia
-julia> saveDistributedFBA(ENV["HOME"]*"/myResults.mat", ["minFlux", "maxFlux"])
+julia> saveDistributedFBA(homedir()*"/myResults.mat", ["minFlux", "maxFlux"])
 ```
 
 """
@@ -866,17 +866,17 @@ function saveDistributedFBA(fileName::String, vars::Array{String,1} = ["minFlux"
     for i = 1:length(vars)
         if isdefined(Main, Symbol(vars[i]))
             if printLevel > 0
-                print("Saving $(vars[i]) (T:> $(typeof(eval(Main, Symbol(vars[i]))))) ...")
+                print("Saving $(vars[i]) (T:> $(typeof(Main.eval(Symbol(vars[i]))))) ...")
             end
 
             # write the variable to the file
-            write(file, "$(vars[i])", convertUnitRange( eval(Main, Symbol(vars[i])) ))
+            write(file, "$(vars[i])", convertUnitRange(Main.eval(Symbol(vars[i])) ))
 
             # increment the counter
             countSavedVars = countSavedVars + 1
 
             if printLevel > 0
-                print_with_color(:green, "Done.\n")
+                printstyled("Done.\n"; color=:green)
             end
         end
     end
@@ -887,10 +887,10 @@ function saveDistributedFBA(fileName::String, vars::Array{String,1} = ["minFlux"
     # print a status message
     if countSavedVars > 0
         if printLevel > 0
-            print_with_color(:green, "All available variables saved to $fileName.\n")
+            printstyled("All available variables saved to $fileName.\n"; color=:green)
         end
     else
-        warn("No variables saved.")
+        @warn "No variables saved."
     end
 end
 

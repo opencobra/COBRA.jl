@@ -7,16 +7,20 @@
 
 #-------------------------------------------------------------------------------------------
 
+using Pkg, Distributed, LinearAlgebra, COBRA
+
+pkgDir = joinpath(dirname(pathof(COBRA)), "..")
+
 # retrieve all packages that are installed on the system
-include("$(Pkg.dir("COBRA"))/src/checkSetup.jl")
+include(pkgDir*"/src/checkSetup.jl")
 packages = checkSysConfig()
 
 # configure for runnint the tests in batch
-solverName = :GLPKMathProgInterface #:CPLEX
+solverName = :GLPKMathProgInterface
 nWorkers = 4
 connectSSHWorkers = false
-include("$(Pkg.dir("COBRA"))/src/connect.jl")
-TESTDIR = "$(Pkg.dir("COBRA"))/test"
+include(pkgDir*"/src/connect.jl")
+TESTDIR = pkgDir*"/test"
 
 # create a parallel pool and determine its size
 if (@isdefined nWorkers) && (@isdefined connectSSHWorkers)
@@ -24,21 +28,17 @@ if (@isdefined nWorkers) && (@isdefined connectSSHWorkers)
 end
 
 # use the module COBRA and Base.Test modules on all workers
-using COBRA
-using Base.Test
-using Requests
-using Suppressor
+@everywhere using COBRA, Test, HTTP
 
 # download the ecoli_core_model
 include("getTestModel.jl")
 getTestModel()
 
 # check if MATLAB package is present
-if sizeof(Pkg.installed("MATLAB")) > 0
-    info("The MATLAB package is present. The tests for PALM.jl will be run.")
+if "MATLAB" in keys(Pkg.installed())
+    @info "The MATLAB package is present. The tests for PALM.jl will be run."
 
-    using MAT
-    using MATLAB
+    using MAT, MATLAB
 
     # load sharing that is not fair
     nWorkers, quotientModels, remainderModels = COBRA.shareLoad(2)
@@ -89,47 +89,47 @@ if sizeof(Pkg.installed("MATLAB")) > 0
                    "nNz"]
 
     # launch PALM with the scriptFile on the 2 models
-    PALM(joinpath(TESTDIR, "testModels"), "scriptFile", 2, "modelCharacteristics.mat", varsCharact, "/tmp/cobratoolbox-cobrajl")
+    PALM(joinpath(TESTDIR, "testModels"), "scriptFile", nMatlab=2, outputFile="modelCharacteristics.mat", varsCharact=varsCharact, cobraToolboxDir=homedir()*"/tmp/cobratoolbox-cobrajl")
 
     # remove the directory with the test models
     rm(joinpath(TESTDIR, "testModels"), force=true, recursive=true)
 else
-    warn("The MATLAB package is not present. The tests for PALM.jl will not be run.")
+    @warn "The MATLAB package is not present. The tests for PALM.jl will not be run."
 end
 
 
 # list all currently supported solvers
-supportedSolvers = [:Clp, :GLPKMathProgInterface, :CPLEX, :Gurobi, :Mosek]
+supportedSolvers = [:GLPKMathProgInterface, :CPLEX, :Gurobi] #:Clp, :Mosek
 
 # test if an error is thrown for non-installed solvers
 for i = 1:length(supportedSolvers)
     print(" > Testing $(supportedSolvers[i]) ... ")
     if !(supportedSolvers[i] in packages)
         @test_throws ErrorException changeCobraSolver(string(supportedSolvers[i]))
-        print_with_color(:red, "Not supported.\n")
+        printstyled("Not supported.\n"; color=:red)
     else
         @test typeof(changeCobraSolver(supportedSolvers[i])) == COBRA.SolverConfig
-        print_with_color(:green, "Done.\n")
+        printstyled("Done.\n"; color=:green)
     end
 end
 
 includeCOBRA = false
 
-for s = 1:length(packages)
+for s in packages
     # define a solvername
-    solverName = string(packages[s])
+    global solverName = string(s)
 
     # read out the directory with the test files
     testDir = readdir(TESTDIR)
 
     # print the solver name
-    print_with_color(:green, "\n\n -- Running $(length(testDir) - 2) tests using the $solverName solver. -- \n\n")
+    printstyled("\n\n -- Running $(length(testDir) - 2) tests using the $solverName solver. -- \n\n"; color=:green)
 
     # evaluate the test file
     for t = 1:length(testDir)
         # run only parallel and serial test files
-        if testDir[t][1:2] == "p_" || testDir[t][1:2] == "s_" || testDir[t][1:2] == "z_"
-            print_with_color(:green, "\nRunning $(testDir[t]) ...\n\n")
+        if testDir[t][1:2] in ["s_", "z_"] #"p_",
+            printstyled("\nRunning $(testDir[t]) ...\n\n"; color=:green)
             include(testDir[t])
         end
     end
@@ -138,10 +138,14 @@ end
 # remove the results folder to clean up
 tmpDir = joinpath(dirname(@__FILE__), "..", "results")
 if isdir(tmpDir)
-    rm(tmpDir, recursive=true)
+    try
+        rm("$tmpDir", recursive=true, force=true)
+    catch
+        info("The directory $tmpDir cannot be removed. Please check permissions.\n")
+    end
 end
 
 # print a status line
-print_with_color(:green, "\n -- All tests passed. -- \n\n")
+printstyled("\n -- All tests passed. -- \n\n"; color=:green)
 
 #-------------------------------------------------------------------------------------------

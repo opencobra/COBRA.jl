@@ -7,11 +7,12 @@
 
 #-------------------------------------------------------------------------------------------
 
-using Base.Test
 
 if !@isdefined includeCOBRA
     includeCOBRA = true
 end
+
+pkgDir = joinpath(dirname(pathof(COBRA)), "..")
 
 # output information
 testFile = @__FILE__
@@ -21,9 +22,10 @@ nWorkers = 4
 
 # create a pool and use the COBRA module if the testfile is run in a loop
 if includeCOBRA
+    # define the name of the default solver
     solverName = :GLPKMathProgInterface
     connectSSHWorkers = false
-    include("$(Pkg.dir("COBRA"))/src/connect.jl")
+    include(pkgDir*"/src/connect.jl")
 
     # create a parallel pool and determine its size
     if isdefined(:nWorkers) && isdefined(:connectSSHWorkers)
@@ -31,7 +33,7 @@ if includeCOBRA
     end
 
     using COBRA
-    using Requests
+    using HTTP
 
     include("getTestModel.jl")
 end
@@ -40,13 +42,13 @@ end
 getTestModel()
 
 # include a common deck for running tests
-include("$(Pkg.dir("COBRA"))/config/solverCfg.jl")
+include(pkgDir*"/../config/solverCfg.jl")
 
 # load an external mat file
-model = loadModel("$(Pkg.dir("COBRA"))/test/ecoli_core_model.mat", "S", "model")
+model = loadModel(pkgDir*"/../test/ecoli_core_model.mat", "S", "model")
 
 # test that no output is produced with printLevel = 0
-info(" > Testing silent $solverName ...")
+@info " > Testing silent $solverName ..."
 solver = changeCobraSolver(solverName, printLevel=0)
 output = @capture_out minFlux, maxFlux = distributedFBA(model, solver, nWorkers=nWorkers, printLevel=0, rxnsList=1:4)
 if string(solverName) == "Gurobi"
@@ -54,7 +56,7 @@ if string(solverName) == "Gurobi"
 else
     @test length(output) == 0
 end
-info(" > Done testing silent $solverName.")
+@info " > Done testing silent $solverName."
 
 # change the COBRA solver
 solver = changeCobraSolver(solverName, solParams)
@@ -325,7 +327,7 @@ strategy = 0
 rxnsList = 1:length(model.rxns)
 
 # select the reaction optimization mode
-rxnsOptMode = 2 + zeros(Int64, length(rxnsList))
+rxnsOptMode = 2 .+ zeros(Int64, length(rxnsList))
 
 minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers=nWorkers, optPercentage=optPercentage, strategy=strategy, preFBA=true, saveChunks=saveChunks)
 
@@ -333,24 +335,28 @@ minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = d
 printSolSummary(testFile, optSol, maxFlux, minFlux, solTime, nWorkers, solverName, strategy, saveChunks)
 
 # remove the results folder to clean up
-run(`rm -rf $(Pkg.dir("COBRA"))/results`)
+try
+    rm(pkgDir*"/results", recursive=true, force=true)
+catch
+    @info "The directory $(Pkg.dir("COBRA"))/results cannot be removed. Please check permissions.\n"
+end
 
 # create folders if they are not present
-if !isdir("$(Pkg.dir("COBRA"))/results")
-    mkdir("$(Pkg.dir("COBRA"))/results")
-    print_with_color(:green, "Directory `results` created.\n\n")
+if !isdir(pkgDir*"/results")
+    mkdir(pkgDir*"/results")
+    printstyled("Directory `results` created.\n\n"; color=:green)
 
     # create a folder for storing the chunks of the fluxes of each minimization
-    if !isdir("$(Pkg.dir("COBRA"))/results/fvamin")
-        mkdir("$(Pkg.dir("COBRA"))/results/fvamin")
+    if !isdir(pkgDir*"/results/fvamin")
+        mkdir(pkgDir*"/results/fvamin")
     end
 
     # create a folder for storing the chunks of the fluxes of each maximization
-    if !isdir("$(Pkg.dir("COBRA"))/results/fvamax")
-        mkdir("$(Pkg.dir("COBRA"))/results/fvamax")
+    if !isdir(pkgDir*"/results/fvamax")
+        mkdir(pkgDir*"/results/fvamax")
     end
 else
-    print_with_color(:cyan, "Directory `results` already exists.\n\n")
+    printstyled("Directory `results` already exists.\n\n", color=:green)
 end
 
 minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, preFBA=true, saveChunks=true)
@@ -384,14 +390,22 @@ saveDistributedFBA("testFile.mat", [""])
 run(`rm testFile.mat`)
 
 # remove the results folder to clean up
-run(`rm -rf $(Pkg.dir("COBRA"))/results`)
+try
+    rm(pkgDir*"/results", recursive=true, force=true)
+catch
+    @info "The directory $(Pkg.dir("COBRA"))/results cannot be removed. Please check permissions.\n"
+end
 
-# create the logs folder
-resultsDir = "$(Pkg.dir("COBRA"))/results"
+# create the pkgDir*"/
+resultsDir = pkgDir*"/results"
 
 if isdir("$resultsDir/logs")
-    rm("$resultsDir/logs")
-    print_with_color(:green, "$resultsDir/logs folder created")
+    try
+        rm("$resultsDir/logs", recursive=true, force=true)
+    catch
+        @info "The directory $resultsDir/logs cannot be removed. Please check permissions.\n"
+    end
+    printstyled("$resultsDir/logs folder created", color=:green)
 end
 
 # call to create a log files directory
@@ -401,7 +415,11 @@ minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = d
 @test isdir("$resultsDir/logs")
 
 # remove the results folder to clean up
-run(`rm -rf $(Pkg.dir("COBRA"))/results`)
+try
+    rm(pkgDir*"/results", recursive=true, force=true)
+catch
+    @info "The directory $(Pkg.dir("COBRA"))/results cannot be removed. Please check permissions.\n"
+end
 
 # call to create a log files directory (throws a warning message)
 minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers=nWorkers, saveChunks=true, onlyFluxes=true, rxnsList=1:10)
@@ -412,9 +430,12 @@ minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = d
 # call to write logFiles with onlyFluxes
 minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = distributedFBA(model, solver, nWorkers=nWorkers, onlyFluxes=true, rxnsList=1:10, logFiles=true)
 
-# test if the /logs folder has been created
-@test isdir("$(Pkg.dir("COBRA"))/results/logs")
+# test if thpkgDir*"/en created
+@test isdir(pkgDir*"/results/logs")
 
 # remove the results folder to clean up
-run(`rm -rf $(Pkg.dir("COBRA"))/results`)
-
+trypkgDir*"/
+    rm(pkgDir*"/results", recursive=true, force=true)
+catch
+    @info "The directory $(Pkg.dir("COBRA"))/results cannot be removed. Please check permissions.\n"
+end

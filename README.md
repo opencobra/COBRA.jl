@@ -50,8 +50,9 @@ Shall no solvers be detected on your system, error messages may be thrown when t
 
 The code has been benchmarked against the `fastFVA` implementation [[3](#References-1)]. A test model `ecoli_core_model.mat` [[4](#References-1)] can be used to pre-compile the code and can be downloaded using
 ```Julia
-julia> using Requests
-julia> include("$(Pkg.dir("COBRA"))/test/getTestModel.jl")
+julia> using HTTP, COBRA
+julia> pkgDir = joinpath(dirname(pathof(COBRA)), "..")
+julia> include(pkgDir*"/test/getTestModel.jl")
 julia> getTestModel()
 ```
 

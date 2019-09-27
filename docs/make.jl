@@ -7,24 +7,9 @@
 
 #-------------------------------------------------------------------------------------------
 
+import Pkg
 using Documenter
-
-if !isdefined(:includeCOBRA) includeCOBRA = true end
-
-if includeCOBRA
-    include("../src/COBRA.jl")
-    include("../src/load.jl")
-    include("../src/solve.jl")
-    include("../src/distributedFBA.jl")
-    include("../src/connect.jl")
-    include("../src/checkSetup.jl")
-    include("../src/tools.jl")
-
-    # only include PALM.jl if MATLAB is present
-    if sizeof(Pkg.installed("MATLAB")) > 0
-        include("../src/PALM.jl")
-    end
-end
+using COBRA
 
 # special concatenation of tutorials until issue 701 is fixed:
 # https://github.com/JuliaDocs/Documenter.jl/issues/701
@@ -34,7 +19,8 @@ end
 currentDir = pwd()
 
 # concatenate tutorial files
-cd("$(Pkg.dir("COBRA"))/tutorials")
+pkgDir = joinpath(dirname(pathof(COBRA)))
+cd(pkgDir*"/../tutorials")
 
 # define list of tutorials to be concatenated
 tutorials = ["tutorial-COBRA.jl.md", "tutorial-distributedFBA.jl.md", "tutorial-PALM.jl.md"]
@@ -42,12 +28,13 @@ tutorials = ["tutorial-COBRA.jl.md", "tutorial-distributedFBA.jl.md", "tutorial-
 # concatenate the tutorials properly speaking
 cat = ""
 for tut in tutorials
+    global cat
     tmp = read(tut, String)
     cat = cat * tmp
 end
 
 # set all headers one level lower
-cat = replace(cat, "\n#", "\n##")
+cat = replace(cat, "\n#" => "\n##")
 
 # write out the tutorial to new file
 open("tutorials.md", "w") do f
@@ -56,12 +43,12 @@ open("tutorials.md", "w") do f
 end
 
 # move the tutorials.md file to the docs folder
-mv("tutorials.md", "$(Pkg.dir("COBRA"))/docs/src/tutorials.md", remove_destination=true)
+mv("tutorials.md", pkgDir*"/../docs/src/tutorials.md", force=true)
 
 # change back to the old directory
 cd(currentDir)
 
-makedocs(format = :html,
+makedocs(format = Documenter.HTML(),
          sitename = "COBRA.jl",
          pages = Any[ # Compat: `Any` for 0.4 compat
                  "index.md",
@@ -76,9 +63,8 @@ makedocs(format = :html,
         )
 
 deploydocs(repo = "github.com/opencobra/COBRA.jl.git",
-           julia  = get(ENV, "JULIA_VER", ""),
            target = "build",
-           make = nothing,
-           deps = nothing,
-           latest = get(ENV, "GIT_BRANCH", "")
+           branch = "gh-pages",
+           devbranch = "origin/develop",
+           versions = ["stable" => "v^", "v#.#"]
           )

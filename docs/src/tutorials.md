@@ -1,7 +1,6 @@
 # Tutorials 
 
-
-## Tutorial - COBRA.jl
+# Tutorial - COBRA.jl
 
 This tutorial serves as a quick start guide as well as an interactive reference for more advanced users. Download the live notebook from [here](https://github.com/opencobra/COBRA.jl/tree/master/tutorials).
 
@@ -59,7 +58,6 @@ The code has been benchmarked against the `fastFVA` implementation [[3](#Referen
 2. [Heirendt, L & Arreckx, S. et al. Creation and analysis of biochemical constraint-based models: the COBRA Toolbox v3.0 (submitted), 2017.](https://github.com/opencobra/cobratoolbox)
 3. [Steinn, G. et al. Computationally efficient flux variability analysis. BMC Bioinformatics, 11(1):1–3, 2010.](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-11-489)
 4. [Orth, J. et al. Reconstruction and use of microbial metabolic networks: the core escherichia coli metabolic model as an educational guide. EcoSal Plus, 2010.](http://gcrg.ucsd.edu/Downloads/EcoliCore)
-
 ## Tutorial - distributedFBA.jl
 
 This tutorial serves as a reference to get started with `distributedFBA.jl`. Download the live notebook from [here](https://github.com/opencobra/COBRA.jl/tree/master/tutorials).
@@ -77,7 +75,8 @@ The connection functions are given in `connect.jl`, which, if a parallel version
 
 
 ```julia
-include("$(Pkg.dir("COBRA"))/src/connect.jl")
+using Distributed #leejm516: This is needed even though COBRA imports that package 
+include(joinpath(dirname(pathof(COBRA)), "connect.jl"))
 ```
 
 You may add local workers as follows:
@@ -97,7 +96,7 @@ In order to be able to use the `COBRA` module on all connected workers, you must
 
 
 ```julia
-@everywhere using COBRA
+@everywhere using COBRA;
 ```
 
 ### Define and change the COBRA solver
@@ -106,17 +105,15 @@ Before the COBRA solver can be defined, the solver parameters and configuration 
 
 - `:GLPKMathProgInterface`
 - `:CPLEX`
-- `:Clp`
 - `:Gurobi`
-- `:Mosek`
 
 
 ```julia
 ## specify the solver name
-solverName = :Gurobi #:GLPKMathProgInterface
+solverName = :GLPKMathProgInterface
 
 ## include the solver configuration file
-include("$(Pkg.dir("COBRA"))/config/solverCfg.jl")
+include(joinpath(dirname(pathof(COBRA)), "../config/solverCfg.jl"))
 ```
 
 The name of the solver can be changed as follows:
@@ -136,8 +133,8 @@ As a test and as an example, the *E.coli* core model may be loaded as:
 
 ```julia
 ## download the test model
-using Requests
-include("$(Pkg.dir("COBRA"))/test/getTestModel.jl")
+using HTTP
+include(joinpath(dirname(pathof(COBRA)), "../test/getTestmodel.jl"))
 getTestModel()
 ```
 
@@ -227,7 +224,7 @@ You may now input several reactions with various `rxnsOptMode` values to run spe
 
 ```julia
 rxnsList = [1; 18; 10; 20:30; 90; 93; 95]
-rxnsOptMode = [0; 1; 2; 2+zeros(Int, length(20:30)); 2; 1; 0]
+rxnsOptMode = [0; 1; 2; 2 .+ zeros(Int, length(20:30)); 2; 1; 0]
 
 ## run only a few reactions with rxnsOptMode and rxnsList
 ## distributedFBA(model, solver, nWorkers, optPercentage, objective, rxnsList, strategy, preFBA, rxnsOptMode)
@@ -264,7 +261,6 @@ rm("results.mat")
 3. [Steinn, G. et al. Computationally efficient flux variability analysis. BMC Bioinformatics, 11(1):1–3, 2010.](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-11-489)
 4. [Orth, J. et al. Reconstruction and use of microbial metabolic networks: the core escherichia coli metabolic model as an educational guide. EcoSal Plus, 2010.](http://gcrg.ucsd.edu/Downloads/EcoliCore)
 
-
 ## Tutorial - PALM.jl
 
 This tutorial serves as a reference to get started with `PALM.jl`. Download the live notebook from [here](https://github.com/opencobra/COBRA.jl/tree/master/tutorials).
@@ -277,10 +273,11 @@ Please make sure to have the following packages installed: `COBRA.jl`, `MATLAB`,
 
 
 ```julia
-##=
-Pkg.add("COBRA")
+
+import Pkg;
+##Pkg.add("COBRA")
 Pkg.add("MATLAB")
-=#
+
 ```
 
 ### Writing a MATLAB script
@@ -293,7 +290,8 @@ The MATLAB script can be saved as `scriptFile.m` in any folder. For illustration
 
 
 ```julia
-run(`cat $(Pkg.dir("COBRA"))/test/scriptFile.m`)
+using COBRA
+run(`cat $(joinpath(dirname(pathof(COBRA)), "../test/scriptFile.m"))`)
 ```
 
 Note that the variables marked with `PALM_` are the ones defined within Julia.
@@ -306,11 +304,11 @@ If you already have a working installation of the COBRA Toolbox, you may skip th
 
 **Advanced users** may also want to install the COBRA Toolbox directly installed from Julia. You must have `git` (or `gitBash` on Windows) installed - see [requirements](https://opencobra.github.io/cobratoolbox/stable/installation.html#system-requirements).
 
-For illustration purposes of this tutorial, the COBRA Toolbox will be installed in the `/tmp` directory. This may take a while, depending on the speed of your internet connection.
+For illustration purposes of this tutorial, the COBRA Toolbox will be installed in the `~/tmp` directory. This may take a while, depending on the speed of your internet connection.
 
 
 ```julia
-installDir = "/tmp/cobratoolbox"
+installDir = homedir()*"/tmp/cobratoolbox"
 ```
 
 
@@ -323,7 +321,12 @@ run(`rm -rf $installDir`)
 
 ```julia
 run(`git clone --depth=1 --recurse-submodules https://github.com/opencobra/cobratoolbox.git $installDir`);
-info("The COBRA Toolbox has been cloned successfully to the $installDir directory.")
+@info "The COBRA Toolbox has been cloned successfully to the $installDir directory."
+```
+
+
+```julia
+run(`mkdir "~/tmp/cobratoolbox"`)
 ```
 
 **Tip:** When using `PALM.jl`, it is advised to add the `--recurse-submodules` flag. This will speed up the simultaneous initialisations on several workers.
@@ -334,7 +337,8 @@ Similarly to `distributedFBA.jl`, the workers may be added using `createPool`, g
 
 
 ```julia
-include("$(Pkg.dir("COBRA"))/src/connect.jl")
+using Distributed
+include(joinpath(dirname(pathof(COBRA)), "connect.jl"))
 ```
 
 
@@ -350,8 +354,8 @@ After initializing the workers, the packages must be loaded on each worker:
 
 
 ```julia
-@everywhere using COBRA
-@everywhere using MATLAB
+@everywhere using COBRA;
+@everywhere using MATLAB;
 ```
 
 ### Sharing the load
@@ -406,7 +410,7 @@ Now, all variables are defined, and `PALM.jl` is ready to be launched:
 
 
 ```julia
-PALM(modelDir, "$(Pkg.dir("COBRA"))/test/scriptFile.m", nWorkers, "modelCharacteristics.mat", varsCharact, installDir)
+PALM(modelDir, "$(joinpath(dirname(pathof(COBRA)), "../test/scriptFile.m"))"; nMatlab=nWorkers, outputFile="modelCharacteristics.mat", varsCharact=varsCharact, cobraToolboxDir=installDir)
 ```
 
 The output file that contains the values of the variables defined in `varsCharact` for each model is `modelCharacteristics.mat`. This file can be read back into Julia by using:
