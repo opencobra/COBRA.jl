@@ -2,7 +2,7 @@ function getTestModel()
 
     if !isfile("ecoli_core_model.mat")
         print("Downloading the ecoli_core model ...")
-        ecoliModel = HTTP.get("http://bigg.ucsd.edu/static/models/e_coli_core.mat")
+        ecoliModel = HTTP.get("https://github.com/opencobra/COBRA.models/raw/master/mat/ecoli_core_model.mat")
         write("ecoli_core_model.mat", ecoliModel.body)
         printstyled("Done.\n"; color=:green)
     else
