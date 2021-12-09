@@ -16,11 +16,10 @@ SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 
 [compat]
 CPLEX = "0.6"
-GLPK = "0.12"
-GLPKMathProgInterface = "0.4, 0.5"
+GLPK = "0.12, 0.14"
+GLPKMathProgInterface = "0.4"
 HTTP = "0.8"
 MAT = "0.7"
-GLPK = "0.12, 0.13"
 MathProgBase = "0.7"
 julia = "1"
 
