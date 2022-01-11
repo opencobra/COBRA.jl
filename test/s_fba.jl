@@ -116,7 +116,7 @@ fbaSol = fbaSolution.sol
 saveDistributedFBA("testFile.mat")
 
 # remove the file to clean up
-run(`rm testFile.mat`)
+#run(`rm testFile.mat`)
 
 # print a solution summary
 printSolSummary(testFile, optSol, maxFlux, minFlux, solTime, nWorkers, solverName)
