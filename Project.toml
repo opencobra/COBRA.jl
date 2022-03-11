@@ -19,7 +19,7 @@ CPLEX = "0.6"
 GLPK = "0.12, 0.14"
 GLPKMathProgInterface = "0.4"
 HTTP = "0.8"
-MAT = "0.7"
+MAT = "0.7, 0.10"
 MathProgBase = "0.7"
 julia = "1"
 
