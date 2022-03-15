@@ -87,7 +87,7 @@ solTime = time() - startTime
 saveDistributedFBA("testFile.mat")
 
 # remove the file to clean up
-run(`rm testFile.mat`)
+#run(`rm testFile.mat`)
 
 # load a coupled model (printLevel = 0)
 modelCoupled = loadModel("modelCoupled.mat", "modelCoupled")
