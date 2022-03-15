@@ -15,11 +15,12 @@ Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 
 [compat]
-CPLEX = "0.8"
-GLPK = "0.15"
-GLPKMathProgInterface = "0.4"
+CPLEX = "0.9"
+GLPK = "1.0"
+GLPKMathProgInterface = "0.5"
 HTTP = "0.9"
 MAT = "0.10"
+MathProgBase = "0.7"
 MathOptInterface = "0.10"
 julia = "1"
 
