@@ -15,7 +15,7 @@ Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 
 [compat]
-CPLEX = "0.6"
+CPLEX = "0.9"
 GLPK = "1.0"
 GLPKMathProgInterface = "0.5"
 HTTP = "0.9"
