@@ -74,14 +74,14 @@ function preFBA!(model, solver, optPercentage::Float64=0.0, osenseStr::String="m
         hasObjective = true
 
         # solve the original LP problem
-        fbaSolution = solveCobraLP(model, solver)
+        status, objval, sol = solveCobraLP(model, solver)
 
-        if fbaSolution.status == :Optimal
+        if status == MathOptInterface.TerminationStatusCode(1)
             # retrieve the solution to the initial LP
-            FBAobj = fbaSolution.objval
+            FBAobj = objval
 
             # retrieve the solution vector
-            fbaSol = fbaSolution.sol
+            fbaSol = sol
 
             if osenseStr == "max"
                 objValue = floor(FBAobj/tol) * tol * optPercentage / 100.0
@@ -124,7 +124,6 @@ function preFBA!(model, solver, optPercentage::Float64=0.0, osenseStr::String="m
     end
 
 end
-
 #-------------------------------------------------------------------------------------------
 """
     splitRange(model, rxnsList, nWorkers, strategy, printLevel)

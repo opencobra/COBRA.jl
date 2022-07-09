@@ -126,7 +126,7 @@ function createPool(localWorkers::Int, connectSSH::Bool=false, connectionFile::S
                 end
 
                 try
-                    if !is_windows()
+                    if !(Sys.iswindows())
                         # try logging in quietly to defined node using SSH
                         successConnect = success(`ssh -T -o BatchMode=yes -o ConnectTimeout=1 $(sshWorkers[i]["usernode"]) $(sshWorkers[i]["flags"])`)
 
