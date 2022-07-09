@@ -19,7 +19,7 @@ module COBRA
     # include the load file to load a model of .mat format
     import Pkg
     using SparseArrays, Distributed, LinearAlgebra
-    using MAT, MathProgBase
+    using MAT, MathOptInterface, JuMP
     if "MATLAB" in keys(Pkg.installed())
         using MATLAB
     end

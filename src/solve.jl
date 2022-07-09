@@ -6,6 +6,7 @@
 =#
 
 #-------------------------------------------------------------------------------------------
+
 """
     SolverConfig(name, handle)
 
@@ -22,10 +23,90 @@ mutable struct SolverConfig
 end
 
 #-------------------------------------------------------------------------------------------
+
+"""
+    buildlp(c, A, sense, b, l, u, solver)
+
+Function used to build a model using JuMP.
+
+# INPUTS
+
+- `c`:           The objective vector, always in the sense of minimization
+- `A`:           Constraint matrix
+- `sense`:       Vector of constraint sense characters '<', '=', and '>'
+- `b`:           Right-hand side vector
+- `l`:           Vector of lower bounds on the variables
+- `u`:           Vector of upper bounds on the variables
+- `solver`:      A `::SolverConfig` object that contains a valid `handle`to the solver
+
+# OUTPUTS
+
+- `model`:       An `::LPproblem` object that has been built using the JuMP.
+- `x`:           Primal solution vector
+
+# EXAMPLES
+
+```julia
+julia> model, x = buildlp(c, A, sense, b, l, u, solver)
+```
+
+"""
+
+function buildlp(c, A, sense, b, l, u, solver)
+    N = length(c)
+    model = Model(solver)
+    x = @variable(model, l[i] <= x[i=1:N] <= u[i])
+    @objective(model, Min, c' * x)
+    eq_rows, ge_rows, le_rows = sense .== '=', sense .== '>', sense .== '<'
+    @constraint(model, A[eq_rows, :] * x .== b[eq_rows])
+    @constraint(model, A[ge_rows, :] * x .>= b[ge_rows])
+    @constraint(model, A[le_rows, :] * x .<= b[le_rows])
+    return model, x
+end
+
+#-------------------------------------------------------------------------------------------
+
+"""
+    solvelp(model, x)
+
+Function used to solve a LPproblem using JuMP.
+
+# INPUTS
+
+- `model`:       An `::LPproblem` object that has been built using the JuMP.
+- `x`:           Primal solution vector
+
+# OUTPUTS
+
+- `status`:      Termination status
+- `objval`:      Optimal objective value
+- `sol`:         Primal solution vector
+
+# EXAMPLES
+
+```julia
+julia> status, objval, sol = solvelp(model, x)
+```
+
+"""
+
+function solvelp(model, x)
+    #println(x)
+    optimize!(model)
+    return (
+        status = termination_status(model),
+        objval = objective_value(model),
+        sol = value.(x)
+    )
+end
+
+#-------------------------------------------------------------------------------------------
+
+
 """
     buildCobraLP(model, solver)
 
-Build a model by interfacing directly with the CPLEX solver
+Build a model by interfacing directly with the GLPK solver
 
 # INPUTS
 
@@ -35,15 +116,16 @@ Build a model by interfacing directly with the CPLEX solver
 
 # OUTPUTS
 
-- `m`:              A MathProgBase.LinearQuadraticModel object with `inner` field
+- `model`:          An `::LPproblem` object that has been built using the JuMP.
+- `x`:              primal solution vector
 
 # EXAMPLES
 
 ```julia
-julia> m = buildCobraLP(model, solver)
+julia> model, x = buildCobraLP(model, solver)
 ```
 
-See also: `MathProgBase.LinearQuadraticModel()`, `MathProgBase.HighLevelInterface.buildlp()`
+See also: `buildlp()`
 """
 
 function buildCobraLP(model, solver::SolverConfig)
@@ -55,8 +137,7 @@ function buildCobraLP(model, solver::SolverConfig)
             if model.csense[i] == 'G'  model.csense[i] = '>' end
             if model.csense[i] == 'L'  model.csense[i] = '<' end
         end
-
-        return MathProgBase.HighLevelInterface.buildlp(model.osense * model.c, model.S, model.csense, model.b, model.lb, model.ub, solver.handle)
+        return buildlp(model.osense * model.c, model.S, model.csense, model.b, model.lb, model.ub, solver.handle)
     else
         error("The solver is not supported. Please set solver name to one the supported solvers.")
     end
@@ -89,7 +170,12 @@ Minimum working example (for the CPLEX solver)
 julia> changeCobraSolver("CPLEX", cpxControl)
 ```
 
-See also: `MathProgBase.jl`
+Minimum working example (for the GLPK solver)
+```julia
+julia> solverName = :GLPK
+julia> solver = changeCobraSolver(solverName)
+```
+
 """
 
 function changeCobraSolver(name, params=[]; printLevel::Int=1)
@@ -113,12 +199,12 @@ function changeCobraSolver(name, params=[]; printLevel::Int=1)
             error("The solver `CPLEX` cannot be set using `changeCobraSolver()`.")
         end
 
-    elseif name == "GLPKMathProgInterface" || name == "GLPK"
+    elseif name == "GLPK"
         try
             if length(params) > 1
-                solver.handle = GLPKSolverLP(method=params[1], presolve=params[2])
+                solver.handle = GLPK.Optimizer
             else
-                solver.handle = GLPKSolverLP()
+                solver.handle = GLPK.Optimizer
             end
         catch
             error("The solver `GLPK` or `GLPKMathProgInterface` cannot be set using `changeCobraSolver()`.")
@@ -188,16 +274,18 @@ LP problem must have the form:
 
 # OUTPUTS
 
-- `solutionLP`:     Solution object of type `LPproblem`
+- `status`:         Termination status
+- `objval`:         Optimal objective value
+- `sol`:            Primal solution vector
 
 # EXAMPLES
 
 Minimum working example
 ```julia
-julia> solveCobraLP(model, solver)
+julia> status, objval, sol = solveCobraLP(model, solver)
 ```
 
-See also: `MathProgBase.linprog()`,
+See also: `solvelp()`,
 """
 
 function solveCobraLP(model, solver)
@@ -205,16 +293,14 @@ function solveCobraLP(model, solver)
     if solver.handle != -1
 
         # retrieve the solution
-        m = buildCobraLP(model, solver)
-        solutionLP = MathProgBase.HighLevelInterface.solvelp(m)
+        m, x = buildCobraLP(model, solver)
+        status, objval, sol = solvelp(m, x)
 
         # adapt the objective value
-        if solutionLP.status == :Optimal
-            solutionLP.objval = model.osense * solutionLP.objval
+        if status == :Optimal
+            objval = model.osense * objval
         end
-
-        return solutionLP
-
+        return status, objval, sol
     else
         error("The solver handle is not set properly using `changeCobraSolver()`.")
     end
@@ -256,6 +342,6 @@ function autoTuneSolver(m, nMets, nRxns, solver, pid::Int=1)
     end
 end
 
-export buildCobraLP, changeCobraSolver, solveCobraLP, autoTuneSolver
+export buildlp, solvelp, buildCobraLP, changeCobraSolver, solveCobraLP, autoTuneSolver
 
 #-------------------------------------------------------------------------------------------
