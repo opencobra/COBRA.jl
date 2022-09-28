@@ -71,9 +71,9 @@ function checkSysConfig(printLevel::Int=1)
     packages = []
 
     # initialize a vector with supported LP solvers
-    LPsolvers = [ :GLPKMathProgInterface, :Gurobi, :CPLEX] #:Clp, :Mosek
+    LPsolvers = [ :GLPK, :Gurobi, :CPLEX] #:Clp, :Mosek
 
-    if checkPackage(:MathProgBase, printLevel)
+    if checkPackage(:JuMP, printLevel)
 
         # loop through all implemented interfaces
         for s in 1:length(LPsolvers)
@@ -87,7 +87,7 @@ function checkSysConfig(printLevel::Int=1)
             end
 
             # load an additional package for GLPK
-            if string(pkgName) == "GLPKMathProgInterface"
+            if string(pkgName) == "GLPK"
                 checkPackage(:GLPK, printLevel)
             end
             if string(pkgName) == "Mosek"
