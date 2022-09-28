@@ -18,7 +18,7 @@ testFile = @__FILE__
 # number of workers
 nWorkers = 4
 
-pkgDir = joinpath(dirname(pathof(COBRA)), "..")
+pkgDir = joinpath(mkpath("COBRA"), "..")
 
 # create a pool and use the COBRA module if the testfile is run in a loop
 if includeCOBRA
@@ -69,7 +69,7 @@ minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = d
 @test abs(optSol - optSol1) < 1e-9
 
 #other solvers (e.g., CPLEX) might report alternate optimal solutions
-if solverName == "GLPKMathProgInterface"
+if solverName == "GLPK"
     # test minimum and maximum flux vectors
     @test norm(fvamin[:,[1, 3, 4, 28]] - fvamin1[:,[1, 3, 4, 28]]) < 1e-9
     @test norm(fvamax[:,[2, 3, 12, 28]] - fvamax1[:,[2, 3, 12, 28]]) < 1e-9
@@ -90,7 +90,7 @@ solTime = time() - startTime
 @test norm(fbaSol1 - fbaSol) < 1e-9
 
 #other solvers (e.g., CPLEX) might report alternate optimal solutions
-if solverName == "GLPKMathProgInterface"
+if solverName == "GLPK"
     # test minimum and maximum flux vectors
     @test norm(fvamin[:,[1,3,4,28]] - fvamin1[:,[1,3,4,28]]) < 1e-9
     @test norm(fvamax[:,[2,3,12,28]] - fvamax1[:,[2,3,12,28]]) < 1e-9

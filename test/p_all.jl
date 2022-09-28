@@ -12,7 +12,7 @@ if !@isdefined includeCOBRA
     includeCOBRA = true
 end
 
-pkgDir = joinpath(dirname(pathof(COBRA)), "..")
+pkgDir = joinpath(mkpath("COBRA"), "..")
 
 # output information
 testFile = @__FILE__
@@ -23,7 +23,7 @@ nWorkers = 4
 # create a pool and use the COBRA module if the testfile is run in a loop
 if includeCOBRA
     # define the name of the default solver
-    solverName = :GLPKMathProgInterface
+    solverName = :GLPK
     connectSSHWorkers = false
     include(pkgDir*"/src/connect.jl")
 

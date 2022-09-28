@@ -12,7 +12,7 @@ if !@isdefined includeCOBRA
     includeCOBRA = true
 end
 
-pkgDir = joinpath(dirname(pathof(COBRA)), "..")
+pkgDir = joinpath(mkpath("COBRA"), "..")
 
 # output information
 testFile = @__FILE__
