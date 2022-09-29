@@ -18,7 +18,7 @@ testFile = @__FILE__
 # number of workers
 nWorkers = 1
 
-pkgDir = joinpath(dirname(pathof(COBRA)), "..")
+pkgDir = joinpath(mkpath("COBRA"), "..")
 
 # create a pool and use the COBRA module if the testfile is run in a loop
 if includeCOBRA
@@ -91,7 +91,7 @@ solTime = time() - startTime
 @test norm(fbaSol1 - fbaSol) < 1e-9
 
 #other solvers (e.g., CPLEX) might report alternate optimal solutions
-if solverName == "GLPKMathProgInterface"
+if solverName == "GLPK"
     # test minimum flux vectors
     @test norm(fvamin[:, 4:14] - fvamin1[:, 20:30]) < 1e-9
 

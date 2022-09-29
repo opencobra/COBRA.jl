@@ -9,14 +9,14 @@
 
 using Pkg, Distributed, LinearAlgebra, COBRA
 
-pkgDir = joinpath(dirname(pathof(COBRA)), "..")
+pkgDir = joinpath(mkpath("COBRA"), "..")
 
 # retrieve all packages that are installed on the system
 include(pkgDir*"/src/checkSetup.jl")
 packages = checkSysConfig()
 
 # configure for runnint the tests in batch
-solverName = :GLPKMathProgInterface
+solverName = :GLPK
 nWorkers = 4
 connectSSHWorkers = false
 include(pkgDir*"/src/connect.jl")
@@ -34,6 +34,7 @@ end
 include("getTestModel.jl")
 getTestModel()
 
+#=
 # check if MATLAB package is present
 if "MATLAB" in keys(Pkg.installed())
     @info "The MATLAB package is present. The tests for PALM.jl will be run."
@@ -97,9 +98,10 @@ else
     @warn "The MATLAB package is not present. The tests for PALM.jl will not be run."
 end
 
+=#
 
 # list all currently supported solvers
-supportedSolvers = [:GLPKMathProgInterface, :CPLEX, :Gurobi] #:Clp, :Mosek
+supportedSolvers = [:GLPK, :CPLEX, :Gurobi] #:Clp, :Mosek
 
 # test if an error is thrown for non-installed solvers
 for i = 1:length(supportedSolvers)
@@ -136,7 +138,7 @@ for s in packages
 end
 
 # remove the results folder to clean up
-tmpDir = joinpath(dirname(@__FILE__), "..", "results")
+tmpDir = joinpath(mkpath(@__FILE__), "..", "results")
 if isdir(tmpDir)
     try
         rm("$tmpDir", recursive=true, force=true)

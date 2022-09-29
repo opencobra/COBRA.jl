@@ -37,7 +37,7 @@ if solverName == "CPLEX"
         (:CPX_PARAM_LPMETHOD,       0)
     ] #end of solParams
 
-elseif solverName == "GLPKMathProgInterface" || solverName == "GLPK"
+elseif solverName == "GLPK"
     solParams = [:Simplex,    #Method
                  true        #presolve
     ] #end of solParams

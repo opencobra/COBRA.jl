@@ -6,6 +6,7 @@
 =#
 
 #-------------------------------------------------------------------------------------------
+#=
 """
     shareLoad(nModels, nMatlab, printLevel)
 
@@ -183,7 +184,13 @@ function loopModels(dir, p, scriptName, dirContent, startIndex, endIndex, varsCh
             MATLAB.@mput PALM_dir
             MATLAB.@mput PALM_printLevel
             MATLAB.eval_string("run('" * scriptName * "')")
-
+#=          
+            @mput PALM_iModel
+            @mput PALM_modelFile
+            @mput PALM_dir
+            @mput PALM_printLevel
+            eval_string("run('" * scriptName * "')")
+=#
             for i = 1:nCharacteristics
                 data[k, i + 1] = MATLAB.get_variable(Symbol(varsCharact[i]))
             end
@@ -380,3 +387,4 @@ function PALM(dir, scriptName; nMatlab::Int=2, outputFile::AbstractString="PALM_
 end
 
 export PALM
+=#

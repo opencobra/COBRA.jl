@@ -54,7 +54,7 @@ See also: `workers()`, `nprocs()`, `addprocs()`, `gethostname()`
 
 """
 
-function createPool(localWorkers::Int, connectSSH::Bool=false, connectionFile::String=joinpath(dirname(pathof(COBRA)))*"/../config/sshCfg.jl", printLevel::Int=1)
+function createPool(localWorkers::Int, connectSSH::Bool=false, connectionFile::String=joinpath(mkpath("COBRA"))*"/../config/sshCfg.jl", printLevel::Int=1)
 
     # load cores on remote nodes
     if connectSSH
@@ -124,7 +124,7 @@ function createPool(localWorkers::Int, connectSSH::Bool=false, connectionFile::S
                 if printLevel > 0
                     println(" >> Connecting ", sshWorkers[i]["procs"], " workers on ", sshWorkers[i]["usernode"])
                 end
-
+                
                 try
                     if !(Sys.iswindows())
                         # try logging in quietly to defined node using SSH

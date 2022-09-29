@@ -18,7 +18,7 @@ testFile = @__FILE__
 # number of workers
 nWorkers = 1
 
-pkgDir = joinpath(dirname(pathof(COBRA)), "..")
+pkgDir = joinpath(mkpath("COBRA"), "..")
 
 # create a pool and use the COBRA module if the testfile is run in a loop
 if includeCOBRA
@@ -96,7 +96,7 @@ solver.handle = -1
 
 # test if an infeasible solution status is returned
 solver = changeCobraSolver(solverName, solParams)
-m = MathProgBase.HighLevelInterface.buildlp([1.0, 0.0], [2.0 1.0], '<', -1.0, solver.handle)
+m, x, c = buildlp([1.0, 0.0], [2.0 1.0], '<', -1.0, solver.handle)
 retObj, retFlux, retStat = loopFBA(m, 1, 2)
 if solverName == "Clp" || solverName == "Gurobi" || solverName == "CPLEX" || solverName == "Mosek"
     @test retStat[1] == 0 # infeasible
@@ -110,16 +110,16 @@ modelTest = loadModel(pkgDir*"/test/testData.mat", "S", "modelTest")
 @test modelTest.csense == fill('E', length(modelTest.b))
 
 # test buildlp and solvelp for an unbounded problem
-m = MathProgBase.HighLevelInterface.buildlp([-1.0, -1.0], [-1.0 2.0], '<', [0.0], solver.handle)
-sol = MathProgBase.HighLevelInterface.solvelp(m)
+m, x, c = buildlp([-1.0, -1.0], [-1.0 2.0], '<', [0.0], solver.handle)
+status, objval, sol = solvelp(m, x)
 if solver.name == "Clp" || solver.name == "Gurobi" || solver.name == "GLPK" || solver.name == "Mosek"
-    @test sol.status == :Unbounded
+    @test sol.status == MathOptInterface.TerminationStatusCode(6)
 elseif solverName == "CPLEX"
-    @test sol.status == :InfeasibleOrUnbounded
+    @test sol.status == MathOptInterface.TerminationStatusCode(6)
 end
 
 # solve an unbounded problem using loopFBA
-m = MathProgBase.HighLevelInterface.buildlp([0.0, -1.0], [-1.0 2.0], '<', [0.0], solver.handle)
+m, x, c = buildlp([0.0, -1.0], [-1.0 2.0], '<', [0.0], solver.handle)
 retObj, retFlux, retStat = loopFBA(m, 1, 2, 2, 1)
 if solver.name == "Clp" || solver.name == "Gurobi" || solver.name == "GLPK" || solver.name == "Mosek"
     @test isequal(retStat, [2, NaN]) # unbounded and not solved
