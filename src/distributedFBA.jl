@@ -75,7 +75,7 @@ function preFBA!(model, solver, optPercentage::Float64=0.0, osenseStr::String="m
 
         # solve the original LP problem
         status, objval, sol = solveCobraLP(model, solver)
-        
+
         if status == MathOptInterface.TerminationStatusCode(1)
             # retrieve the solution to the initial LP
             FBAobj = objval
@@ -124,7 +124,6 @@ function preFBA!(model, solver, optPercentage::Float64=0.0, osenseStr::String="m
     end
 
 end
-
 #-------------------------------------------------------------------------------------------
 """
     splitRange(model, rxnsList, nWorkers, strategy, printLevel)

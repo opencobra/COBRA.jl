@@ -18,7 +18,7 @@ module COBRA
     # include the load file to load a model of .mat format
     import Pkg
     using SparseArrays, Distributed, LinearAlgebra
-    using MAT, JuMP
+    using MAT, MathOptInterface, JuMP
     using MATLAB
 
     include("checkSetup.jl")
