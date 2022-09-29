@@ -75,7 +75,7 @@ function preFBA!(model, solver, optPercentage::Float64=0.0, osenseStr::String="m
 
         # solve the original LP problem
         status, objval, sol = solveCobraLP(model, solver)
-
+        
         if status == MathOptInterface.TerminationStatusCode(1)
             # retrieve the solution to the initial LP
             FBAobj = objval
@@ -95,7 +95,7 @@ function preFBA!(model, solver, optPercentage::Float64=0.0, osenseStr::String="m
         hasObjective = false
         fbaSol = NaN
     end
-
+    
     # add a condition if the LP has an extra condition based on the FBA solution
     if hasObjective
         if printLevel > 0
@@ -124,6 +124,7 @@ function preFBA!(model, solver, optPercentage::Float64=0.0, osenseStr::String="m
     end
 
 end
+
 #-------------------------------------------------------------------------------------------
 """
     splitRange(model, rxnsList, nWorkers, strategy, printLevel)
@@ -204,7 +205,8 @@ function splitRange(model, rxnsList, nWorkers::Int=1, strategy::Int=0, printLeve
 
         # loop through the number of reactions and determine the column density
         for i in 1:NrxnsList
-              cdVect[i] = nnz(model.S[:, rxnsList[i]]) / Nmets * 100.0
+              S_sparseVector = sparsevec(model.S[:, rxnsList[i]])
+              cdVect[i] = nnz(S_sparseVector) / Nmets * 100.0
         end
 
         # initialize counter vectors
@@ -341,8 +343,8 @@ See also: `distributeFBA()`, `MathProgBase.HighLevelInterface`
 
 """
 
-function loopFBA(m, rxnsList, nRxns::Int, rxnsOptMode=2 .+ zeros(Int, length(rxnsList)), iRound::Int=0, pid::Int=1,
-                 resultsDir::String=joinpath(dirname(pathof(COBRA)), "..")*"/results", logFiles::Bool=false, onlyFluxes::Bool=false, printLevel::Int=1)
+function loopFBA(m, x, c, rxnsList, nRxns::Int, rxnsOptMode=2 .+ zeros(Int, length(rxnsList)), iRound::Int=0, pid::Int=1,
+                 resultsDir::String=joinpath(mkpath("COBRA"), "..")*"/results", logFiles::Bool=false, onlyFluxes::Bool=false, printLevel::Int=1)
 
     # initialize vectors and counters
     retObj = zeros(nRxns)
@@ -365,30 +367,28 @@ function loopFBA(m, rxnsList, nRxns::Int, rxnsOptMode=2 .+ zeros(Int, length(rxn
         else
             performOptim = false
         end
-
+        
         if performOptim
+            
+            # Set the objective vector coefficients
+            c = zeros(nRxns)
+            c[rxnsList[k]] = 1000.0 # set the coefficient of the current FBA to 1000
+                        
             # change the sense of the optimization
             if j == 1
                 if iRound == 0
-                    MathProgBase.HighLevelInterface.setsense!(m, :Min)
+                    @objective(m, Min, c' * x)
                     if printLevel > 0
                         println(" -- Minimization (iRound = $iRound). Block $pid [$(length(rxnsList))/$nRxns].")
                     end
                 else
-                    MathProgBase.HighLevelInterface.setsense!(m, :Max)
+                    @objective(m, Max, c' * x)
                     if printLevel > 0
                         println(" -- Maximization (iRound = $iRound). Block $pid [$(length(rxnsList))/$nRxns].")
                     end
                 end
             end
-
-            # Set the objective vector coefficients
-            c = zeros(nRxns)
-            c[rxnsList[k]] = 1000.0 # set the coefficient of the current FBA to 1000
-
-            # set the objective of the CPLEX model
-            MathProgBase.HighLevelInterface.setobj!(m, c)
-
+            
             if logFiles
                 # save individual logFiles with the CPLEX solver
                 if isdefined(m, :inner) && string(typeof(m.inner)) == "CPLEX.Model"
@@ -397,34 +397,34 @@ function loopFBA(m, rxnsList, nRxns::Int, rxnsOptMode=2 .+ zeros(Int, length(rxn
             end
 
             # solve the model using the general MathProgBase interface
-            solutionLP = MathProgBase.HighLevelInterface.solvelp(m)
+            status, objval, sol = solvelp(m, x)
 
             # retrieve the solution status
-            statLP = solutionLP.status
-
+            statLP = status
+            
             # output the solution, save the minimum and maximum fluxes
-            if statLP == :Optimal
+            if statLP == MathOptInterface.TerminationStatusCode(1)
                 # retrieve the objective value
-                retObj[rxnsList[k]] = solutionLP.objval / 1000.0  # solutionLP.sol[rxnsList[k]]
+                retObj[rxnsList[k]] = objval / 1000.0  # solutionLP.sol[rxnsList[k]]
 
                 # retrieve the solution vector
                 if !onlyFluxes
-                    retFlux[:, k] = solutionLP.sol
+                    retFlux[:, k] = sol
                 end
 
                 # return the solution status
                 retStat[rxnsList[k]] = 1 # LP problem is optimal
 
-            elseif statLP == :Infeasible
+            elseif statLP == MathOptInterface.TerminationStatusCode(2)
                 retStat[rxnsList[k]] = 0 # LP problem is infeasible
 
-            elseif statLP == :Unbounded
+            elseif statLP == MathOptInterface.TerminationStatusCode(6)
                 retStat[rxnsList[k]] = 2 # LP problem is unbounded
 
-            elseif statLP == :UserLimit
+            elseif statLP == MathOptInterface.TerminationStatusCode(11)
                 retStat[rxnsList[k]] = 3 # Solver for the LP problem has hit a user limit
 
-            elseif statLP == :InfeasibleOrUnbounded
+            elseif statLP == MathOptInterface.TerminationStatusCode(6)
                 retStat[rxnsList[k]] = 4 # LP problem is infeasible or unbounded
 
             else
@@ -523,7 +523,7 @@ See also: `preFBA!()`, `splitRange()`, `buildCobraLP()`, `loopFBA()`, or `fetch(
 
 function distributedFBA(model, solver; nWorkers::Int=1, optPercentage::Union{Float64, Int64}=0.0, objective::String="max",
                         rxnsList=1:length(model.rxns), strategy::Int=0, rxnsOptMode=2 .+ zeros(Int, length(model.rxns)),
-                        preFBA::Bool=false, saveChunks::Bool=false, resultsDir::String=joinpath(dirname(pathof(COBRA)), "..")*"/results",
+                        preFBA::Bool=false, saveChunks::Bool=false, resultsDir::String=joinpath(mkpath("COBRA"), "..")*"/results",
                         logFiles::Bool=false, onlyFluxes::Bool=false, printLevel::Int=1)
 
     # convert type of optPercentage
@@ -736,13 +736,13 @@ function distributedFBA(model, solver; nWorkers::Int=1, optPercentage::Union{Flo
 
     # perform maximizations and minimizations sequentially
     else
-        m = buildCobraLP(model, solver)
+        m, x, c = buildCobraLP(model, solver)
 
         # adjust the solver parameters based on the model
         autoTuneSolver(m, nMets, nRxns, solver)
 
-        minFlux, fvamin, statussolmin = loopFBA(m, rxnsList, nRxns, rxnsOptMode, 0, 1, resultsDir, logFiles, onlyFluxes, printLevel)
-        maxFlux, fvamax, statussolmax = loopFBA(m, rxnsList, nRxns, rxnsOptMode, 1, 1, resultsDir, logFiles, onlyFluxes, printLevel)
+        minFlux, fvamin, statussolmin = loopFBA(m, x, c, rxnsList, nRxns, rxnsOptMode, 0, 1, resultsDir, logFiles, onlyFluxes, printLevel)
+        maxFlux, fvamax, statussolmax = loopFBA(m, x, c, rxnsList, nRxns, rxnsOptMode, 1, 1, resultsDir, logFiles, onlyFluxes, printLevel)
     end
 
     return minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax

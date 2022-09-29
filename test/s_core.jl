@@ -18,7 +18,7 @@ testFile = @__FILE__
 # number of workers
 nWorkers = 1
 
-pkgDir = joinpath(dirname(pathof(COBRA)), "..")
+pkgDir = joinpath(mkpath("COBRA"), "..")
 
 # create a pool and use the COBRA module if the testfile is run in a loop
 if includeCOBRA
@@ -51,20 +51,20 @@ model = loadModel(pkgDir*"/test/ecoli_core_model.mat", "S", "model")
 rxnsList = 1:length(model.rxns)
 
 # individual building model and then solving it
-m = buildCobraLP(model, solver)
-solutionLP2 = MathProgBase.HighLevelInterface.solvelp(m)
-solutionLP2.objval = model.osense * solutionLP2.objval
+m, x, c = buildCobraLP(model, solver)
+status2, objval2, sol2 = solvelp(m, x)
+objval2 = model.osense * objval2
 
 # using the new linprog function
-solutionLP1 = MathProgBase.linprog(model.osense * model.c, model.S, model.csense, model.b, model.lb, model.ub, solver.handle)
-solutionLP1.objval = model.osense * solutionLP1.objval
+status1, objval1, sol1 = linprog(model.osense * model.c, model.S, model.csense, model.b, model.lb, model.ub, solver.handle)
+objval1 = model.osense * objval1
 
-@test abs(solutionLP2.objval - solutionLP1.objval) < 1e-9
+@test abs(objval2 - objval1) < 1e-9
 
 # get the full solution
-solutionLP = solveCobraLP(model, solver)
+status, objval, sol = solveCobraLP(model, solver)
 
-@test abs(solutionLP2.objval - solutionLP.objval) < 1e-9
+@test abs(objval2 - objval) < 1e-9
 
 # define an optPercentage value
 optPercentage = 90.0

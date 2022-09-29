@@ -18,7 +18,7 @@ testFile = @__FILE__
 # number of workers
 nWorkers = 1
 
-pkgDir = joinpath(dirname(pathof(COBRA)), "..")
+pkgDir = joinpath(mkpath("COBRA"), "..")
 
 # create a pool and use the COBRA module if the testfile is run in a loop
 if includeCOBRA
@@ -86,9 +86,9 @@ startTime = time()
 minFlux, maxFlux, optSol  = distributedFBA(model, solver, nWorkers=nWorkers, objective="", rxnsList=rxnsList, rxnsOptMode=rxnsOptMode, preFBA=false);
 solTime = time() - startTime
 
-fbaSolution = solveCobraLP(model, solver)  # in the model, objective is assumed to be maximized
-fbaObj = fbaSolution.objval
-fbaSol = fbaSolution.sol
+status, objval, sol = solveCobraLP(model, solver)  # in the model, objective is assumed to be maximized
+fbaObj = objval
+fbaSol = sol
 
 @test abs(maxFlux[rxnsList] - fbaObj) < 1e-9
 
@@ -106,9 +106,9 @@ startTime   = time()
 minFlux, maxFlux, optSol  = distributedFBA(model, solver, nWorkers=nWorkers, objective="", rxnsList=rxnsList, rxnsOptMode=rxnsOptMode, preFBA=false);
 solTime = time() - startTime
 
-fbaSolution = solveCobraLP(model, solver)
-fbaObj = fbaSolution.objval
-fbaSol = fbaSolution.sol
+status, objval, sol = solveCobraLP(model, solver)
+fbaObj = objval
+fbaSol = sol
 
 @test abs(minFlux[rxnsList] - fbaObj) < 1e-9
 

@@ -6,7 +6,6 @@
 =#
 
 #-------------------------------------------------------------------------------------------
-
 """
 Main module for `COBRA.jl` - COnstraint-Based Reconstruction and Analysis in Julia
 
@@ -19,10 +18,8 @@ module COBRA
     # include the load file to load a model of .mat format
     import Pkg
     using SparseArrays, Distributed, LinearAlgebra
-    using MAT, MathOptInterface, JuMP
-    if "MATLAB" in keys(Pkg.installed())
-        using MATLAB
-    end
+    using MAT, JuMP
+    using MATLAB
 
     include("checkSetup.jl")
     checkSysConfig(0)
@@ -31,9 +28,7 @@ module COBRA
     include("solve.jl")
     include("distributedFBA.jl")
     include("tools.jl")
-    if "MATLAB" in keys(Pkg.installed())
-        include("PALM.jl")
-    end
+    include("PALM.jl")
 
 end
 

@@ -6,7 +6,6 @@
 =#
 
 #-------------------------------------------------------------------------------------------
-
 """
     SolverConfig(name, handle)
 
@@ -23,7 +22,6 @@ mutable struct SolverConfig
 end
 
 #-------------------------------------------------------------------------------------------
-
 """
     buildlp(c, A, sense, b, l, u, solver)
 
@@ -61,11 +59,10 @@ function buildlp(c, A, sense, b, l, u, solver)
     @constraint(model, A[eq_rows, :] * x .== b[eq_rows])
     @constraint(model, A[ge_rows, :] * x .>= b[ge_rows])
     @constraint(model, A[le_rows, :] * x .<= b[le_rows])
-    return model, x
+    return model, x, c
 end
 
 #-------------------------------------------------------------------------------------------
-
 """
     solvelp(model, x)
 
@@ -91,7 +88,6 @@ julia> status, objval, sol = solvelp(model, x)
 """
 
 function solvelp(model, x)
-    #println(x)
     optimize!(model)
     return (
         status = termination_status(model),
@@ -101,8 +97,53 @@ function solvelp(model, x)
 end
 
 #-------------------------------------------------------------------------------------------
+"""
+    linprog(c, A, sense, b, l, u, solver)
 
+Function used to build and solve a LPproblem using JuMP.
 
+# INPUTS
+
+- `c`:           The objective vector, always in the sense of minimization
+- `A`:           Constraint matrix
+- `sense`:       Vector of constraint sense characters '<', '=', and '>'
+- `b`:           Right-hand side vector
+- `l`:           Vector of lower bounds on the variables
+- `u`:           Vector of upper bounds on the variables
+- `solver`:      A `::SolverConfig` object that contains a valid `handle`to the solver
+
+# OUTPUTS
+
+- `status`:      Termination status
+- `objval`:      Optimal objective value
+- `sol`:         Primal solution vector
+
+# EXAMPLES
+
+```julia
+julia> status, objval, sol = linprog(c, A, sense, b, l, u, solver)
+```
+
+"""
+
+function linprog(c, A, sense, b, l, u, solver)
+    N = length(c)
+    model = Model(solver)
+    @variable(model, l[i] <= x[i=1:N] <= u[i])
+    @objective(model, Min, c' * x)
+    eq_rows, ge_rows, le_rows = sense .== '=', sense .== '>', sense .== '<'
+    @constraint(model, A[eq_rows, :] * x .== b[eq_rows])
+    @constraint(model, A[ge_rows, :] * x .>= b[ge_rows])
+    @constraint(model, A[le_rows, :] * x .<= b[le_rows])
+    optimize!(model)
+    return (
+        status = termination_status(model),
+        objval = objective_value(model),
+        sol = value.(x)
+    )
+end
+
+#-------------------------------------------------------------------------------------------
 """
     buildCobraLP(model, solver)
 
@@ -293,7 +334,7 @@ function solveCobraLP(model, solver)
     if solver.handle != -1
 
         # retrieve the solution
-        m, x = buildCobraLP(model, solver)
+        m, x, c = buildCobraLP(model, solver)
         status, objval, sol = solvelp(m, x)
 
         # adapt the objective value

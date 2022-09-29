@@ -18,7 +18,7 @@ testFile = @__FILE__
 # number of workers
 nWorkers = 4
 
-pkgDir = joinpath(dirname(pathof(COBRA)), "..")
+pkgDir = joinpath(mkpath("COBRA"), "..")
 
 # create a pool and use the COBRA module if the testfile is run in a loop
 if includeCOBRA
