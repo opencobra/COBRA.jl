@@ -124,7 +124,7 @@ function createPool(localWorkers::Int, connectSSH::Bool=false, connectionFile::S
                 if printLevel > 0
                     println(" >> Connecting ", sshWorkers[i]["procs"], " workers on ", sshWorkers[i]["usernode"])
                 end
-                
+
                 try
                     if !(Sys.iswindows())
                         # try logging in quietly to defined node using SSH

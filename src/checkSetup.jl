@@ -46,8 +46,8 @@ end
 """
     checkSysConfig(printLevel)
 
-Function evaluates whether the LP solvers of MathProgBase are installed on the system or not and
-returns a list of these packages. `MathProgBase.jl` must be installed.
+Function evaluates whether the LP solvers of JuMP are installed on the system or not and
+returns a list of these packages. `JuMP.jl` must be installed.
 
 # OPTIONAL INPUTS
 
@@ -57,7 +57,7 @@ returns a list of these packages. `MathProgBase.jl` must be installed.
 
 - packages:         A list of solver packages installed on the system
 
-See also: `MathProgBase`, `checkPackage()`
+See also: `JuMP`, `checkPackage()`
 
 """
 

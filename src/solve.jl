@@ -23,7 +23,6 @@ mutable struct SolverConfig
 end
 
 #-------------------------------------------------------------------------------------------
-
 """
     buildlp(c, A, sense, b, l, u, solver)
 
@@ -43,90 +42,12 @@ Function used to build a model using JuMP.
 
 - `model`:       An `::LPproblem` object that has been built using the JuMP.
 - `x`:           Primal solution vector
-
-# EXAMPLES
-
-```julia
-julia> model, x = buildlp(c, A, sense, b, l, u, solver)
-```
-
-"""
-
-function buildlp(c, A, sense, b, l, u, solver)
-    N = length(c)
-    model = Model(solver)
-    x = @variable(model, l[i] <= x[i=1:N] <= u[i])
-    @objective(model, Min, c' * x)
-    eq_rows, ge_rows, le_rows = sense .== '=', sense .== '>', sense .== '<'
-    @constraint(model, A[eq_rows, :] * x .== b[eq_rows])
-    @constraint(model, A[ge_rows, :] * x .>= b[ge_rows])
-    @constraint(model, A[le_rows, :] * x .<= b[le_rows])
-    return model, x
-end
-
-#-------------------------------------------------------------------------------------------
-
-"""
-    solvelp(model, x)
-
-Function used to solve a LPproblem using JuMP.
-
-# INPUTS
-
-- `model`:       An `::LPproblem` object that has been built using the JuMP.
-- `x`:           Primal solution vector
-
-# OUTPUTS
-
-- `status`:      Termination status
-- `objval`:      Optimal objective value
-- `sol`:         Primal solution vector
-
-# EXAMPLES
-
-```julia
-julia> status, objval, sol = solvelp(model, x)
-```
-
-"""
-
-function solvelp(model, x)
-    #println(x)
-    optimize!(model)
-    return (
-        status = termination_status(model),
-        objval = objective_value(model),
-        sol = value.(x)
-    )
-end
-
-#-------------------------------------------------------------------------------------------
-
-
-"""
-    buildlp(c, A, sense, b, l, u, solver)
-
-Function used to build a model using JuMP.
-
-# INPUTS
-
 - `c`:           The objective vector, always in the sense of minimization
-- `A`:           Constraint matrix
-- `sense`:       Vector of constraint sense characters '<', '=', and '>'
-- `b`:           Right-hand side vector
-- `l`:           Vector of lower bounds on the variables
-- `u`:           Vector of upper bounds on the variables
-- `solver`:      A `::SolverConfig` object that contains a valid `handle`to the solver
-
-# OUTPUTS
-
-- `model`:       An `::LPproblem` object that has been built using the JuMP.
-- `x`:           Primal solution vector
 
 # EXAMPLES
 
 ```julia
-julia> model, x = buildlp(c, A, sense, b, l, u, solver)
+julia> model, x, c = buildlp(c, A, sense, b, l, u, solver)
 ```
 
 """
@@ -240,11 +161,12 @@ Build a model by interfacing directly with the GLPK solver
 
 - `model`:          An `::LPproblem` object that has been built using the JuMP.
 - `x`:              primal solution vector
+- `c`:              The objective vector, always in the sense of minimization
 
 # EXAMPLES
 
 ```julia
-julia> model, x = buildCobraLP(model, solver)
+julia> model, x, c = buildCobraLP(model, solver)
 ```
 
 See also: `buildlp()`
@@ -437,7 +359,7 @@ Function to auto-tune the parameter of a solver based on model size (only CPLEX)
 
 # INPUTS
 
-- `m`:              A MathProgBase.LinearQuadraticModel object with `inner` field
+- `m`:              An `::LPproblem` object that has been built using the JuMP.
 - `nMets`:          Total number of metabolites in the model `m.inner`
 - `nRxns`:          Total number of reaction in the model `m.inner`
 - `solver`:         A `::SolverConfig` object that contains a valid `handle`to the solver
@@ -453,7 +375,7 @@ Minimum working example
 julia> autoTuneSolver(env, nMets, nRxns, solver)
 ```
 
-See also: `MathProgBase.linprog()`
+See also: `linprog()`
 """
 
 function autoTuneSolver(m, nMets, nRxns, solver, pid::Int=1)
@@ -464,6 +386,6 @@ function autoTuneSolver(m, nMets, nRxns, solver, pid::Int=1)
     end
 end
 
-export buildlp, solvelp, buildCobraLP, changeCobraSolver, solveCobraLP, autoTuneSolver
+export buildlp, solvelp, linprog, buildCobraLP, changeCobraSolver, solveCobraLP, autoTuneSolver
 
 #-------------------------------------------------------------------------------------------
