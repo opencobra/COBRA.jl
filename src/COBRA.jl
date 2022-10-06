@@ -19,7 +19,7 @@ module COBRA
     import Pkg
     using SparseArrays, Distributed, LinearAlgebra
     using MAT, MathOptInterface, JuMP
-    using MATLAB
+    #using MATLAB
 
     include("checkSetup.jl")
     checkSysConfig(0)
@@ -29,6 +29,7 @@ module COBRA
     include("distributedFBA.jl")
     include("tools.jl")
     include("PALM.jl")
+    include("connect.jl")
 
 end
 

@@ -95,7 +95,7 @@ function preFBA!(model, solver, optPercentage::Float64=0.0, osenseStr::String="m
         hasObjective = false
         fbaSol = NaN
     end
-    
+
     # add a condition if the LP has an extra condition based on the FBA solution
     if hasObjective
         if printLevel > 0
@@ -288,7 +288,7 @@ end
 
 #-------------------------------------------------------------------------------------------
 """
-    loopFBA(m, rxnsList, nRxns, rxnsOptMode, iRound, pid, resultsDir, logFiles, onlyFluxes, printLevel)
+    loopFBA(m, x, c, rxnsList, nRxns, rxnsOptMode, iRound, pid, resultsDir, logFiles, onlyFluxes, printLevel)
 
 Function used to perform a loop of a series of FBA problems using the CPLEX solver
 Generally, `loopFBA` is called in a loop over multiple workers and makes use of the
@@ -296,7 +296,9 @@ Generally, `loopFBA` is called in a loop over multiple workers and makes use of 
 
 # INPUTS
 
-- `m`:              A MathProgBase.LinearQuadraticModel object with `inner` field
+- `m`:              An `::LPproblem` object that has been built using the JuMP.
+- `x`:              Primal solution vector
+- `c`:              The objective vector, always in the sense of minimization
 - `solver`:         A `::SolverConfig` object that contains a valid `handle`to the solver
 - `rxnsList`:       List of reactions to analyze (default: all reactions)
 - `nRxns`:          Total number of reaction in the model `m.inner`
@@ -335,10 +337,10 @@ Generally, `loopFBA` is called in a loop over multiple workers and makes use of 
 
 - Minimum working example
 ```julia
-julia> loopFBA(m, rxnsList, nRxns)
+julia> loopFBA(m, x, c, rxnsList, nRxns)
 ```
 
-See also: `distributeFBA()`, `MathProgBase.HighLevelInterface`
+See also: `distributeFBA()`, `solvelp()`
 
 """
 
@@ -366,13 +368,13 @@ function loopFBA(m, x, c, rxnsList, nRxns::Int, rxnsOptMode=2 .+ zeros(Int, leng
         else
             performOptim = false
         end
-        
+
         if performOptim
-            
+
             # Set the objective vector coefficients
             c = zeros(nRxns)
             c[rxnsList[k]] = 1000.0 # set the coefficient of the current FBA to 1000
-                        
+
             # change the sense of the optimization
             if j == 1
                 if iRound == 0
@@ -387,7 +389,7 @@ function loopFBA(m, x, c, rxnsList, nRxns::Int, rxnsOptMode=2 .+ zeros(Int, leng
                     end
                 end
             end
-            
+
             if logFiles
                 # save individual logFiles with the CPLEX solver
                 if isdefined(m, :inner) && string(typeof(m.inner)) == "CPLEX.Model"
@@ -395,12 +397,12 @@ function loopFBA(m, x, c, rxnsList, nRxns::Int, rxnsOptMode=2 .+ zeros(Int, leng
                 end
             end
 
-            # solve the model using the general MathProgBase interface
+            # solve the model
             status, objval, sol = solvelp(m, x)
 
             # retrieve the solution status
             statLP = status
-            
+
             # output the solution, save the minimum and maximum fluxes
             if statLP == MathOptInterface.TerminationStatusCode(1)
                 # retrieve the objective value
@@ -674,13 +676,13 @@ function distributedFBA(model, solver; nWorkers::Int=1, optPercentage::Union{Flo
         @sync for (p, pid) in enumerate(workers())
             for iRound = 0:1
                 @async R[p, iRound + 1] = @spawnat (p + 1) begin
-                    m = buildCobraLP(model, solver) # on each worker, the model must be built individually
+                    m, x, c = buildCobraLP(model, solver) # on each worker, the model must be built individually
 
                     # adjust the solver parameters based on the model
                     autoTuneSolver(m, nMets, nRxns, solver, pid)
 
                     # start the loop of FBA
-                    loopFBA(m, rxnsList[rxnsKey[p]], nRxns, rxnsOptMode[rxnsKey[p]], iRound, pid, resultsDir, logFiles, onlyFluxes, printLevel)
+                    loopFBA(m, x, c, rxnsList[rxnsKey[p]], nRxns, rxnsOptMode[rxnsKey[p]], iRound, pid, resultsDir, logFiles, onlyFluxes, printLevel)
                 end
             end
         end
