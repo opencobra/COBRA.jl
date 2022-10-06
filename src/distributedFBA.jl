@@ -95,7 +95,7 @@ function preFBA!(model, solver, optPercentage::Float64=0.0, osenseStr::String="m
         hasObjective = false
         fbaSol = NaN
     end
-
+    
     # add a condition if the LP has an extra condition based on the FBA solution
     if hasObjective
         if printLevel > 0
@@ -368,7 +368,7 @@ function loopFBA(m, x, c, rxnsList, nRxns::Int, rxnsOptMode=2 .+ zeros(Int, leng
         else
             performOptim = false
         end
-
+        
         if performOptim
 
             # Set the objective vector coefficients

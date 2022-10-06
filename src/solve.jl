@@ -147,6 +147,128 @@ end
 
 #-------------------------------------------------------------------------------------------
 """
+    buildlp(c, A, sense, b, l, u, solver)
+
+Function used to build a model using JuMP.
+
+# INPUTS
+
+- `c`:           The objective vector, always in the sense of minimization
+- `A`:           Constraint matrix
+- `sense`:       Vector of constraint sense characters '<', '=', and '>'
+- `b`:           Right-hand side vector
+- `l`:           Vector of lower bounds on the variables
+- `u`:           Vector of upper bounds on the variables
+- `solver`:      A `::SolverConfig` object that contains a valid `handle`to the solver
+
+# OUTPUTS
+
+- `model`:       An `::LPproblem` object that has been built using the JuMP.
+- `x`:           Primal solution vector
+
+# EXAMPLES
+
+```julia
+julia> model, x = buildlp(c, A, sense, b, l, u, solver)
+```
+
+"""
+
+function buildlp(c, A, sense, b, l, u, solver)
+    N = length(c)
+    model = Model(solver)
+    x = @variable(model, l[i] <= x[i=1:N] <= u[i])
+    @objective(model, Min, c' * x)
+    eq_rows, ge_rows, le_rows = sense .== '=', sense .== '>', sense .== '<'
+    @constraint(model, A[eq_rows, :] * x .== b[eq_rows])
+    @constraint(model, A[ge_rows, :] * x .>= b[ge_rows])
+    @constraint(model, A[le_rows, :] * x .<= b[le_rows])
+    return model, x, c
+end
+
+#-------------------------------------------------------------------------------------------
+"""
+    solvelp(model, x)
+
+Function used to solve a LPproblem using JuMP.
+
+# INPUTS
+
+- `model`:       An `::LPproblem` object that has been built using the JuMP.
+- `x`:           Primal solution vector
+
+# OUTPUTS
+
+- `status`:      Termination status
+- `objval`:      Optimal objective value
+- `sol`:         Primal solution vector
+
+# EXAMPLES
+
+```julia
+julia> status, objval, sol = solvelp(model, x)
+```
+
+"""
+
+function solvelp(model, x)
+    optimize!(model)
+    return (
+        status = termination_status(model),
+        objval = objective_value(model),
+        sol = value.(x)
+    )
+end
+
+#-------------------------------------------------------------------------------------------
+"""
+    linprog(c, A, sense, b, l, u, solver)
+
+Function used to build and solve a LPproblem using JuMP.
+
+# INPUTS
+
+- `c`:           The objective vector, always in the sense of minimization
+- `A`:           Constraint matrix
+- `sense`:       Vector of constraint sense characters '<', '=', and '>'
+- `b`:           Right-hand side vector
+- `l`:           Vector of lower bounds on the variables
+- `u`:           Vector of upper bounds on the variables
+- `solver`:      A `::SolverConfig` object that contains a valid `handle`to the solver
+
+# OUTPUTS
+
+- `status`:      Termination status
+- `objval`:      Optimal objective value
+- `sol`:         Primal solution vector
+
+# EXAMPLES
+
+```julia
+julia> status, objval, sol = linprog(c, A, sense, b, l, u, solver)
+```
+
+"""
+
+function linprog(c, A, sense, b, l, u, solver)
+    N = length(c)
+    model = Model(solver)
+    @variable(model, l[i] <= x[i=1:N] <= u[i])
+    @objective(model, Min, c' * x)
+    eq_rows, ge_rows, le_rows = sense .== '=', sense .== '>', sense .== '<'
+    @constraint(model, A[eq_rows, :] * x .== b[eq_rows])
+    @constraint(model, A[ge_rows, :] * x .>= b[ge_rows])
+    @constraint(model, A[le_rows, :] * x .<= b[le_rows])
+    optimize!(model)
+    return (
+        status = termination_status(model),
+        objval = objective_value(model),
+        sol = value.(x)
+    )
+end
+
+#-------------------------------------------------------------------------------------------
+"""
     buildCobraLP(model, solver)
 
 Build a model by interfacing directly with the GLPK solver

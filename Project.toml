@@ -1,6 +1,6 @@
 name = "COBRA"
 uuid = "58298e0b-d05c-52ec-a210-0694647ebfc7"
-version = "0.4.2"
+version = "0.4.1"
 
 [deps]
 CPLEX = "a076750e-1247-5638-91d2-ce28b192dca0"
