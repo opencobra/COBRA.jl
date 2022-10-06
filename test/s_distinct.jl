@@ -68,7 +68,7 @@ minFlux, maxFlux, optSol, fbaSol, fvamin, fvamax, statussolmin, statussolmax = d
 @test abs(optSol - optSol1) < 1e-9
 
 #other solvers (e.g., CPLEX) might report alternate optimal solutions
-if solverName == "GLPKMathProgInterface"
+if solverName == "GLPK"
     # test minimum flux vectors
     @test norm(fvamin[:, 4:14] - fvamin1[:, 20:30]) < 1e-9
 

@@ -23,7 +23,7 @@ nWorkers = 1
 # create a pool and use the COBRA module if the testfile is run in a loop
 if includeCOBRA
     connectSSHWorkers = false
-    include(pkgDir*"/src//connect.jl")
+    include(pkgDir*"/src/connect.jl")
 
     # create a parallel pool and determine its size
     if isdefined(:nWorkers) && isdefined(:connectSSHWorkers)

@@ -97,7 +97,7 @@ solver.handle = -1
 # test if an infeasible solution status is returned
 solver = changeCobraSolver(solverName, solParams)
 m, x, c = buildlp([1.0, 0.0], [2.0 1.0], '<', -1.0, solver.handle)
-retObj, retFlux, retStat = loopFBA(m, 1, 2)
+retObj, retFlux, retStat = loopFBA(m, x, c, 1, 2)
 if solverName == "Clp" || solverName == "Gurobi" || solverName == "CPLEX" || solverName == "Mosek"
     @test retStat[1] == 0 # infeasible
 else
@@ -120,7 +120,7 @@ end
 
 # solve an unbounded problem using loopFBA
 m, x, c = buildlp([0.0, -1.0], [-1.0 2.0], '<', [0.0], solver.handle)
-retObj, retFlux, retStat = loopFBA(m, 1, 2, 2, 1)
+retObj, retFlux, retStat = loopFBA(m, x, c, 1, 2, 2, 1)
 if solver.name == "Clp" || solver.name == "Gurobi" || solver.name == "GLPK" || solver.name == "Mosek"
     @test isequal(retStat, [2, NaN]) # unbounded and not solved
 elseif solver.name == "CPLEX"
