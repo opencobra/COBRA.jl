@@ -43,3 +43,15 @@ Pages = ["solve.jl"]
 Modules = [COBRA]
 Pages = ["tools.jl"]
 ```
+
+## RidgeFBA.jl
+```@autodocs
+Modules = [COBRA]
+Pages = ["RidgeFBA.jl"]
+```
+
+## TLOF.jl
+```@autodocs
+Modules = [COBRA]
+Pages = ["TLOF.jl"]
+```
