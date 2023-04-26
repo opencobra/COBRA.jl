@@ -16,7 +16,7 @@ Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 
 [compat]
-CPLEX = "0.9"
+CPLEX = "0.9, 1.0"
 GLPK = "1.0"
 HTTP = "0.9, 1.4"
 Ipopt = "1.1"
